@@ -33,8 +33,12 @@ export default function Users() {
   async function setStatus(status: 'active' | 'suspended') {
     const note = prompt(status === 'suspended' ? 'Reason for suspension (internal)' : 'Reason for unsuspending (internal)');
     if (note === null) return;
-    await rpc('admin_set_status', { p_user: user!.id, p_status: status, p_note: note });
-    await search();
+    try {
+      await rpc('admin_set_status', { p_user: user!.id, p_status: status, p_note: note });
+      await search();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error');
+    }
   }
 
   return (

@@ -32,7 +32,14 @@ export default function AiFailures() {
                 <td className="faint">{r.error ?? '—'}</td>
                 <td>{r.attempts}</td>
                 <td>
-                  <button onClick={async () => (await rpc('retry_ai', { p_poll: r.poll_id }), reload())}>Retry</button>
+                  <button
+                    onClick={() =>
+                      rpc('retry_ai', { p_poll: r.poll_id })
+                        .then(reload)
+                        .catch((e) => alert(e instanceof Error ? e.message : 'Retry failed'))
+                    }>
+                    Retry
+                  </button>
                 </td>
               </tr>
             ))}

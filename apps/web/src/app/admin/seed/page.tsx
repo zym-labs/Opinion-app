@@ -29,6 +29,7 @@ export default function Seed() {
 
   async function post() {
     setMsg(null);
+    if (!Number.isInteger(form.hours) || form.hours < 3 || form.hours > 24) return setMsg('Duration must be 3–24 hours.');
     try {
       await rpc('admin_seed_poll', {
         p_type: form.type,

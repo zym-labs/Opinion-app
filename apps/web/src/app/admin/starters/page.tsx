@@ -12,8 +12,12 @@ export default function Starters() {
   const chosen = data?.filter((r) => r.is_starter).length ?? 0;
 
   async function toggle(r: Row) {
-    await rpc('admin_set_starter', { p_poll: r.id, p_starter: !r.is_starter });
-    reload();
+    try {
+      await rpc('admin_set_starter', { p_poll: r.id, p_starter: !r.is_starter });
+      reload();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Could not update');
+    }
   }
 
   return (

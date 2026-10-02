@@ -3,7 +3,7 @@
 // AD-05 Communities (incl. campus email domains) and categories.
 import { useState } from 'react';
 
-import { rpc, supabase } from '@/lib/supabase';
+import { rpc } from '@/lib/supabase';
 
 import { useRpc } from '../use-rpc';
 
@@ -134,9 +134,8 @@ function Categories() {
   const [msg, setMsg] = useState<string | null>(null);
 
   async function load() {
-    // Admins can read all categories through the normal policy; archived ones are shown by the RPC on save.
-    const { data } = await supabase.from('categories').select('slug, name, is_sensitive, archived, sort').order('sort');
-    setCats(data ?? []);
+    // Includes archived categories so they can be restored.
+    setCats(await rpc('admin_list_categories'));
   }
 
   async function save(c: { slug: string; name: string; is_sensitive: boolean; archived: boolean; sort: number }) {

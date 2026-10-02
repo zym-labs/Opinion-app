@@ -36,6 +36,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
       setFactorId(totp.id);
       setStage('mfa');
     } else {
+      // Remove abandoned, unverified setups first so they don't pile up to the factor limit.
+      for (const f of factors?.all ?? []) {
+        if (f.status === 'unverified') await supabase.auth.mfa.unenroll({ factorId: f.id });
+      }
       const { data, error: e } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
       if (e || !data) return setError(e?.message ?? 'Could not start two-factor setup');
       setFactorId(data.id);
