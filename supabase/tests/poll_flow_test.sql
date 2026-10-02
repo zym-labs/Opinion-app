@@ -3,7 +3,7 @@ begin;
 select plan(16);
 
 -- 25 users: 1 creator + 24 voters, all onboarded into category 'tech'.
-insert into public.categories (slug, name) values ('tech', 'Tech');
+insert into public.categories (slug, name) values ('tech', 'Tech') on conflict (slug) do nothing;
 insert into auth.users (id, email)
 select ('00000000-0000-0000-0000-' || lpad(i::text, 12, '0'))::uuid, 'u' || i || '@test.dev'
 from generate_series(1, 25) i;
