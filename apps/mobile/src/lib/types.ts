@@ -103,6 +103,7 @@ export type Stats = {
 export type Notification = {
   id: string;
   type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome'
+    | 'referral_credited'
     | 'follow_up'
     | 'decision_made'
     | 'decision_reminder'

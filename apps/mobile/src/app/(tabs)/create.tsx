@@ -141,6 +141,7 @@ export default function Create() {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
   const restored = useRef(false);
   const pending = useRef<{ id: string; fingerprint: string; uploaded: boolean } | null>(null);
   // Follow-up mode: same audience as the asker's completed poll (roadmap: follow-up polls).
@@ -245,7 +246,8 @@ export default function Create() {
   const audienceOk = (audience.data ?? 0) >= LIMITS.minAudience;
   const canPublish = questionOk && optionsOk && targetChosen && audienceOk;
 
-  async function publish() {
+  async function publish(friendsOnly = false) {
+    setLocked(false);
     setBusy(true);
     setError(null);
     try {
@@ -281,13 +283,14 @@ export default function Create() {
         if (upErr) throw upErr;
       }
       pending.current.uploaded = true;
-      await callFunction('polls', { action: 'publish', poll_id }, { signed: true });
+      await callFunction('polls', { action: 'publish', poll_id, friends_only: friendsOnly }, { signed: true });
       pending.current = null;
       track('poll_published', {
         type: draft.type,
         hours: draft.hours,
         with_images: active.some((s) => !!draft.images[s]),
         age_range: !!targeting.p_age_min,
+        friends_only: friendsOnly,
       });
       setDraft(EMPTY);
       setParent(null);
@@ -298,6 +301,7 @@ export default function Create() {
       router.push({ pathname: '/my-poll/[id]', params: { id: poll_id } });
     } catch (e) {
       track('publish_failed', { code: e instanceof ApiError ? e.code : 'UNKNOWN' });
+      if (e instanceof ApiError && e.code === 'COMMUNITY_LOCKED') setLocked(true);
       setError(errorMessage(e));
     } finally {
       setBusy(false);
@@ -420,21 +424,35 @@ export default function Create() {
         </View>
       </Section>
 
-      {targetChosen ? (
+      {targetChosen && !audience.isLoading ? (
         audienceOk ? (
           <Banner message={`About ${audience.data} people match this audience.`} />
-        ) : audience.isLoading ? null : (
+        ) : (
           <Banner
             tone="warning"
-            message="Fewer than 20 people match. Add categories, remove the age range or choose a bigger community."
+            message="Fewer than 20 people match. Add categories, remove the age range or choose a bigger community, or ask your friends instead."
           />
         )
+      ) : null}
+      {targetChosen && !audience.isLoading && (!audienceOk || locked) ? (
+        <>
+          <Button
+            label="Publish to friends only"
+            variant="secondary"
+            disabled={!(questionOk && optionsOk)}
+            loading={busy}
+            onPress={() => publish(true)}
+          />
+          <Text variant="caption" tone="faint">
+            Friends-only polls stay out of the feed. You get a link to share; results still need 10 votes.
+          </Text>
+        </>
       ) : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       {JSON.stringify(draft) !== JSON.stringify(EMPTY) ? (
         <Button label="Discard draft" variant="ghost" onPress={() => setDraft(EMPTY)} />
       ) : null}
-      <Button label="Publish — uses 1 poll credit" disabled={!canPublish} loading={busy} onPress={publish} />
+      <Button label="Publish — uses 1 poll credit" disabled={!canPublish} loading={busy} onPress={() => publish()} />
     </Screen>
   );
 }

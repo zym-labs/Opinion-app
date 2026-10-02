@@ -14,7 +14,10 @@
       "entitlements": {
         "com.apple.developer.declared-age-range": true,
         "com.apple.developer.devicecheck.appattest-environment": "production"
-      }
+      },
+      "associatedDomains": [
+        "applinks:opinion.example"
+      ]
     },
     "android": {
       "package": "app.opinion.mobile",
@@ -24,7 +27,29 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "opinion.example",
+              "pathPrefix": "/p/"
+            },
+            {
+              "scheme": "https",
+              "host": "opinion.example",
+              "pathPrefix": "/i/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "plugins": [
       "expo-router",

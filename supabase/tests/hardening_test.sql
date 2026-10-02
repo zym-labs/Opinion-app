@@ -7,8 +7,9 @@ select is_empty($$
   select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')
     and p.proname not like 'pgtap%'
-    and p.proname <> 'get_starter_polls' -- the one public read: starter poll results, no identities
-$$, 'anon can only execute get_starter_polls');
+    -- The public reads: starter poll results, and live-poll link previews (question and labels only). No identities.
+    and p.proname not in ('get_starter_polls', 'get_invite_preview')
+$$, 'anon can only execute the public reads');
 
 -- Internal functions are not callable by signed-in users.
 select ok(not has_function_privilege('authenticated', 'public.cast_vote_internal(uuid,uuid,public.vote_side,text,public.vote_side,boolean,public.moderation_state,jsonb)', 'execute'),

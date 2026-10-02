@@ -34,6 +34,10 @@ const MESSAGES: Record<string, string> = {
   RESULT_NOT_READY: 'Results aren’t ready yet.',
   ALREADY_DECIDED: 'You’ve already shared your decision.',
   ACCOUNT_SUSPENDED: 'Your account is suspended.',
+  COMMUNITY_LOCKED: 'This campus opens once enough students join. Invite friends, or publish to friends only.',
+  INVITE_LIMIT: 'This poll has reached its limit for link votes.',
+  REFERRAL_EXPIRED: 'Invite codes can only be used in your first 7 days.',
+  ALREADY_REFERRED: 'You’ve already used an invite code.',
 };
 
 export const errorMessage = (e: unknown) =>

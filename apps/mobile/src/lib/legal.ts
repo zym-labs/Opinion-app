@@ -1,5 +1,5 @@
 // Hosted legal pages (STAGE2 §9). Replace the domain in Phase 0.
-const SITE = 'https://opinion.example';
+export const SITE = 'https://opinion.example';
 
 export const TERMS_VERSION = '1.0';
 

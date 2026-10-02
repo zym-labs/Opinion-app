@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { View } from 'react-native';
 
+import { InviteCard } from '@/components/invite-card';
 import { HeaderBar } from '@/components/header-bar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
@@ -108,6 +109,7 @@ export default function Profile() {
           <Text>{s.top_categories.join(' · ')}</Text>
         </View>
       ) : null}
+      <InviteCard />
       <Button label="Your quoted reasons" variant="secondary" onPress={() => router.push('/featured')} />
       <Button label="Settings" variant="secondary" onPress={() => router.push('/settings')} />
     </Screen>

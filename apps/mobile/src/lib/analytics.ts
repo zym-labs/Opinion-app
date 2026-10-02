@@ -33,8 +33,10 @@ type Events = {
   onboarding_complete: Record<string, never>;
   vote_cast: { type: string; is_taste: boolean; with_reason: boolean; predicted: boolean; seconds_left_bucket: string };
   vote_failed: { code: string };
-  poll_published: { type: string; hours: number; with_images: boolean; age_range: boolean };
+  poll_published: { type: string; hours: number; with_images: boolean; age_range: boolean; friends_only: boolean };
   publish_failed: { code: string };
+  friend_link_shared: Record<string, never>;
+  invite_shared: Record<string, never>;
   result_viewed: { state: string; cards_seen: number; finished: boolean };
   summary_quote_opened: Record<string, never>;
   how_ai_works_opened: Record<string, never>;

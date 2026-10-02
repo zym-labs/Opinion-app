@@ -12,6 +12,7 @@ import { ShareCard, shareCard } from '@/components/poll/share-card';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/error-state';
+import { FriendLink } from '@/components/poll/friend-link';
 import { Screen } from '@/components/ui/screen';
 import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
@@ -148,6 +149,7 @@ export default function MyPollScreen() {
         {votes === 1 ? 'vote so far' : 'votes so far'}. Results and the AI summary appear when the poll closes. Nobody,
         including you, sees how people voted until then.
       </Text>
+      {p.status === 'active' ? <FriendLink pollId={id} question={p.question} /> : null}
       {p.status === 'summarizing' ? <Banner message="The poll has closed. The AI summary is being written." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       {p.status === 'active' && votes === 0 ? <Button label="Delete poll" variant="danger" onPress={remove} /> : null}

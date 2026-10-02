@@ -9,6 +9,7 @@ import { identify, initMonitoring } from '@/lib/analytics';
 import { signOut } from '@/lib/auth';
 import { ensureAttested } from '@/lib/integrity';
 import { persister, shouldPersist } from '@/lib/offline';
+import { usePendingLink } from '@/lib/links';
 import { useNotificationRouting } from '@/lib/push';
 import { useMe } from '@/lib/queries';
 import { SessionProvider, useSession } from '@/lib/session';
@@ -28,6 +29,7 @@ function RootNavigator() {
   const status = me.data?.status;
   const onboarded = me.data?.onboarding_step === 'complete' && status === 'active';
   useNotificationRouting(signedIn && onboarded);
+  usePendingLink(signedIn && onboarded);
 
   // Register this device for integrity checks once the user is onboarded (best effort, in the background).
   const userId = session?.user.id;
@@ -76,6 +78,9 @@ function RootNavigator() {
         <Stack.Screen name="appeals" options={{ headerShown: true, title: 'Appeals' }} />
         <Stack.Screen name="settings" />
       </Stack.Protected>
+      {/* Shared links: open for everyone; they park themselves until the user is onboarded. */}
+      <Stack.Screen name="p/[code]" />
+      <Stack.Screen name="i/[code]" />
     </Stack>
   );
 }

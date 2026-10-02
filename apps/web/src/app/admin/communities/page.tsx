@@ -22,6 +22,21 @@ const EMPTY = { slug: '', name: '', description: '', kind: 'topic' as const, arc
 
 export default function Communities() {
   const { data, error, reload } = useRpc<Community[]>('admin_list_communities');
+  const launch = useRpc<{ community_id: string; members: number; launch_target: number }[]>('community_progress');
+  const targets = new Map((launch.data ?? []).map((l) => [l.community_id, l.launch_target]));
+
+  async function setTarget(c: Community) {
+    const raw = prompt('Members needed before public polls open (empty = open now)', String(targets.get(c.id) ?? ''));
+    if (raw === null) return;
+    const n = raw.trim() ? Number(raw) : null;
+    if (n !== null && !(Number.isInteger(n) && n > 0)) return alert('Enter a whole number, or leave empty.');
+    try {
+      await rpc('admin_set_launch_target', { p_community: c.id, p_target: n });
+      await launch.reload();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed');
+    }
+  }
   const [form, setForm] = useState<{ slug: string; name: string; description: string; kind: 'topic' | 'campus'; archived: boolean; domains: string }>(EMPTY);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -68,7 +83,10 @@ export default function Communities() {
                   <span className="faint">{c.slug}</span>
                 </td>
                 <td>{c.kind}</td>
-                <td>{c.members}</td>
+                <td>
+                  {c.members}
+                  {targets.has(c.id) ? ` / ${targets.get(c.id)} to open` : ''}
+                </td>
                 <td>{c.domains.join(', ')}</td>
                 <td>
                   <button
@@ -76,7 +94,8 @@ export default function Communities() {
                       setForm({ slug: c.slug, name: c.name, description: c.description, kind: c.kind, archived: c.archived, domains: c.domains.join(', ') })
                     }>
                     Edit
-                  </button>
+                  </button>{' '}
+                  {c.kind === 'campus' && <button onClick={() => setTarget(c)}>Launch target</button>}
                 </td>
               </tr>
             ))}

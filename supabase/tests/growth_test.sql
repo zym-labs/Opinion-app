@@ -54,10 +54,10 @@ select is((select count(*)::int from public.get_feed()), 1, 'invitee sees it in 
 
 reset role;
 select public.cast_vote_internal('00000000-0000-0000-0000-000000000502', '00000000-0000-0000-0000-00000000f001',
-  'a', null, null, true, 'approved', null);
+  'a', 'A is clearly better for this use.', null, true, 'approved', null);
 select is((select via_invite from public.votes where voter_id = '00000000-0000-0000-0000-000000000502'), true, 'link vote is flagged');
 select throws_ok($$select public.cast_vote_internal('00000000-0000-0000-0000-000000000503', '00000000-0000-0000-0000-00000000f001',
-  'a', null, null, true, 'approved', null)$$, 'NOT_ELIGIBLE', 'no link, no vote on a friends-only poll');
+  'a', 'A is clearly better for this use.', null, true, 'approved', null)$$, 'NOT_ELIGIBLE', 'no link, no vote on a friends-only poll');
 
 -- Campus lock.
 insert into public.communities (id, slug, name, description, kind, launch_target)

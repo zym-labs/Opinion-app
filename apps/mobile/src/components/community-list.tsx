@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -84,6 +84,21 @@ function CampusVerify({ community, onDone }: { community: Community; onDone: () 
   );
 }
 
+function LaunchProgress({ members, launch_target }: { members: number; launch_target: number }) {
+  const c = useColors();
+  const pct = Math.min(100, Math.round((100 * members) / launch_target));
+  return (
+    <View style={{ gap: space[1] }} accessible accessibilityLabel={`${members} of ${launch_target} students joined. Opens at ${launch_target}.`}>
+      <View style={{ height: 6, borderRadius: 3, backgroundColor: c.surfaceMuted, overflow: 'hidden' }}>
+        <View style={{ width: `${pct}%`, height: '100%', backgroundColor: c.optionA }} />
+      </View>
+      <Text variant="caption" tone="faint">
+        {members} / {launch_target} joined · polls open at {launch_target}. Invite classmates from your profile.
+      </Text>
+    </View>
+  );
+}
+
 export function CommunityList() {
   const c = useColors();
   const qc = useQueryClient();
@@ -92,6 +107,12 @@ export function CommunityList() {
   const [verifying, setVerifying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const joined = new Set(me?.community_ids ?? []);
+  // Campus communities in their launch phase: members so far vs. the number needed to open.
+  const progress = useQuery({
+    queryKey: ['community-progress'],
+    queryFn: () => rpc<{ community_id: string; members: number; launch_target: number }[]>('community_progress'),
+  });
+  const launch = new Map((progress.data ?? []).map((p) => [p.community_id, p]));
 
   async function toggle(community: Community) {
     setError(null);
@@ -102,6 +123,7 @@ export function CommunityList() {
         track('community_joined', { kind: community.kind });
       }
       await qc.invalidateQueries({ queryKey: keys.me });
+      progress.refetch();
     } catch (e) {
       if (e instanceof ApiError && e.code === 'CAMPUS_VERIFICATION_REQUIRED') setVerifying(community.id);
       else setError(errorMessage(e));
@@ -135,6 +157,9 @@ export function CommunityList() {
               onPress={() => toggle(community)}
             />
           </View>
+          {launch.get(community.id) && launch.get(community.id)!.members < launch.get(community.id)!.launch_target ? (
+            <LaunchProgress {...launch.get(community.id)!} />
+          ) : null}
           {verifying === community.id ? (
             <CampusVerify
               community={community}
