@@ -1,0 +1,71 @@
+// Poll creation (STAGE4 §3.3): create a moderated draft, then publish after image checks.
+import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
+import { moderate, moderateText } from '../_shared/moderation.ts';
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  const userId = await getUserId(req);
+  if (!userId) return fail('UNAUTHENTICATED', 401);
+  const body = await req.json().catch(() => ({}));
+
+  if (body.action === 'create') {
+    const question = String(body.question ?? '').trim();
+    const labelA = body.label_a ? String(body.label_a).trim() : null;
+    const labelB = body.label_b ? String(body.label_b).trim() : null;
+    if (question.length < 5 || question.length > 120) return fail('INVALID_INPUT', 400, 'Question must be 5–120 characters');
+    if ((labelA?.length ?? 0) > 60 || (labelB?.length ?? 0) > 60) return fail('INVALID_INPUT');
+    if (!labelA && !body.image_a) return fail('INVALID_INPUT', 400, 'Option A needs text or an image');
+    if (!labelB && !body.image_b) return fail('INVALID_INPUT', 400, 'Option B needs text or an image');
+
+    const mod = await moderateText(question, labelA, labelB);
+    if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
+
+    const { data: pollId, error } = await admin.rpc('create_poll_draft', {
+      p_user: userId,
+      p_type: body.type,
+      p_is_taste: !!body.is_taste,
+      p_question: question,
+      p_label_a: labelA,
+      p_label_b: labelB,
+      p_categories: body.category_ids ?? [],
+      p_age_min: body.age_min ?? null,
+      p_age_max: body.age_max ?? null,
+      p_community: body.community_id ?? null,
+      p_duration: body.duration_hours,
+      p_moderation: mod.state,
+    });
+    if (error) return fromDbError(error);
+    // Image slots: the app uploads to poll-images/<poll_id>/<side>.jpg next.
+    for (const side of ['a', 'b'] as const) {
+      if (body[`image_${side}`]) {
+        await admin.from('poll_options').update({ image_path: `${pollId}/${side}.jpg`, image_moderation: 'pending' })
+          .eq('poll_id', pollId).eq('side', side);
+      }
+    }
+    return json({ poll_id: pollId });
+  }
+
+  if (body.action === 'publish') {
+    const pollId = String(body.poll_id ?? '');
+    const { data: poll } = await admin.from('polls').select('id, creator_id').eq('id', pollId).maybeSingle();
+    if (!poll || poll.creator_id !== userId) return fail('POLL_NOT_FOUND', 404);
+
+    // Moderate uploaded images before the poll can go live.
+    const { data: options } = await admin.from('poll_options').select('side, image_path, image_moderation')
+      .eq('poll_id', pollId).not('image_path', 'is', null);
+    for (const o of options ?? []) {
+      if (o.image_moderation === 'approved') continue;
+      const { data: signed } = await admin.storage.from('poll-images').createSignedUrl(o.image_path, 300);
+      if (!signed) return fail('IMAGE_PENDING');
+      const mod = await moderate([{ type: 'image_url', image_url: { url: signed.signedUrl } }]);
+      await admin.from('poll_options').update({ image_moderation: mod.state }).eq('poll_id', pollId).eq('side', o.side);
+      if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
+    }
+
+    const { data: closesAt, error } = await admin.rpc('publish_poll_internal', { p_user: userId, p_poll: pollId });
+    if (error) return fromDbError(error);
+    return json({ closes_at: closesAt });
+  }
+
+  return fail('INVALID_INPUT');
+});

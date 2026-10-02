@@ -28,15 +28,15 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Google sign-in | 1 | 🟥 | In development |
 | Email code / magic link | 1 | 🟥 | In development |
 | Secure session storage, sign out | 1 | 🟥 | In development |
-| Age gate (birth year, 18+) | 2 | 🟥 | Planned |
+| Age gate (birth year, 18+) | 2 | 🟥 | In development |
 | App store age signals (iOS / Play) | 2 | 🟥 | Planned |
-| Terms acceptance + versioning | 2 | 🟥 | Planned |
-| Category selection (max 5, cooldown) | 2 | 🟥 | Planned |
-| Community join/leave | 2 | 🟥 | Planned |
-| Campus email verification | 2 | 🟥 | Planned |
-| Onboarding resume across devices | 2 | 🟥 | Planned |
-| Account deletion (in-app, full) | 2 | 🟥 | Planned |
-| Notification permission screen | 6 | 🟥 | Planned |
+| Terms acceptance + versioning | 2 | 🟥 | In development |
+| Category selection (max 5, cooldown) | 2 | 🟥 | In development |
+| Community join/leave | 2 | 🟥 | In development |
+| Campus email verification | 2 | 🟥 | In development |
+| Onboarding resume across devices | 2 | 🟥 | In development |
+| Account deletion (in-app, full) | 2 | 🟥 | In development |
+| Notification permission screen | 6 | 🟥 | In development |
 | GDPR data export | — | 🟧 | Planned (manual at launch) |
 | Phone/SMS sign-in | — | ⬛ | Excluded |
 | Passwords | — | ⬛ | Excluded |
@@ -46,17 +46,17 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Expert polls (1–5 categories, age range ≥5 yrs) | 3 | 🟥 | Planned |
-| Community polls (members only) | 3 | 🟥 | Planned |
-| Taste mode (optional reasons) | 3 | 🟥 | Planned |
-| 2 options, text + optional image | 3 | 🟥 | Planned |
-| Image upload, convert, strip EXIF, moderate | 3 | 🟥 | Planned |
-| Duration 3–24h, server-enforced | 3 | 🟥 | Planned |
-| Audience estimate + block under 20 | 3 | 🟥 | Planned |
-| Vote-to-ask credits | 3 | 🟥 | Planned |
-| Delete before first vote (refund) | 3 | 🟥 | Planned |
+| Expert polls (1–5 categories, age range ≥5 yrs) | 3 | 🟥 | In development |
+| Community polls (members only) | 3 | 🟥 | In development |
+| Taste mode (optional reasons) | 3 | 🟥 | In development |
+| 2 options, text + optional image | 3 | 🟥 | In development |
+| Image upload, convert, strip EXIF, moderate | 3 | 🟥 | In development |
+| Duration 3–24h, server-enforced | 3 | 🟥 | In development |
+| Audience estimate + block under 20 | 3 | 🟥 | In development |
+| Vote-to-ask credits | 3 | 🟥 | In development |
+| Delete before first vote (refund) | 3 | 🟥 | In development |
 | Local draft saving | 3 | 🟧 | Planned |
-| Creator live vote count | 3 | 🟥 | Planned |
+| Creator live vote count | 3 | 🟥 | In development |
 | Multi-option polls | — | 🟦 | Roadmap |
 | Video polls | — | 🟦 | Roadmap |
 | Editing after publish, early end | — | ⬛ | Excluded |
@@ -67,43 +67,43 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Targeted feed (categories, age, community, hidden creators) | 4 | 🟥 | Planned |
-| Results-ready section | 5 | 🟥 | Planned |
-| One final vote, creator can't vote | 4 | 🟥 | Planned |
-| Reasons: required 20–200 / optional | 4 | 🟥 | Planned |
-| "What will most people pick?" | 4 | 🟧 | Planned |
-| Featuring consent | 4 | 🟥 | Planned |
-| Synchronous reason moderation | 4 | 🟥 | Planned |
-| PII + injection screen | 4 | 🟥 | Planned |
-| Idempotent vote endpoint | 4 | 🟥 | Planned |
+| Targeted feed (categories, age, community, hidden creators) | 4 | 🟥 | In development |
+| Results-ready section | 5 | 🟥 | In development |
+| One final vote, creator can't vote | 4 | 🟥 | In development |
+| Reasons: required 20–200 / optional | 4 | 🟥 | In development |
+| "What will most people pick?" | 4 | 🟧 | In development |
+| Featuring consent | 4 | 🟥 | In development |
+| Synchronous reason moderation | 4 | 🟥 | In development |
+| PII + injection screen | 4 | 🟥 | In development |
+| Idempotent vote endpoint | 4 | 🟥 | In development |
 | Offline read-only feed | 4 | 🟧 | Planned |
 
 ## 5. Closing, AI & results
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Poll closer job (every minute) | 5 | 🟥 | Planned |
-| Thresholds (<10 votes, minority <5) | 5 | 🟥 | Planned |
-| AI summary pipeline (majority/minority, citations, exact quotes) | 5 | 🟥 | Planned |
+| Poll closer job (every minute) | 5 | 🟥 | In development |
+| Thresholds (<10 votes, minority <5) | 5 | 🟥 | In development |
+| AI summary pipeline (majority/minority, citations, exact quotes) | 5 | 🟥 | In development |
 | Fairness check pass | 5 | 🟧 | Planned |
-| Retries + Failed-AI state + admin retry | 5 | 🟥 | Planned |
-| AI eval set (30 fixtures) passing | 5 | 🟥 | Planned |
-| AI labels + sensitive-category disclaimers | 5 | 🟥 | Planned |
-| View-once results (close / 10s / server backup) | 5 | 🟥 | Planned |
-| Already-viewed & unavailable states | 5 | 🟥 | Planned |
-| Creator permanent history | 5 | 🟥 | Planned |
-| Result reveal animation | 5 | 🟧 | Planned |
+| Retries + Failed-AI state + admin retry | 5 | 🟥 | In development |
+| AI eval set (30 fixtures) passing | 5 | 🟥 | In development |
+| AI labels + sensitive-category disclaimers | 5 | 🟥 | In development |
+| View-once results (close / 10s / server backup) | 5 | 🟥 | In development |
+| Already-viewed & unavailable states | 5 | 🟥 | In development |
+| Creator permanent history | 5 | 🟥 | In development |
+| Result reveal animation | 5 | 🟧 | In development |
 
 ## 6. Retention
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Push: poll ended, summary ready, featured | 6 | 🟥 | Planned |
-| New-polls daily digest | 6 | 🟥 | Planned |
-| Notification center + preferences | 6 | 🟥 | Planned |
-| Profile stats | 6 | 🟧 | Planned |
-| Featured insights list | 6 | 🟧 | Planned |
-| Share card (creator only) | 6 | 🟥 | Planned |
+| Push: poll ended, summary ready, featured | 6 | 🟥 | In development |
+| New-polls daily digest | 6 | 🟥 | In development |
+| Notification center + preferences | 6 | 🟥 | In development |
+| Profile stats | 6 | 🟧 | In development |
+| Featured insights list | 6 | 🟧 | In development |
+| Share card (creator only) | 6 | 🟥 | In development (text share; image card pending) |
 | Web voting link from share card | — | 🟦 | Roadmap (privacy review first) |
 | Followers, likes, comments, DMs | — | ⬛ | Excluded |
 
@@ -111,15 +111,15 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Text moderation (questions, options, reasons) | 3–4 | 🟥 | Planned |
-| Image moderation | 3 | 🟥 | Planned |
-| Report polls, reasons, featured insights | 3–4 | 🟥 | Planned |
-| Self-harm support resources | 3 | 🟥 | Planned |
-| Hide creator + manage hidden | 4 | 🟥 | Planned |
+| Text moderation (questions, options, reasons) | 3–4 | 🟥 | In development |
+| Image moderation | 3 | 🟥 | In development |
+| Report polls, reasons, featured insights | 3–4 | 🟥 | In development |
+| Self-harm support resources | 3 | 🟥 | In development |
+| Hide creator + manage hidden | 4 | 🟥 | In development |
 | Admin dashboard (queue, review, suspend, 2FA) | 7 | 🟥 | Planned |
 | Moderation outcome messages (DSA) | 7 | 🟥 | Planned |
-| Suspended-account screen | 2 | 🟥 | Planned |
-| Rate limits | 7 | 🟥 | Planned |
+| Suspended-account screen | 2 | 🟥 | In development |
+| Rate limits | 7 | 🟥 | In development |
 | App Attest / Play Integrity | 7 | 🟥 | Planned |
 | Disposable-email blocking, sign-up limits | 2 | 🟥 | Planned |
 | Stricter moderation for new accounts | 7 | 🟧 | Planned |
@@ -146,7 +146,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
 | RLS on every table + CI check | 1 | 🟥 | In development |
-| pgTAP privacy tests | 4 | 🟥 | Planned |
+| pgTAP privacy tests | 4 | 🟥 | In development |
 | End-to-end tests (Maestro) for core loop | 7 | 🟥 | Planned |
 | Security review (Stage 4 §9) | 7 | 🟥 | Planned |
 | Load test (2k votes/min, 1k polls closing) | 7 | 🟧 | Planned |
@@ -154,7 +154,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Sentry + alerts | 1 / 7 | 🟥 | Planned |
 | PostHog funnels + north-star dashboard | 1 / 6 | 🟥 | Planned |
 | Backups / point-in-time recovery | 1 | 🟥 | Planned |
-| Data retention jobs | 6 | 🟧 | Planned |
+| Data retention jobs | 6 | 🟧 | In development |
 | Staging environment | 1 | 🟥 | Planned |
 
 ## 10. Launch readiness

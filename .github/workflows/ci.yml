@@ -37,9 +37,22 @@ jobs:
       - name: Database tests (RLS, profiles)
         run: supabase test db
 
+  functions:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check */index.ts
+      - run: deno test --allow-env
+
   # Builds run on EAS when an EXPO_TOKEN secret is configured (Phase 0 account setup).
   build:
-    needs: [app, database]
+    needs: [app, database, functions]
     if: github.ref == 'refs/heads/main' && vars.EAS_BUILD_ENABLED == 'true'
     runs-on: ubuntu-latest
     steps:
