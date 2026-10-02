@@ -9,13 +9,14 @@ import { buildUserMessage, FAIRNESS_SYSTEM, SUMMARY_VERSION, SYSTEM } from './pr
 const MODEL = 'claude-sonnet-5-5';
 const MINORITY_MIN_REASONS = 5;
 
+// Each summary is 1–3 points; every point cites the reasons it comes from (STAGE6 v2: citation links).
+const Point = z.object({ text: z.string(), reason_ids: z.array(z.string()) });
 const Summary = z.object({
-  majority: z.string(),
-  majority_reason_ids: z.array(z.string()),
-  minority: z.string().nullable(),
-  minority_reason_ids: z.array(z.string()),
+  majority_points: z.array(Point),
+  minority_points: z.array(Point),
   featured_reason_ids: z.array(z.string()),
 });
+type Points = z.infer<typeof Point>[];
 
 const client = new Anthropic();
 
@@ -54,7 +55,7 @@ async function summarize(job: Job) {
 
   // Taste polls or polls whose reasons were all optional may have none.
   if (job.reasons.length === 0) {
-    return { majority: null, minority: null, featured: [], usage: { input_tokens: 0, output_tokens: 0 } };
+    return { majority: null, minority: null, points: null, featured: [], usage: { input_tokens: 0, output_tokens: 0 } };
   }
 
   const pollText = buildUserMessage({
@@ -87,23 +88,38 @@ async function summarize(job: Job) {
     out = await draftSummary(messages, track);
   }
 
-  // Validation (STAGE4 §5 step 3): citations must exist and match the right side.
+  // Validation (STAGE4 §5 step 3): keep only citations that exist and belong to the right side;
+  // drop points left without any.
   const byId = new Map(job.reasons.map((r) => [r.id, r]));
-  const sideOk = (ids: string[], wantMajority: boolean) =>
-    ids.length > 0 && ids.every((id) => byId.has(id) && (byId.get(id)!.side === majoritySide) === wantMajority);
-  if (!sideOk(out.majority_reason_ids, true)) throw new Error('majority summary lacks valid citations');
-  const minority = minorityEnough && out.minority && sideOk(out.minority_reason_ids, false) ? out.minority : null;
+  const clean = (points: Points, wantMajority: boolean) =>
+    points
+      .map((p) => ({
+        text: p.text.trim().slice(0, 240),
+        reason_ids: [...new Set(p.reason_ids)].filter(
+          (id) => byId.has(id) && (byId.get(id)!.side === majoritySide) === wantMajority,
+        ),
+      }))
+      .filter((p) => p.text && p.reason_ids.length > 0)
+      .slice(0, 3);
+  const majorityPoints = clean(out.majority_points, true);
+  if (majorityPoints.length === 0) throw new Error('majority summary lacks valid citations');
+  const minorityPoints = minorityEnough ? clean(out.minority_points, false) : [];
+  const minoritySide = majoritySide === 'a' ? 'b' : 'a';
 
   let featured = [...new Set(out.featured_reason_ids)].filter((id) => byId.get(id)?.consent).slice(0, 3);
   // Guarantee one minority quote when the minority side is shown.
-  if (minority && !featured.some((id) => byId.get(id)!.side !== majoritySide)) {
-    const pick = out.minority_reason_ids.find((id) => byId.get(id)?.consent);
+  if (minorityPoints.length && !featured.some((id) => byId.get(id)!.side !== majoritySide)) {
+    const pick = minorityPoints.flatMap((p) => p.reason_ids).find((id) => byId.get(id)?.consent);
     if (pick) featured = [...featured.slice(0, 2), pick];
   }
 
   return {
-    majority: out.majority.slice(0, 400),
-    minority: minority?.slice(0, 400) ?? null,
+    majority: majorityPoints.map((p) => p.text).join(' '),
+    minority: minorityPoints.length ? minorityPoints.map((p) => p.text).join(' ') : null,
+    points: [
+      ...majorityPoints.map((p) => ({ side: majoritySide, ...p })),
+      ...minorityPoints.map((p) => ({ side: minoritySide, ...p })),
+    ],
     featured: featured.map((id) => ({ id })),
     usage,
   };
@@ -120,7 +136,7 @@ Deno.serve(async (req) => {
       const { error: e } = await admin.rpc('complete_ai_job', {
         p_job: job.job_id, p_majority: s.majority, p_minority: s.minority, p_featured: s.featured,
         p_model: `${MODEL}@v${SUMMARY_VERSION}`, p_tokens_in: s.usage.input_tokens,
-        p_tokens_out: s.usage.output_tokens, p_reason_count: job.reasons.length,
+        p_tokens_out: s.usage.output_tokens, p_reason_count: job.reasons.length, p_points: s.points,
       });
       if (e) throw e;
     } catch (e) {
