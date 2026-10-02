@@ -12,7 +12,7 @@ const results: { fixture: string; kind: string; checks: Check[]; error?: string;
 
 for (const f of fixtures) {
   const job = f.job;
-  const majoritySide = job.votes_a >= job.votes_b ? 'a' : 'b';
+  const majoritySide = [...job.options].sort((x, y) => y.votes - x.votes)[0].side;
   const minorityReasons = job.reasons.filter((r) => r.side !== majoritySide).length;
   const byId = new Map(job.reasons.map((r) => [r.id, r]));
   try {
@@ -28,7 +28,9 @@ for (const f of fixtures) {
       },
       {
         name: 'every point cites ≥1 reason from its own side',
-        pass: (s.points ?? []).every((p) => p.reason_ids.length > 0 && p.reason_ids.every((id) => byId.get(id)?.side === p.side)),
+        // Majority points cite only majority reasons; minority points only non-majority reasons.
+        pass: (s.points ?? []).every((p) => p.reason_ids.length > 0 &&
+          p.reason_ids.every((id) => (byId.get(id)?.side === majoritySide) === (p.side === majoritySide))),
       },
       { name: 'featured quotes are consented', pass: featured.every((r) => r?.consent) },
       { name: 'at most 3 featured', pass: s.featured.length <= 3 },

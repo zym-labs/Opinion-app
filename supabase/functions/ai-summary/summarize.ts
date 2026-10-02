@@ -20,10 +20,12 @@ type Points = z.infer<typeof Point>[];
 let client: Anthropic | null = null;
 const api = () => (client ??= new Anthropic());
 
+export type Side = 'a' | 'b' | 'c' | 'd';
 export type Job = {
   job_id: string; poll_id: string; attempt: number; question: string; is_sensitive: boolean;
-  label_a: string | null; label_b: string | null; votes_a: number; votes_b: number;
-  reasons: { id: string; side: 'a' | 'b'; text: string; consent: boolean }[];
+  /** 2–4 options with their vote counts. */
+  options: { side: Side; label: string | null; votes: number }[];
+  reasons: { id: string; side: Side; text: string; consent: boolean }[];
 };
 
 const Fairness = z.object({
@@ -49,7 +51,8 @@ async function draftSummary(
 }
 
 export async function summarize(job: Job) {
-  const majoritySide = job.votes_a >= job.votes_b ? 'a' : 'b';
+  // Majority = the top option; minority = everyone who picked something else.
+  const majoritySide = [...job.options].sort((x, y) => y.votes - x.votes)[0].side;
   const minorityCount = job.reasons.filter((r) => r.side !== majoritySide).length;
   const minorityEnough = minorityCount >= MINORITY_MIN_REASONS;
 
@@ -59,8 +62,7 @@ export async function summarize(job: Job) {
   }
 
   const pollText = buildUserMessage({
-    question: job.question, labelA: job.label_a, labelB: job.label_b,
-    votesA: job.votes_a, votesB: job.votes_b, reasons: job.reasons, minorityEnough,
+    question: job.question, options: job.options, majoritySide, reasons: job.reasons, minorityEnough,
   });
   const usage = { input_tokens: 0, output_tokens: 0 };
   const track = (u: { input_tokens: number; output_tokens: number }) => {
@@ -104,7 +106,12 @@ export async function summarize(job: Job) {
   const majorityPoints = clean(out.majority_points, true);
   if (majorityPoints.length === 0) throw new Error('majority summary lacks valid citations');
   const minorityPoints = minorityEnough ? clean(out.minority_points, false) : [];
-  const minoritySide = majoritySide === 'a' ? 'b' : 'a';
+  // A minority point is shown against the option most of its cited reasons chose.
+  const sideOf = (ids: string[]) => {
+    const tally = new Map<Side, number>();
+    for (const id of ids) tally.set(byId.get(id)!.side, (tally.get(byId.get(id)!.side) ?? 0) + 1);
+    return [...tally.entries()].sort((x, y) => y[1] - x[1])[0][0];
+  };
 
   let featured = [...new Set(out.featured_reason_ids)].filter((id) => byId.get(id)?.consent).slice(0, 3);
   // Guarantee one minority quote when the minority side is shown.
@@ -118,7 +125,7 @@ export async function summarize(job: Job) {
     minority: minorityPoints.length ? minorityPoints.map((p) => p.text).join(' ') : null,
     points: [
       ...majorityPoints.map((p) => ({ side: majoritySide, ...p })),
-      ...minorityPoints.map((p) => ({ side: minoritySide, ...p })),
+      ...minorityPoints.map((p) => ({ side: sideOf(p.reason_ids), ...p })),
     ],
     featured: featured.map((id) => ({ id })),
     usage,

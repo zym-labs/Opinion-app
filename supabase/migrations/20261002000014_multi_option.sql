@@ -53,6 +53,7 @@ begin
   end if;
   return new;
 end $$;
+revoke execute on function public.check_vote_side() from public, anon, authenticated;
 create trigger check_vote_side before insert on public.votes
   for each row execute function public.check_vote_side();
 
@@ -193,3 +194,14 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   where p.id = p_poll;
 $$;
 revoke execute on function public.result_payload from public, anon, authenticated;
+
+-- Storage: image file names for all four options.
+drop policy "creator uploads draft images" on storage.objects;
+create policy "creator uploads draft images" on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'poll-images'
+  and split_part(name, '/', 2) in ('a.jpg', 'b.jpg', 'c.jpg', 'd.jpg')
+  and exists (
+    select 1 from public.polls p
+    where p.id::text = split_part(name, '/', 1) and p.creator_id = auth.uid() and p.status = 'draft')
+);

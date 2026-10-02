@@ -3,6 +3,8 @@ import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http
 import { checkIntegrity } from '../_shared/integrity.ts';
 import { moderate, moderateText, NEW_ACCOUNT_THRESHOLD } from '../_shared/moderation.ts';
 
+const SIDES = ['a', 'b', 'c', 'd'] as const;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   const userId = await getUserId(req);
@@ -17,16 +19,19 @@ Deno.serve(async (req) => {
 
   if (body.action === 'create') {
     const question = String(body.question ?? '').trim();
-    const labelA = body.label_a ? String(body.label_a).trim() : null;
-    const labelB = body.label_b ? String(body.label_b).trim() : null;
+    // 2–4 options; each needs text, an image, or both.
+    const rawLabels: unknown[] = Array.isArray(body.labels) ? body.labels : [];
+    const images: unknown[] = Array.isArray(body.images) ? body.images : [];
+    const labels = rawLabels.map((l) => (typeof l === 'string' && l.trim() ? l.trim() : null));
     if (question.length < 5 || question.length > 120) return fail('INVALID_INPUT', 400, 'Question must be 5–120 characters');
-    if ((labelA?.length ?? 0) > 60 || (labelB?.length ?? 0) > 60) return fail('INVALID_INPUT');
-    if (!labelA && !body.image_a) return fail('INVALID_INPUT', 400, 'Option A needs text or an image');
-    if (!labelB && !body.image_b) return fail('INVALID_INPUT', 400, 'Option B needs text or an image');
+    if (labels.length < 2 || labels.length > 4) return fail('INVALID_INPUT', 400, 'Polls have 2 to 4 options');
+    if (labels.some((l) => (l?.length ?? 0) > 60)) return fail('INVALID_INPUT');
+    const missing = labels.findIndex((l, i) => !l && !images[i]);
+    if (missing >= 0) return fail('INVALID_INPUT', 400, `Option ${SIDES[missing].toUpperCase()} needs text or an image`);
 
     const { data: isNew } = await admin.rpc('is_new_account', { p_user: userId });
     const strict = isNew ? NEW_ACCOUNT_THRESHOLD : undefined;
-    const mod = await moderateText([question, labelA, labelB], strict);
+    const mod = await moderateText([question, ...labels], strict);
     if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
 
     const { data: pollId, error } = await admin.rpc('create_poll_draft', {
@@ -34,8 +39,7 @@ Deno.serve(async (req) => {
       p_type: body.type,
       p_is_taste: !!body.is_taste,
       p_question: question,
-      p_label_a: labelA,
-      p_label_b: labelB,
+      p_labels: labels,
       p_categories: body.category_ids ?? [],
       p_age_min: body.age_min ?? null,
       p_age_max: body.age_max ?? null,
@@ -45,8 +49,8 @@ Deno.serve(async (req) => {
     });
     if (error) return fromDbError(error);
     // Image slots: the app uploads to poll-images/<poll_id>/<side>.jpg next.
-    for (const side of ['a', 'b'] as const) {
-      if (body[`image_${side}`]) {
+    for (const [i, side] of SIDES.slice(0, labels.length).entries()) {
+      if (images[i]) {
         await admin.from('poll_options').update({ image_path: `${pollId}/${side}.jpg`, image_moderation: 'pending' })
           .eq('poll_id', pollId).eq('side', side);
       }

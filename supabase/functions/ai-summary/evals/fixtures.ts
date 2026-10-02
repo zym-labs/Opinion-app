@@ -4,7 +4,7 @@ import type { Job } from '../summarize.ts';
 
 export type Fixture = {
   name: string;
-  kind: 'normal' | 'tiny_minority' | 'injection' | 'pii' | 'tie' | 'taste';
+  kind: 'normal' | 'tiny_minority' | 'injection' | 'pii' | 'tie' | 'multi';
   job: Job;
   /** Words that must not appear in any summary or featured quote id choice text (injected payloads, names). */
   forbidden?: string[];
@@ -35,10 +35,10 @@ function poll(
       attempt: 1,
       question,
       is_sensitive: false,
-      label_a: a,
-      label_b: b,
-      votes_a: opts.votesA ?? aReasons.length + 3,
-      votes_b: opts.votesB ?? bReasons.length + 1,
+      options: [
+        { side: 'a', label: a, votes: opts.votesA ?? aReasons.length + 3 },
+        { side: 'b', label: b, votes: opts.votesB ?? bReasons.length + 1 },
+      ],
       reasons,
     },
   };
@@ -59,6 +59,27 @@ const LAPTOP_B = [
   'Our department labs assume Windows or Linux tools for some courses',
   'Matte screen is easier on the eyes under bright lecture hall lights',
 ];
+
+/** 3–4 option polls: the top option is the majority, every other option counts as minority. */
+function multi(name: string, question: string, options: { label: string; votes: number; reasons: string[] }[]): Fixture {
+  const sides = ['a', 'b', 'c', 'd'] as const;
+  const reasons = options.flatMap((o, k) =>
+    o.reasons.map((text, i) => ({ id: `r${++seq}`, side: sides[k], text, consent: i % 4 !== 3 })),
+  );
+  return {
+    name,
+    kind: 'multi',
+    job: {
+      job_id: `job-${name}`,
+      poll_id: `poll-${name}`,
+      attempt: 1,
+      question,
+      is_sensitive: false,
+      options: options.map((o, k) => ({ side: sides[k], label: o.label, votes: o.votes })),
+      reasons,
+    },
+  };
+}
 
 export const FIXTURES: Fixture[] = [
   // ---------- normal (12) ----------
@@ -166,6 +187,19 @@ export const FIXTURES: Fixture[] = [
     ['Memory consolidates during sleep', 'Tired brains make silly mistakes', 'Research says sleep wins', 'Better mood and focus', 'Last-minute cramming rarely sticks'],
     ['Some topics still not covered', 'Can sleep after the exam', 'Adrenaline keeps me going', 'Worked for me before', 'Reviewing notes boosts confidence'],
     { votesA: 11, votesB: 10 }),
+  // ---------- 3–4 options (2) ----------
+  multi('multi-laptop', 'Which laptop for a CS degree?', [
+    { label: 'MacBook Air', votes: 14, reasons: LAPTOP_A },
+    { label: 'ThinkPad X1', votes: 7, reasons: LAPTOP_B.slice(0, 3) },
+    { label: 'Dell XPS', votes: 5, reasons: ['Good Linux support and a great screen', 'Cheaper with student discount', 'Light enough to carry daily'] },
+  ]),
+  multi('multi-travel', 'Best summer plan before final year?', [
+    { label: 'Internship', votes: 12, reasons: ['Helps get a graduate offer', 'Paid and looks good on CV', 'Learn real skills', 'Contacts in industry', 'Tests a career before committing'] },
+    { label: 'Travel', votes: 8, reasons: ['Last long break before work', 'Broadens perspective', 'Cheap with Interrail'] },
+    { label: 'Summer course', votes: 4, reasons: ['Gets ahead on final year modules', 'Lighter workload in autumn'] },
+    { label: 'Rest at home', votes: 3, reasons: ['Avoid burnout before the hardest year', 'Save money'] },
+  ]),
+
   poll('tie-photo', 'tie', 'Smiling or serious LinkedIn photo?', 'Smiling', 'Serious',
     ['Looks approachable', 'Recruiters like friendly faces', 'Stands out positively', 'Natural', 'Shows confidence'],
     ['Looks professional', 'Better for law and finance', 'Less risk of looking silly', 'Classic headshot', 'Fits formal industries'],

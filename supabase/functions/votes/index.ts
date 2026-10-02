@@ -22,9 +22,10 @@ Deno.serve(async (req) => {
     return fail('INVALID_INPUT');
   }
   if (!(await checkIntegrity(req, userId, raw, 'vote'))) return fail('INTEGRITY_FAILED', 403);
-  const side = body.side === 'a' || body.side === 'b' ? body.side : null;
+  const isSide = (x: unknown) => x === 'a' || x === 'b' || x === 'c' || x === 'd';
+  const side = isSide(body.side) ? body.side : null;
   if (!side) return fail('INVALID_INPUT');
-  const predicted = body.predicted_side === 'a' || body.predicted_side === 'b' ? body.predicted_side : null;
+  const predicted = isSide(body.predicted_side) ? body.predicted_side : null;
   const reason = typeof body.reason === 'string' ? body.reason.trim() : '';
   if (reason.length > 200) return fail('REASON_TOO_LONG');
 
