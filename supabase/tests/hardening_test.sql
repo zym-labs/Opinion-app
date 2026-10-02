@@ -8,7 +8,7 @@ select is_empty($$
   where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')
     and p.proname not like 'pgtap%'
     -- The public reads: starter poll results, and live-poll link previews (question and labels only). No identities.
-    and p.proname not in ('get_starter_polls', 'get_invite_preview')
+    and p.proname not in ('get_starter_polls', 'get_invite_preview', 'get_public_result')
 $$, 'anon can only execute the public reads');
 
 -- Internal functions are not callable by signed-in users.
