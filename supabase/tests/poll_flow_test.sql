@@ -41,7 +41,7 @@ select throws_ok('select creator_id from public.polls', '42501', null, 'creator 
 reset role;
 select lives_ok($$
   select public.create_poll_draft('00000000-0000-0000-0000-000000000001', 'expert', false,
-    'MacBook or ThinkPad for CS?', 'MacBook', 'ThinkPad',
+    'MacBook or ThinkPad for CS?', array['MacBook', 'ThinkPad'],
     array[(select id from public.categories where slug = 'tech')]::smallint[], null, null, null, 6::smallint, 'approved')
 $$, 'draft created');
 select lives_ok($$select public.publish_poll_internal('00000000-0000-0000-0000-000000000001',
