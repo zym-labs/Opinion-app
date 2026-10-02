@@ -225,8 +225,8 @@ Private mastery signals only: majority-match rate, "your reason was quoted". Cre
 | Item | How |
 |---|---|
 | Vote details slide up after an option is picked | Reason, prediction, consent and privacy line enter with the spatial spring; "Pick an option to continue" before that |
-| Feed card → vote screen | Expo Router zoom transition on iOS 18+ ( on the card,  on the option tiles; alpha API). Normal push elsewhere |
-| Feed routes voters to polls short of votes |  orders polls under 10 votes first, then soonest closing; the cursor carries the bucket |
+| Feed card → vote screen | Expo Router zoom transition on iOS 18+ (`Link.AppleZoom` on the card, `Link.AppleZoomTarget` on the option tiles; alpha API). Normal push elsewhere |
+| Feed routes voters to polls short of votes | `get_feed` orders polls under 10 votes first, then soonest closing; the cursor carries the bucket |
 | Profile bento of private stats | Majority matches "7 of 10", contrarian picks, predictions right, reasons quoted, polls voted, polls you can post with the "Give 3 opinions, get 1 ask" rule. Owner-only |
 
 ## Try before signing up (built)
