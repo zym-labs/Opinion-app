@@ -13,13 +13,14 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
   }),
   decision_reminder: (p) => ({ title: 'What did you decide?', body: `Tell your voters what you chose on “${p.question}”.` }),
   last_call: (p) => ({ title: 'Closing soon: needs your view', body: `“${p.question}” needs ${p.votes_needed} more votes for a result.` }),
-  moderation_outcome: (p) =>
-    p.kind === 'author'
-      ? {
-          title: p.action === 'warn' ? 'A warning about your content' : 'Your content was removed',
-          body: 'Open Opinion to see which community guideline it broke and how to appeal.',
-        }
-      : { title: 'Update on your report', body: 'A moderator reviewed something you reported. Thank you.' },
+  moderation_outcome: (p) => {
+    if (p.kind === 'appeal') return { title: 'Your appeal was reviewed', body: 'Open Opinion to see the outcome.' };
+    if (p.kind === 'account_restored') return { title: 'Your account is active again', body: 'Welcome back to Opinion.' };
+    if (p.kind !== 'author') return { title: 'Update on your report', body: 'A moderator reviewed something you reported. Thank you.' };
+    const title = p.action === 'warn' ? 'A warning about your content' : p.action === 'suspend' ? 'Your account was suspended' : 'Your content was removed';
+    return { title, body: 'Open Opinion to see which community guideline was broken and how to appeal.' };
+  },
+  referral_credited: () => ({ title: 'A friend joined Opinion', body: 'You both earned a free poll.' }),
 };
 
 const ROUTE: Record<string, (pollId: string | null) => string> = {
@@ -32,6 +33,7 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   decision_reminder: (id) => `/my-poll/${id}`,
   last_call: (id) => `/vote/${id}`,
   moderation_outcome: () => '/notifications',
+  referral_credited: () => '/credits',
 };
 
 Deno.serve(async (req) => {

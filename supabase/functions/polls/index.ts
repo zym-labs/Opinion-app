@@ -88,7 +88,11 @@ Deno.serve(async (req) => {
       if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
     }
 
-    const { data: closesAt, error } = await admin.rpc('publish_poll_internal', { p_user: userId, p_poll: pollId });
+    const { data: closesAt, error } = await admin.rpc('publish_poll_internal', {
+      p_user: userId,
+      p_poll: pollId,
+      p_friends_only: body.friends_only === true,
+    });
     if (error) return fromDbError(error);
     return json({ closes_at: closesAt });
   }
