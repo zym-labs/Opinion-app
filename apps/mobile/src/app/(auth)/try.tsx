@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
+import { getStoreSaysAdult } from '@/lib/age-signal';
 import { rpc } from '@/lib/api';
 import { getPendingBirthYear, isAdult, setPendingBirthYear } from '@/lib/pending-age';
 import type { Side, StarterPoll } from '@/lib/types';
@@ -23,11 +24,13 @@ type Step = { kind: 'age' } | { kind: 'blocked' } | { kind: 'vote'; i: number } 
 function AgeStep({ onDone }: { onDone: (adult: boolean) => void }) {
   const [year, setYear] = useState('');
   const [error, setError] = useState<string | null>(null);
-  function submit() {
+  async function submit() {
     const y = Number(year);
     if (!/^\d{4}$/.test(year) || y < 1900 || y > new Date().getFullYear()) return setError('Enter the year you were born, e.g. 2001.');
-    if (isAdult(y)) setPendingBirthYear(y);
-    onDone(isAdult(y));
+    // The store's age signal overrides a typed adult birth year when it says under 18.
+    const adult = isAdult(y) && (await getStoreSaysAdult()) !== false;
+    if (adult) setPendingBirthYear(y);
+    onDone(adult);
   }
   return (
     <Screen>

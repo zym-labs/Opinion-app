@@ -11,6 +11,7 @@ import { Screen } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { ApiError, callFunction, errorMessage } from '@/lib/api';
 import { signOut } from '@/lib/auth';
+import { getStoreSaysAdult } from '@/lib/age-signal';
 import { clearPendingBirthYear, getPendingBirthYear } from '@/lib/pending-age';
 import { keys } from '@/lib/queries';
 import { space } from '@/theme';
@@ -42,8 +43,9 @@ export default function Age() {
     setError(null);
     setBusy(true);
     try {
-      // TODO(Phase 2 native module): pass the App Store / Play age-range signal as store_says_adult.
-      await callFunction('onboarding-age', { birth_year: y });
+      // Store age signal where available; the server blocks if it says under 18.
+      const storeSaysAdult = await getStoreSaysAdult();
+      await callFunction('onboarding-age', { birth_year: y, store_says_adult: storeSaysAdult ?? undefined });
       clearPendingBirthYear();
       await qc.invalidateQueries({ queryKey: keys.me });
       router.replace('/terms');

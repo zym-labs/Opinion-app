@@ -1,6 +1,7 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 
+import { callFunction } from './api';
 import { env } from './env';
 import { supabase } from './supabase';
 
@@ -16,6 +17,10 @@ export async function signInWithApple() {
     token: credential.identityToken,
   });
   if (error) throw error;
+  // Lets the server revoke the Apple token if the account is deleted later (Apple requirement).
+  if (credential.authorizationCode) {
+    callFunction('apple-token', { code: credential.authorizationCode }).catch(() => {});
+  }
 }
 
 /** Returns false when the user cancels. */

@@ -10,7 +10,10 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "app.opinion.mobile",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "com.apple.developer.declared-age-range": true
+      }
     },
     "android": {
       "package": "app.opinion.mobile",

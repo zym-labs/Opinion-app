@@ -1,4 +1,5 @@
 // Account deletion (STAGE2 §7, Apple 5.1.1(v)).
+import { appleConfigured, decrypt, revokeRefreshToken } from '../_shared/apple.ts';
 import { admin, cors, fail, getUserId, json } from '../_shared/http.ts';
 
 Deno.serve(async (req) => {
@@ -15,8 +16,12 @@ Deno.serve(async (req) => {
   const paths = (polls ?? []).flatMap((p) => [`${p.id}/a.jpg`, `${p.id}/b.jpg`]);
   if (paths.length) await admin.storage.from('poll-images').remove(paths);
 
-  // TODO(Phase 7): revoke the Sign in with Apple token via Apple's REST API. This needs the
-  // Apple refresh token, which requires exchanging the authorization code at sign-in.
+  // Sign in with Apple: revoke the token before the account (and its stored token) is deleted.
+  const { data: apple } = await admin.from('apple_tokens').select('refresh_token_enc').eq('user_id', userId).maybeSingle();
+  if (apple && appleConfigured()) {
+    await revokeRefreshToken(await decrypt(apple.refresh_token_enc)).catch((e) => console.error('apple revoke', e));
+  }
+
   const { error: delError } = await admin.auth.admin.deleteUser(userId);
   if (delError) return fail('INTERNAL', 500);
   return json({ ok: true });

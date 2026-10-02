@@ -5,3 +5,6 @@ node_modules/
 *.tsbuildinfo
 .turbo/
 coverage/
+supabase/functions/ai-summary/evals/last-run.json
+scripts/secrets.*.env
+!scripts/secrets.example.env

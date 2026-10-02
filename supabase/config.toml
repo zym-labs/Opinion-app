@@ -420,3 +420,10 @@ enabled = false
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 skip_nonce_check = true
+
+# Workers called by pg_cron check the service key themselves (isServiceCall), so the gateway JWT check is off.
+[functions.ai-summary]
+verify_jwt = false
+
+[functions.push]
+verify_jwt = false

@@ -29,7 +29,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Email code / magic link | 1 | 🟥 | In development |
 | Secure session storage, sign out | 1 | 🟥 | In development |
 | Age gate (birth year, 18+) | 2 | 🟥 | In development |
-| App store age signals (iOS / Play) | 2 | 🟥 | Planned |
+| App store age signals (iOS / Play) | 2 | 🟥 | In development (expo-age-range) |
 | Terms acceptance + versioning | 2 | 🟥 | In development |
 | Category selection (max 5, cooldown) | 2 | 🟥 | In development |
 | Community join/leave | 2 | 🟥 | In development |
@@ -37,7 +37,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Onboarding resume across devices | 2 | 🟥 | In development |
 | Account deletion (in-app, full) | 2 | 🟥 | In development |
 | Notification permission screen | 6 | 🟥 | In development |
-| GDPR data export | — | 🟧 | Planned (manual at launch) |
+| GDPR data export | — | 🟧 | In development (in-app download) |
 | Phone/SMS sign-in | — | ⬛ | Excluded |
 | Passwords | — | ⬛ | Excluded |
 | Public profiles, usernames, avatars | — | ⬛ | Excluded |
@@ -87,7 +87,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | AI summary pipeline (majority/minority, citations, exact quotes) | 5 | 🟥 | In development |
 | Fairness check pass | 5 | 🟧 | In development |
 | Retries + Failed-AI state + admin retry | 5 | 🟥 | In development |
-| AI eval set (30 fixtures) passing | 5 | 🟥 | In development |
+| AI eval set (30 fixtures) passing | 5 | 🟥 | In development (30 fixtures + runner; needs API key to run) |
 | AI labels + sensitive-category disclaimers | 5 | 🟥 | In development |
 | View-once results (close / 10s / server backup) | 5 | 🟥 | In development |
 | Already-viewed & unavailable states | 5 | 🟥 | In development |
@@ -149,13 +149,13 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | pgTAP privacy tests | 4 | 🟥 | In development |
 | End-to-end tests (Maestro) for core loop | 7 | 🟥 | In development (flows written; need staging) |
 | Security review (Stage 4 §9) | 7 | 🟥 | In development (first pass done) |
-| Load test (2k votes/min, 1k polls closing) | 7 | 🟧 | Planned |
+| Load test (2k votes/min, 1k polls closing) | 7 | 🟧 | In development (k6 script; needs staging) |
 | Accessibility pass + contrast test | 7 | 🟥 | Planned |
 | Sentry + alerts | 1 / 7 | 🟥 | Planned |
 | PostHog funnels + north-star dashboard | 1 / 6 | 🟥 | Planned |
 | Backups / point-in-time recovery | 1 | 🟥 | Planned |
 | Data retention jobs | 6 | 🟧 | In development |
-| Staging environment | 1 | 🟥 | Planned |
+| Staging environment | 1 | 🟥 | In development (deploy script ready; needs accounts) |
 
 ## 10. Launch readiness
 
