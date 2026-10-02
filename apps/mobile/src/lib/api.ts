@@ -38,6 +38,7 @@ const MESSAGES: Record<string, string> = {
   INVITE_LIMIT: 'This poll has reached its limit for link votes.',
   REFERRAL_EXPIRED: 'Invite codes can only be used in your first 7 days.',
   ALREADY_REFERRED: 'You’ve already used an invite code.',
+  ALREADY_BOOSTED: 'This poll has already been boosted.',
 };
 
 export const errorMessage = (e: unknown) =>

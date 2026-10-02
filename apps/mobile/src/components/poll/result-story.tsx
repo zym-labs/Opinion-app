@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { track } from '@/lib/analytics';
+import { rpc } from '@/lib/api';
 import type { Result, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
@@ -22,22 +23,42 @@ import { VerifiedLine, verifiedText } from './verified-line';
 // interactive cards hold links, so they advance with a Next button instead of tap zones.
 type Card = { key: string; label: string; body: ReactNode; interactive?: boolean };
 
-function Quote({ quote, side, id }: { quote: string; side: Side; id: string }) {
+function Quote({ quote, side, id, starter }: { quote: string; side: Side; id: string; starter: boolean }) {
   const c = useColors();
   const s = useSideColors(side);
+  const [helpful, setHelpful] = useState(false);
   return (
     <View style={{ borderLeftWidth: 3, borderLeftColor: s.strong, paddingLeft: space[3], gap: space[1] }}>
       <Text variant="quote">“{quote}”</Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Report this quote"
-        hitSlop={8}
-        onPress={() => router.push({ pathname: '/report', params: { target: 'featured_insight', id } })}
-        style={{ alignSelf: 'flex-start' }}>
-        <Text variant="caption" style={{ color: c.textFaint }}>
-          Report
-        </Text>
-      </Pressable>
+      <View style={{ flexDirection: 'row', gap: space[4] }}>
+        {starter ? null : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="This helped me"
+            accessibilityState={{ selected: helpful }}
+            hitSlop={8}
+            disabled={helpful}
+            onPress={() => {
+              setHelpful(true);
+              track('insight_helpful', {});
+              // Best effort: your own quote or a repeat tap is simply ignored.
+              rpc('mark_insight_helpful', { p_insight: id }).catch(() => {});
+            }}>
+            <Text variant="caption" style={{ color: helpful ? s.strong : c.textMuted }}>
+              {helpful ? 'Helpful ✓' : 'This helped me'}
+            </Text>
+          </Pressable>
+        )}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Report this quote"
+          hitSlop={8}
+          onPress={() => router.push({ pathname: '/report', params: { target: 'featured_insight', id } })}>
+          <Text variant="caption" style={{ color: c.textFaint }}>
+            Report
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -149,7 +170,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
             In voters’ own words
           </Text>
           {r.featured.map((f) => (
-            <Quote key={f.id} {...f} />
+            <Quote key={f.id} {...f} starter={starter} />
           ))}
           <Text variant="caption" tone="faint">
             Chosen by the AI for variety, always including the minority view when there is one. Shared anonymously with the

@@ -133,9 +133,13 @@ export default function Feed() {
               title="No open polls for your interests"
               body="Join more communities or add categories to see more polls — or ask your own question."
             />
+            <Button label="Browse other topics" variant="secondary" onPress={() => router.push('/browse')} />
             <Button label="Manage communities" variant="secondary" onPress={() => router.push('/settings/communities')} />
             <Button label="Create a poll" variant="ghost" onPress={() => router.push('/create')} />
           </View>
+        ) : null}
+        {!empty && !feed.isLoading && !feed.hasNextPage ? (
+          <Button label="Browse other topics" variant="ghost" onPress={() => router.push('/browse')} />
         ) : null}
       </ScrollView>
     </SafeAreaView>

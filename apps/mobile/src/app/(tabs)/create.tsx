@@ -51,6 +51,16 @@ const EMPTY: Draft = {
   hours: 12,
 };
 
+// Starting points for common decisions. They fill in the question and options; everything stays editable.
+const TEMPLATES: { id: string; label: string; question: string; options: string[]; taste?: boolean }[] = [
+  { id: 'offer', label: 'Which offer?', question: 'Which offer should I take?', options: ['Offer A', 'Offer B'] },
+  { id: 'should', label: 'Should I…?', question: 'Should I ', options: ['Yes', 'No'] },
+  { id: 'buy', label: 'Which to buy?', question: 'Which should I buy for ', options: ['', ''] },
+  { id: 'course', label: 'Which course?', question: 'Which course should I pick next term?', options: ['', ''] },
+  { id: 'look', label: 'Which looks better?', question: 'Which looks better?', options: ['', ''], taste: true },
+  { id: 'now', label: 'Now or later?', question: 'Should I do this now or wait?', options: ['Now', 'Wait'] },
+];
+
 // One draft is kept on the device (STAGE1 §4) and restored when Create opens.
 const DRAFT_KEY = 'opinion-poll-draft';
 
@@ -335,6 +345,29 @@ export default function Create() {
         />
       </Section>
 
+      {!draft.question.trim() ? (
+        <Section title="Start from a template">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
+            {TEMPLATES.map((t) => (
+              <Chip
+                key={t.id}
+                label={t.label}
+                selected={false}
+                onPress={() => {
+                  track('template_used', { id: t.id });
+                  setDraft({
+                    ...draft,
+                    question: t.question,
+                    isTaste: t.taste ?? draft.isTaste,
+                    count: t.options.length,
+                    labels: { ...EMPTY.labels, ...Object.fromEntries(t.options.map((o, i) => [SIDES[i], o])) },
+                  });
+                }}
+              />
+            ))}
+          </View>
+        </Section>
+      ) : null}
       <Section title="Your question">
         <TextField
           label={`Question (${draft.question.length}/${LIMITS.questionMax})`}

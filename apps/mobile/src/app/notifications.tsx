@@ -49,6 +49,8 @@ function describe(n: Notification) {
       };
     case 'follow_up':
       return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
+    case 'boosted_poll':
+      return { title: `Your view is wanted on ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
     case 'referral_credited':
       return { title: 'A friend joined and voted. You both earned a free poll.', go: () => router.push('/credits') };
     case 'insight_featured':

@@ -20,6 +20,7 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
     const title = p.action === 'warn' ? 'A warning about your content' : p.action === 'suspend' ? 'Your account was suspended' : 'Your content was removed';
     return { title, body: 'Open Opinion to see which community guideline was broken and how to appeal.' };
   },
+  boosted_poll: (p) => ({ title: 'Your view is wanted', body: `“${p.question}”` }),
   referral_credited: () => ({ title: 'A friend joined Opinion', body: 'You both earned a free poll.' }),
 };
 
@@ -34,6 +35,7 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   last_call: (id) => `/vote/${id}`,
   moderation_outcome: () => '/notifications',
   referral_credited: () => '/credits',
+  boosted_poll: (id) => `/vote/${id}`,
 };
 
 Deno.serve(async (req) => {

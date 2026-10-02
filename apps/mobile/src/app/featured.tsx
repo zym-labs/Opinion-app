@@ -12,7 +12,7 @@ export default function Featured() {
   const c = useColors();
   const q = useQuery({
     queryKey: ['featured'],
-    queryFn: () => rpc<{ quote: string; question: string; featured_at: string }[]>('my_featured_insights'),
+    queryFn: () => rpc<{ quote: string; question: string; featured_at: string; helpful: number }[]>('my_featured_insights'),
   });
   if (!q.isLoading && !q.data?.length) {
     return (
@@ -29,6 +29,11 @@ export default function Featured() {
           <Text variant="label" tone="muted">
             On “{f.question}”
           </Text>
+          {f.helpful ? (
+            <Text variant="caption" tone="faint">
+              {f.helpful} {f.helpful === 1 ? 'person' : 'people'} found this helpful
+            </Text>
+          ) : null}
         </View>
       ))}
     </Screen>

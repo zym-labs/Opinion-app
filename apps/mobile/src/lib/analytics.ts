@@ -37,6 +37,9 @@ type Events = {
   publish_failed: { code: string };
   friend_link_shared: Record<string, never>;
   invite_shared: Record<string, never>;
+  insight_helpful: Record<string, never>;
+  poll_boosted: { notified: number };
+  template_used: { id: string };
   result_viewed: { state: string; cards_seen: number; finished: boolean };
   summary_quote_opened: Record<string, never>;
   how_ai_works_opened: Record<string, never>;

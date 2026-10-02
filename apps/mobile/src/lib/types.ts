@@ -18,7 +18,7 @@ export type Me = {
   categories_changed_at: string | null;
 };
 
-export type Category = { id: number; slug: string; name: string; is_sensitive: boolean; sort: number };
+export type Category = { id: number; slug: string; name: string; is_sensitive: boolean; sort: number; archived?: boolean };
 export type Community = { id: string; slug: string; name: string; description: string; kind: 'topic' | 'campus' };
 
 export type PollOption = { side: Side; label: string | null; image_path: string | null };
@@ -104,6 +104,7 @@ export type Notification = {
   id: string;
   type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome'
     | 'referral_credited'
+    | 'boosted_poll'
     | 'follow_up'
     | 'decision_made'
     | 'decision_reminder'
