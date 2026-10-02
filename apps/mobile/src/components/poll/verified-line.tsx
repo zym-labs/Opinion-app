@@ -1,4 +1,4 @@
-// "Verified experts (6): A 83% · B 17%" — aggregate only, shown when at least 5 verified experts voted.
+// "Verified experts (6): A 83% · B 17%" — aggregate only, shown when at least 10 verified experts voted.
 import { BadgeCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 

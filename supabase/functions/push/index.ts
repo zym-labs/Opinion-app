@@ -39,30 +39,34 @@ Deno.serve(async (req) => {
 
   const messages = queued.flatMap((n) =>
     (tokens.get(n.user_id) ?? []).map((to) => ({
-      to,
-      ...TEXT[n.type](n.payload ?? {}),
-      sound: 'default',
-      data: { url: ROUTE[n.type](n.poll_id) },
+      notificationId: n.id,
+      msg: { to, ...TEXT[n.type](n.payload ?? {}), sound: 'default', data: { url: ROUTE[n.type](n.poll_id) } },
     })),
   );
 
+  // A notification is only marked sent once Expo accepted its batch; failed batches retry next minute.
+  const failed = new Set<string>();
   const invalid: string[] = [];
   for (let i = 0; i < messages.length; i += 100) {
     const batch = messages.slice(i, i + 100);
     const res = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(batch),
-    });
-    if (!res.ok) continue;
+      body: JSON.stringify(batch.map((m) => m.msg)),
+    }).catch(() => null);
+    if (!res?.ok) {
+      batch.forEach((m) => failed.add(m.notificationId));
+      continue;
+    }
     const { data } = await res.json();
     (data as { status: string; details?: { error?: string } }[]).forEach((t, j) => {
-      if (t.status === 'error' && t.details?.error === 'DeviceNotRegistered') invalid.push(batch[j].to);
+      if (t.status === 'error' && t.details?.error === 'DeviceNotRegistered') invalid.push(batch[j].msg.to);
     });
   }
 
   if (invalid.length) await admin.from('devices').delete().in('push_token', invalid);
-  // Marked sent even without a device: results are always visible in the app.
-  await admin.from('notifications').update({ sent_at: new Date().toISOString() }).in('id', queued.map((n) => n.id));
+  // Notifications without a device are marked sent too: results are always visible in the app.
+  const done = queued.map((n) => n.id).filter((id) => !failed.has(id));
+  if (done.length) await admin.from('notifications').update({ sent_at: new Date().toISOString() }).in('id', done);
   return json({ sent: messages.length });
 });

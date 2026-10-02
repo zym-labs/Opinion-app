@@ -108,7 +108,7 @@ export default function Experts() {
   return (
     <Screen>
       <Text tone="muted">
-        Verified experts are counted separately in results (“Verified experts: 70% A”), only when at least 5 of them
+        Verified experts are counted separately in results (“Verified experts: 70% A”), only when at least 10 of them
         voted. Nobody sees who you are or your email; we keep only a scrambled version to stop it being reused.
       </Text>
       {q.data?.length ? (

@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { identify, initMonitoring } from '@/lib/analytics';
+import { signOut } from '@/lib/auth';
 import { ensureAttested } from '@/lib/integrity';
 import { persister, shouldPersist } from '@/lib/offline';
 import { useNotificationRouting } from '@/lib/push';
@@ -34,6 +35,11 @@ function RootNavigator() {
     if (userId && onboarded) ensureAttested(userId);
   }, [userId, onboarded]);
   useEffect(() => identify(userId ?? null), [userId]);
+
+  // An interrupted account deletion leaves status 'deleted': sign out instead of re-entering onboarding.
+  useEffect(() => {
+    if (status === 'deleted') signOut();
+  }, [status]);
 
   // Nothing from one account may stay on the device after sign-out.
   useEffect(() => {

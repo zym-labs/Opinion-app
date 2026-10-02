@@ -3,7 +3,14 @@ import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http
 import { checkIntegrity } from '../_shared/integrity.ts';
 import { looksLikeInjection, moderateText, redactPii } from '../_shared/moderation.ts';
 
-const seen = new Map<string, unknown>(); // idempotency, per instance
+// Idempotency for retried requests (per instance): bounded, short-lived, and tied to the exact body.
+const SEEN_MAX = 1000;
+const SEEN_TTL_MS = 10 * 60_000;
+const seen = new Map<string, { body: string; result: unknown; at: number }>();
+function remember(key: string, body: string, result: unknown) {
+  seen.set(key, { body, result, at: Date.now() });
+  while (seen.size > SEEN_MAX) seen.delete(seen.keys().next().value!);
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -11,10 +18,11 @@ Deno.serve(async (req) => {
   if (!userId) return fail('UNAUTHENTICATED', 401);
 
   const key = req.headers.get('Idempotency-Key');
-  if (key && seen.has(`${userId}:${key}`)) return json(seen.get(`${userId}:${key}`));
-
+  const cacheKey = key ? `${userId}:${key}` : null;
   // Read raw text: integrity tokens sign the exact body.
   const raw = await req.text();
+  const cached = cacheKey ? seen.get(cacheKey) : undefined;
+  if (cached && cached.body === raw && Date.now() - cached.at < SEEN_TTL_MS) return json(cached.result);
   let body: Record<string, unknown>;
   try {
     body = JSON.parse(raw || '{}');
@@ -51,6 +59,6 @@ Deno.serve(async (req) => {
 
   const { data: credits } = await admin.rpc('credit_units', { p_user: userId });
   const result = { closes_at: closesAt, credit_units: credits ?? 0 };
-  if (key) seen.set(`${userId}:${key}`, result);
+  if (cacheKey) remember(cacheKey, raw, result);
   return json(result);
 });
