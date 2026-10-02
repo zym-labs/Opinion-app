@@ -1,4 +1,5 @@
-export type Side = 'a' | 'b';
+export type Side = 'a' | 'b' | 'c' | 'd';
+export const SIDES: Side[] = ['a', 'b', 'c', 'd'];
 export type PollType = 'expert' | 'community';
 export type OnboardingStep =
   | 'signed_in'

@@ -57,3 +57,23 @@ describe('AISummary', () => {
     expect(screen.getByText('The AI is reading 12 reasons. Check back in a minute.')).toBeTruthy();
   });
 });
+
+describe('AISummary with three options', () => {
+  it('groups every non-winning option into "Others said"', async () => {
+    const three: Result = {
+      ...base,
+      options: [...base.options!, { side: 'c', label: 'Home', image_path: null, pct: 10 }],
+      summary: {
+        ...base.summary!,
+        points: [
+          { side: 'a', text: 'Quiet floors help focus.', reason_count: 4, quote_ids: [] },
+          { side: 'b', text: 'Cafés feel more social.', reason_count: 3, quote_ids: [] },
+          { side: 'c', text: 'Home has no commute.', reason_count: 2, quote_ids: [] },
+        ],
+      },
+    };
+    await render(<AISummary result={three} />);
+    expect(screen.getByText('Others said · Café, Home')).toBeTruthy();
+    expect(screen.getByText('• Home has no commute.')).toBeTruthy();
+  });
+});

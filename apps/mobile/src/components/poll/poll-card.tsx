@@ -48,7 +48,7 @@ export function PollCard({ poll }: { poll: FeedPoll }) {
             <CountdownPill closesAt={poll.closes_at} />
           </View>
           <Text variant="question">{poll.question}</Text>
-          <View style={{ flexDirection: 'row', gap: space[2] }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
             {poll.options.map((o) => (
               <OptionTile key={o.side} option={o} compact />
             ))}

@@ -16,7 +16,7 @@ import { radius, space, useColors } from '@/theme';
 
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
-import { SplitBar } from './split-bar';
+import { segmentsOf, SplitBar } from './split-bar';
 
 // interactive cards hold links, so they advance with a Next button instead of tap zones.
 type Card = { key: string; label: string; body: ReactNode; interactive?: boolean };
@@ -46,6 +46,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
   const name = (side: Side) => opt(side)?.label ?? `Option ${side.toUpperCase()}`;
   const pct = (side: Side) => Number(opt(side)?.pct ?? 0);
   const mine = r.you?.side;
+  const sides = (r.options ?? []).map((o) => o.side);
   const cards: Card[] = [];
 
   cards.push({
@@ -95,7 +96,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
         : 'It was a tie.';
   cards.push({
     key: 'split',
-    label: (['a', 'b'] as const)
+    label: sides
       .map((s) => `Option ${s.toUpperCase()}, ${name(s)}, ${pct(s).toFixed(0)} percent${mine === s ? ', your pick' : ''}`)
       .join('. ') + `. ${majorityLine}${r.you?.predicted_correctly ? ' You also predicted the result correctly.' : ''}`,
     body: (
@@ -103,7 +104,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
         <Text variant="label" tone="muted">
           The room said
         </Text>
-        {(['a', 'b'] as const).map((s) => (
+        {sides.map((s) => (
           <View key={s} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
             <SideBadge side={s} />
             <Text variant={r.winner === s ? 'bodyStrong' : 'body'} style={{ flex: 1 }}>
@@ -115,7 +116,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
             </Text>
           </View>
         ))}
-        <SplitBar pctA={pct('a')} />
+        <SplitBar segments={segmentsOf(r.options)} />
         <Text tone="muted">
           {majorityLine}
           {r.you?.predicted_correctly ? ' And you called it.' : ''}

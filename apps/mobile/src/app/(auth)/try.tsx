@@ -64,7 +64,7 @@ function VoteStep({ poll, n, total, onVote }: { poll: StarterPoll; n: number; to
     <Screen>
       <StepHeader step={2} total={2} title={`Practice poll ${n} of ${total}`} />
       <Text variant="question">{poll.question}</Text>
-      <View style={{ flexDirection: 'row', gap: space[3] }} accessibilityRole="radiogroup">
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }} accessibilityRole="radiogroup">
         {poll.options?.map((o) => (
           <OptionTile key={o.side} option={o} selected={side === o.side} onPress={() => setSide(o.side)} />
         ))}

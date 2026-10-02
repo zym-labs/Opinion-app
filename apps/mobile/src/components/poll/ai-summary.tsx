@@ -63,7 +63,8 @@ function PointRow({ point, quotes }: { point: SummaryPoint; quotes: Map<string, 
 }
 
 function SideCard({ side, title, label, body, pct, points, quotes }: {
-  side: Side;
+  /** null = several options grouped together (polls with 3–4 options). */
+  side: Side | null;
   title: string;
   label: string;
   body: string;
@@ -72,20 +73,21 @@ function SideCard({ side, title, label, body, pct, points, quotes }: {
   quotes: Map<string, { n: number; quote: string }>;
 }) {
   const c = useColors();
-  const s = useSideColors(side);
+  const s = useSideColors(side ?? 'a');
+  const stripe = side ? s.strong : c.textFaint;
   return (
     <View
-      accessibilityLabel={`${title}, option ${side.toUpperCase()}, ${label}${pct != null ? `, ${pct.toFixed(0)} percent` : ''}. ${body}`}
+      accessibilityLabel={`${title}, ${side ? `option ${side.toUpperCase()}, ` : ''}${label}${pct != null ? `, ${pct.toFixed(0)} percent` : ''}. ${body}`}
       style={{
         backgroundColor: c.surfaceMuted,
         borderRadius: radius.lg,
         borderLeftWidth: 4,
-        borderLeftColor: s.strong,
+        borderLeftColor: stripe,
         padding: space[4],
         gap: space[2],
       }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-        <SideBadge side={side} />
+        {side ? <SideBadge side={side} /> : null}
         <Text variant="label" style={{ flex: 1 }} numberOfLines={1}>
           {title} · {label}
         </Text>
@@ -126,11 +128,13 @@ export function AISummary({ result }: { result: Result }) {
 
   const s = result.summary;
   const winner: Side = result.winner ?? 'a';
-  const loser: Side = winner === 'a' ? 'b' : 'a';
+  const others = (result.options ?? []).filter((o) => o.side !== winner);
+  // Two options: the other side has its own card. Three or four: every other option is grouped.
+  const loser: Side | null = others.length === 1 ? others[0].side : null;
   const opt = (side: Side) => result.options?.find((o) => o.side === side);
   const label = (side: Side) => opt(side)?.label ?? `Option ${side.toUpperCase()}`;
   const pct = (side: Side) => (opt(side)?.pct != null ? Number(opt(side)!.pct) : null);
-  const points = (side: Side) => s.points?.filter((p) => p.side === side);
+  const points = (side: Side | null) => s.points?.filter((p) => (side ? p.side === side : p.side !== winner));
   const quotes = new Map((result.featured ?? []).map((f, i) => [f.id, { n: i + 1, quote: f.quote }]));
 
   return (
@@ -153,9 +157,9 @@ export function AISummary({ result }: { result: Result }) {
       <SideCard
         side={loser}
         title="Others said"
-        label={label(loser)}
+        label={loser ? label(loser) : others.map((o) => label(o.side)).join(', ')}
         body={s.minority ?? 'Too few people explained this side to summarise it fairly.'}
-        pct={pct(loser)}
+        pct={loser ? pct(loser) : others.reduce((n, o) => n + Number(o.pct ?? 0), 0)}
         points={points(loser)}
         quotes={quotes}
       />

@@ -9,10 +9,11 @@ import { Text } from '@/components/ui/text';
 import type { Result } from '@/lib/types';
 import { palette, radius, space } from '@/theme';
 
+import { sideColors } from './option-tile';
+
 const c = palette.light; // the card always uses the light palette so it reads well anywhere
 
 export const ShareCard = forwardRef<View, { result: Result }>(function Card({ result }, ref) {
-  const a = Number(result.options?.find((o) => o.side === 'a')?.pct ?? 0);
   const winner = result.options?.find((o) => o.side === result.winner);
   const excerpt = result.summary?.majority ? result.summary.majority.slice(0, 180) : null;
   return (
@@ -23,9 +24,10 @@ export const ShareCard = forwardRef<View, { result: Result }>(function Card({ re
       <Text variant="question" style={{ color: c.text }}>
         {result.question}
       </Text>
-      <View style={{ height: 14, flexDirection: 'row', borderRadius: radius.full, overflow: 'hidden' }}>
-        <View style={{ flex: a, backgroundColor: c.optionA }} />
-        <View style={{ flex: 100 - a, backgroundColor: c.optionB }} />
+      <View style={{ height: 14, flexDirection: 'row', gap: 2, borderRadius: radius.full, overflow: 'hidden' }}>
+        {result.options?.map((o) => (
+          <View key={o.side} style={{ flex: Math.max(Number(o.pct ?? 0), 0.5), backgroundColor: sideColors(c, o.side).strong }} />
+        ))}
       </View>
       {result.options?.map((o) => (
         <Text key={o.side} variant={o.side === result.winner ? 'bodyStrong' : 'body'} style={{ color: c.text }}>

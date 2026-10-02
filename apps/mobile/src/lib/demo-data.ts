@@ -31,6 +31,20 @@ export const DEMO_FEED: FeedPoll[] = [
     ],
   },
   {
+    id: 'demo-4',
+    type: 'expert',
+    is_taste: false,
+    question: 'Best summer plan before final year?',
+    closes_at: inHours(7.5),
+    target_label: 'Career',
+    is_sensitive: false,
+    options: [
+      { side: 'a', label: 'Internship', image_path: null },
+      { side: 'b', label: 'Travel', image_path: null },
+      { side: 'c', label: 'Summer course', image_path: null },
+    ],
+  },
+  {
     id: 'demo-3',
     type: 'expert',
     is_taste: true,

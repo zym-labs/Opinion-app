@@ -5,14 +5,20 @@ import { Pressable, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { imageUrl } from '@/lib/api';
-import type { PollOption } from '@/lib/types';
-import { radius, space, useColors } from '@/theme';
+import type { PollOption, Side } from '@/lib/types';
+import { radius, space, useColors, type Colors } from '@/theme';
 
-export function useSideColors(side: 'a' | 'b') {
-  const c = useColors();
-  return side === 'a'
-    ? { strong: c.optionA, soft: c.optionASoft, text: c.optionA }
-    : { strong: c.optionB, soft: c.optionBSoft, text: c.optionBText };
+export function sideColors(c: Colors, side: Side) {
+  return {
+    a: { strong: c.optionA, soft: c.optionASoft, text: c.optionA },
+    b: { strong: c.optionB, soft: c.optionBSoft, text: c.optionBText },
+    c: { strong: c.optionC, soft: c.optionCSoft, text: c.optionC },
+    d: { strong: c.optionD, soft: c.optionDSoft, text: c.optionD },
+  }[side];
+}
+
+export function useSideColors(side: Side) {
+  return sideColors(useColors(), side);
 }
 
 export function useImage(path: string | null) {
@@ -23,7 +29,7 @@ export function useImage(path: string | null) {
   return uri;
 }
 
-export function SideBadge({ side }: { side: 'a' | 'b' }) {
+export function SideBadge({ side }: { side: Side }) {
   const s = useSideColors(side);
   return (
     <View
@@ -64,7 +70,8 @@ export function OptionTile({ option, selected, onPress, compact }: {
         onPress?.();
       }}
       style={{
-        flex: 1,
+        flexBasis: '45%', // two per row; 3–4 options wrap into a grid
+        flexGrow: 1,
         borderRadius: compact ? radius.md : radius.xl,
         borderWidth: selected ? 2 : 1,
         borderColor: selected ? s.strong : c.border,

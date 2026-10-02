@@ -13,6 +13,8 @@ const bodyPairs = [
   ['onPrimary', 'primary'],
   ['optionA', 'surface'],
   ['optionBText', 'surface'],
+  ['optionC', 'surface'],
+  ['optionD', 'surface'],
   ['danger', 'surface'],
 ] as const;
 

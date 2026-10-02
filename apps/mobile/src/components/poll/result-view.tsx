@@ -4,14 +4,14 @@ import { Pressable, View } from 'react-native';
 
 import { Banner } from '@/components/ui/banner';
 import { Text } from '@/components/ui/text';
-import type { Result } from '@/lib/types';
+import type { Result, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
-import { SplitBar } from './split-bar';
+import { segmentsOf, SplitBar } from './split-bar';
 
-function Insight({ quote, side, id }: { quote: string; side: 'a' | 'b'; id: string }) {
+function Insight({ quote, side, id }: { quote: string; side: Side; id: string }) {
   const c = useColors();
   const s = useSideColors(side);
   return (
@@ -47,7 +47,6 @@ export function ResultView({ result }: { result: Result }) {
       </View>
     );
   }
-  const pctA = Number(result.options?.find((o) => o.side === 'a')?.pct ?? 50);
   return (
     <View style={{ gap: space[5] }}>
       <Text variant="question">{result.question}</Text>
@@ -70,7 +69,7 @@ export function ResultView({ result }: { result: Result }) {
             </View>
           );
         })}
-        <SplitBar pctA={pctA} />
+        <SplitBar segments={segmentsOf(result.options)} />
         <Text variant="label" tone="muted">
           {result.total_votes} votes
         </Text>

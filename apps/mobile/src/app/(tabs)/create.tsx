@@ -21,13 +21,15 @@ import { track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { keys, useCommunities, useCredits, useMe } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
-import type { PollType, Side } from '@/lib/types';
+import { SIDES, type PollType, type Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
 type Draft = {
   type: PollType;
   isTaste: boolean;
   question: string;
+  /** Number of options in use, 2–4 (a, b, then c, d). */
+  count: number;
   labels: Record<Side, string>;
   images: Record<Side, string | null>; // local uris
   categoryIds: number[];
@@ -40,8 +42,9 @@ const EMPTY: Draft = {
   type: 'expert',
   isTaste: false,
   question: '',
-  labels: { a: '', b: '' },
-  images: { a: null, b: null },
+  count: 2,
+  labels: { a: '', b: '', c: '', d: '' },
+  images: { a: null, b: null, c: null, d: null },
   categoryIds: [],
   ageRange: null,
   communityId: null,
@@ -81,7 +84,7 @@ function OptionEditor({ side, draft, setDraft }: { side: Side; draft: Draft; set
   }
   const image = draft.images[side];
   return (
-    <View style={{ flex: 1, gap: space[2] }}>
+    <View style={{ flexBasis: '47%', flexGrow: 1, gap: space[2] }}>
       <TextField
         label={`Option ${side.toUpperCase()}`}
         value={draft.labels[side]}
@@ -136,7 +139,14 @@ export default function Create() {
   useEffect(() => {
     AsyncStorage.getItem(DRAFT_KEY)
       .then((raw) => {
-        if (raw) setDraft({ ...EMPTY, ...JSON.parse(raw) });
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        setDraft({
+          ...EMPTY,
+          ...saved,
+          labels: { ...EMPTY.labels, ...saved.labels },
+          images: { ...EMPTY.images, ...saved.images },
+        });
       })
       .catch(() => {})
       .finally(() => {
@@ -188,7 +198,8 @@ export default function Create() {
   }
 
   const questionOk = draft.question.trim().length >= 5;
-  const optionsOk = (['a', 'b'] as const).every((s) => draft.labels[s].trim() || draft.images[s]);
+  const active = SIDES.slice(0, draft.count);
+  const optionsOk = active.every((s) => draft.labels[s].trim() || draft.images[s]);
   const audienceOk = (audience.data ?? 0) >= LIMITS.minAudience;
   const canPublish = questionOk && optionsOk && targetChosen && audienceOk;
 
@@ -201,17 +212,15 @@ export default function Create() {
         type: draft.type,
         is_taste: draft.isTaste,
         question: draft.question.trim(),
-        label_a: draft.labels.a.trim() || null,
-        label_b: draft.labels.b.trim() || null,
-        image_a: !!draft.images.a,
-        image_b: !!draft.images.b,
+        labels: active.map((s) => draft.labels[s].trim() || null),
+        images: active.map((s) => !!draft.images[s]),
         category_ids: targeting.p_categories,
         age_min: targeting.p_age_min,
         age_max: targeting.p_age_max,
         community_id: targeting.p_community,
         duration_hours: draft.hours,
       });
-      for (const side of ['a', 'b'] as const) {
+      for (const side of active) {
         const uri = draft.images[side];
         if (!uri) continue;
         const body = await (await fetch(uri)).arrayBuffer();
@@ -224,7 +233,7 @@ export default function Create() {
       track('poll_published', {
         type: draft.type,
         hours: draft.hours,
-        with_images: !!(draft.images.a || draft.images.b),
+        with_images: active.some((s) => !!draft.images[s]),
         age_range: !!targeting.p_age_min,
       });
       setDraft(EMPTY);
@@ -268,9 +277,34 @@ export default function Create() {
           multiline
           placeholder="MacBook Air or ThinkPad X1 for a CS degree?"
         />
-        <View style={{ flexDirection: 'row', gap: space[3] }}>
-          <OptionEditor side="a" draft={draft} setDraft={setDraft} />
-          <OptionEditor side="b" draft={draft} setDraft={setDraft} />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }}>
+          {active.map((side) => (
+            <OptionEditor key={side} side={side} draft={draft} setDraft={setDraft} />
+          ))}
+        </View>
+        <View style={{ flexDirection: 'row', gap: space[2] }}>
+          {draft.count < 4 ? (
+            <Button
+              label="Add option"
+              variant="secondary"
+              onPress={() => setDraft({ ...draft, count: draft.count + 1 })}
+            />
+          ) : null}
+          {draft.count > 2 ? (
+            <Button
+              label={`Remove option ${SIDES[draft.count - 1].toUpperCase()}`}
+              variant="ghost"
+              onPress={() => {
+                const last = SIDES[draft.count - 1];
+                setDraft({
+                  ...draft,
+                  count: draft.count - 1,
+                  labels: { ...draft.labels, [last]: '' },
+                  images: { ...draft.images, [last]: null },
+                });
+              }}
+            />
+          ) : null}
         </View>
       </Section>
 

@@ -139,7 +139,7 @@ export default function Vote() {
       </View>
       <Text variant="question">{p.question}</Text>
       <Link.AppleZoomTarget>
-        <View style={{ flexDirection: 'row', gap: space[3] }} accessibilityRole="radiogroup">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }} accessibilityRole="radiogroup">
           {p.options.map((o) => (
             <OptionTile key={o.side} option={o} selected={side === o.side} onPress={() => setSide(o.side)} />
           ))}
@@ -177,8 +177,8 @@ export default function Vote() {
             <Text variant="label" tone="muted">
               What will most people pick? (optional)
             </Text>
-            <View style={{ flexDirection: 'row', gap: space[2] }}>
-              {(['a', 'b'] as const).map((s) => (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
+              {p.options.map(({ side: s }) => (
                 <Chip key={s} label={s.toUpperCase()} selected={predicted === s} onPress={() => setPredicted(predicted === s ? null : s)} />
               ))}
             </View>

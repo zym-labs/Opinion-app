@@ -72,3 +72,20 @@ describe('result story cards', () => {
     expect(split.label).toContain('differently from most people');
   });
 });
+
+describe('multi-option results', () => {
+  const three = result({
+    options: [
+      { side: 'a', label: 'MacBook', image_path: null, pct: 30 },
+      { side: 'b', label: 'ThinkPad', image_path: null, pct: 20 },
+      { side: 'c', label: 'Dell XPS', image_path: null, pct: 50 },
+    ],
+    winner: 'c',
+    you: { side: 'a', in_majority: false, predicted_correctly: false },
+  });
+  it('lists every option on the split card', () => {
+    const split = buildCards(three, '#999', false).find((c) => c.key === 'split')!;
+    expect(split.label).toContain('Option C, Dell XPS, 50 percent');
+    expect(split.label).toContain('Option A, MacBook, 30 percent, your pick');
+  });
+});
