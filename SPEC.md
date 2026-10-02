@@ -100,3 +100,6 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
 - **Verified experts.** Users verify a work/university email on an admin-approved domain for one of their categories (hash only, 12 months). Results show "Verified experts (N): …" only when ≥ 5 verified experts voted.
 - **Creator insights.** Private to the asker: verified vs self-selected split, prediction accuracy, share explaining or agreeing to be quoted. Groups under 10 votes hidden; no timings.
 - **Follow-up polls.** From a completed poll; same audience by default; "Follow-up to …" in feed and vote screen; the original poll's voters are notified.
+- **Decision outcomes.** After close, the asker shares what they chose (or "none") and whether it helped; voters are told anonymously ("Your vote matched their decision"). A reminder goes out 2 days after close if they haven't. Profile shows "Askers went with your pick".
+- **Last-call nudges.** Polls under 10 votes closing within 2 hours notify up to 30 eligible voters, at most one nudge per person per day, one round per poll.
+- **Weekly streak.** 3+ votes a week; one missed week is forgiven; private, never loss-framed.

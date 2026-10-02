@@ -81,6 +81,16 @@ export default function Profile() {
           detail="“What will most people pick?”"
         />
         <Tile value={String(s?.featured_count ?? 0)} label="Reasons quoted" detail="Featured in a result" accent={c.ai} />
+        <Tile
+          value={String(s?.decision_matches ?? 0)}
+          label="Askers went with your pick"
+          detail="When they shared their decision"
+        />
+        <Tile
+          value={s?.week_streak ? `${s.week_streak} wk` : '—'}
+          label="Weekly streak"
+          detail={`${Math.min(s?.week_votes ?? 0, 3)}/3 votes this week · one missed week is forgiven`}
+        />
         <Tile value={String(s?.polls_voted ?? 0)} label="Polls voted" />
         <Tile
           wide

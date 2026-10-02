@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
 import { CountdownPill } from '@/components/poll/countdown';
+import { DecisionCard } from '@/components/poll/decision-card';
 import { CreatorInsights } from '@/components/poll/insights';
 import { ResultView } from '@/components/poll/result-view';
 import { ShareCard, shareCard } from '@/components/poll/share-card';
@@ -88,6 +89,7 @@ export default function MyPollScreen() {
     return (
       <Screen>
         <ResultView result={result.data} />
+        <DecisionCard poll={p} options={result.data.options ?? []} />
         {result.data.state !== 'not_enough_responses' ? (
           <CreatorInsights pollId={id} options={result.data.options ?? []} />
         ) : null}

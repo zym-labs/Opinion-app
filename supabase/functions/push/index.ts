@@ -7,6 +7,12 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
   summary_ready: (p) => ({ title: 'Your poll results', body: `“${p.question}” is complete.` }),
   insight_featured: (p) => ({ title: 'Your reason was featured', body: `On “${p.question}”.` }),
   follow_up: (p) => ({ title: 'A follow-up to a poll you voted on', body: `“${p.question}”` }),
+  decision_made: (p) => ({
+    title: p.matched ? 'Your vote matched their decision' : 'The asker decided',
+    body: `On “${p.question}” they went with ${p.chose}.`,
+  }),
+  decision_reminder: (p) => ({ title: 'What did you decide?', body: `Tell your voters what you chose on “${p.question}”.` }),
+  last_call: (p) => ({ title: 'Closing soon: needs your view', body: `“${p.question}” needs ${p.votes_needed} more votes for a result.` }),
   moderation_outcome: (p) =>
     p.kind === 'author'
       ? {
@@ -22,6 +28,9 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   summary_ready: (id) => `/my-poll/${id}`,
   insight_featured: () => '/featured',
   follow_up: (id) => `/vote/${id}`,
+  decision_made: () => '/notifications',
+  decision_reminder: (id) => `/my-poll/${id}`,
+  last_call: (id) => `/vote/${id}`,
   moderation_outcome: () => '/notifications',
 };
 

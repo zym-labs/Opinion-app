@@ -32,6 +32,7 @@ const MESSAGES: Record<string, string> = {
   INSUFFICIENT_CREDITS: 'Vote on more polls to post your own.',
   POLL_HAS_VOTES: 'Polls can only be deleted before the first vote.',
   RESULT_NOT_READY: 'Results aren’t ready yet.',
+  ALREADY_DECIDED: 'You’ve already shared your decision.',
   ACCOUNT_SUSPENDED: 'Your account is suspended.',
 };
 

@@ -36,6 +36,18 @@ function describe(n: Notification) {
       return { title: `Results are in: ${q}`, go: () => router.push({ pathname: '/result/[id]', params: { id: n.poll_id! } }) };
     case 'summary_ready':
       return { title: `Your poll is complete: ${q}`, go: () => router.push({ pathname: '/my-poll/[id]', params: { id: n.poll_id! } }) };
+    case 'decision_made':
+      return {
+        title: `${n.payload.matched ? 'Your vote matched their decision' : 'The asker decided'}: on ${q} they went with ${n.payload.chose}.`,
+        go: () => {},
+      };
+    case 'decision_reminder':
+      return { title: `What did you decide on ${q}?`, go: () => router.push({ pathname: '/my-poll/[id]', params: { id: n.poll_id! } }) };
+    case 'last_call':
+      return {
+        title: `Closing soon: ${q} needs ${n.payload.votes_needed} more votes`,
+        go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }),
+      };
     case 'follow_up':
       return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
     case 'insight_featured':

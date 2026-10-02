@@ -50,6 +50,10 @@ export type MyPoll = {
   removed_reason: string | null;
   parent_poll_id?: string | null;
   follow_up_count?: number;
+  decision_side?: Side | null;
+  decision_none?: boolean;
+  decision_helpful?: boolean | null;
+  decided_at?: string | null;
 };
 
 export type Result = {
@@ -80,6 +84,9 @@ export type Credits = { units: number; polls_available: number; pending_units: n
 export type Stats = {
   polls_voted: number;
   decided: number;
+  decision_matches: number;
+  week_votes: number;
+  week_streak: number;
   majority_matches: number;
   contrarian_picks: number;
   predictions_right: number;
@@ -93,7 +100,11 @@ export type Stats = {
 
 export type Notification = {
   id: string;
-  type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome' | 'follow_up';
+  type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome'
+    | 'follow_up'
+    | 'decision_made'
+    | 'decision_reminder'
+    | 'last_call';
   poll_id: string | null;
   payload: Record<string, unknown>;
   read_at: string | null;

@@ -18,6 +18,16 @@ type Metrics = {
   ai_failures: number;
 };
 
+type Outcomes = {
+  completed: number;
+  decision_pct: number | null;
+  helpful_pct: number | null;
+  followed_majority_pct: number | null;
+  last_calls_sent: number;
+  last_call_votes: number;
+  last_call_polls_reached_10: number | null;
+};
+
 function Tile({ label, value, target, ok }: { label: string; value: string; target?: string; ok?: boolean }) {
   return (
     <div className="card stack" style={{ gap: 4 }}>
@@ -35,6 +45,7 @@ function Tile({ label, value, target, ok }: { label: string; value: string; targ
 export default function MetricsPage() {
   const [days, setDays] = useState(7);
   const { data: m, error } = useRpc<Metrics>('admin_metrics', { p_days: days });
+  const { data: o } = useRpc<Outcomes>('admin_outcome_metrics', { p_days: days });
   const fmt = (v: number | null | undefined, suffix = '') => (v == null ? '—' : `${Math.round(Number(v) * 10) / 10}${suffix}`);
 
   return (
@@ -71,6 +82,19 @@ export default function MetricsPage() {
           <Tile label="Open reports" value={String(m.open_reports)} />
           <Tile label="AI failures" value={String(m.ai_failures)} />
         </div>
+      )}
+      {o && (
+        <>
+          <h2 style={{ margin: '16px 0 0' }}>Outcomes</h2>
+          <div className="grid">
+            <Tile label="Askers who shared a decision" value={fmt(o.decision_pct, '%')} />
+            <Tile label="Said the poll helped" value={fmt(o.helpful_pct, '%')} />
+            <Tile label="Went with the majority" value={fmt(o.followed_majority_pct, '%')} />
+            <Tile label="Last-call nudges sent" value={String(o.last_calls_sent)} />
+            <Tile label="Votes from nudges" value={String(o.last_call_votes)} />
+            <Tile label="Nudged polls reaching 10 votes" value={fmt(o.last_call_polls_reached_10, '%')} />
+          </div>
+        </>
       )}
       <p className="faint">Retention (D1/D7/D30) and crash-free sessions come from PostHog and Sentry.</p>
     </div>
