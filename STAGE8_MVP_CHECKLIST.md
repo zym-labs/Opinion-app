@@ -24,10 +24,10 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Sign in with Apple | 1 | 🟥 | Planned |
-| Google sign-in | 1 | 🟥 | Planned |
-| Email code / magic link | 1 | 🟥 | Planned |
-| Secure session storage, sign out | 1 | 🟥 | Planned |
+| Sign in with Apple | 1 | 🟥 | In development |
+| Google sign-in | 1 | 🟥 | In development |
+| Email code / magic link | 1 | 🟥 | In development |
+| Secure session storage, sign out | 1 | 🟥 | In development |
 | Age gate (birth year, 18+) | 2 | 🟥 | Planned |
 | App store age signals (iOS / Play) | 2 | 🟥 | Planned |
 | Terms acceptance + versioning | 2 | 🟥 | Planned |
@@ -129,9 +129,9 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| Privacy policy | 0 / 7 | 🟥 | Not started |
-| Terms of service | 0 / 7 | 🟥 | Not started |
-| Community guidelines | 0 / 7 | 🟥 | Not started |
+| Privacy policy | 0 / 7 | 🟥 | In design (draft) |
+| Terms of service | 0 / 7 | 🟥 | In design (draft) |
+| Community guidelines | 0 / 7 | 🟥 | In design (draft) |
 | Lawyer review | 7 | 🟥 | Not started |
 | GDPR records of processing + DPIA | 7 | 🟥 | Not started |
 | Vendor data agreements (Supabase, Anthropic, OpenAI, PostHog) | 7 | 🟥 | Not started |
@@ -145,7 +145,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 | Item | Phase | Bucket | Status |
 |---|---|---|---|
-| RLS on every table + CI check | 1 | 🟥 | Planned |
+| RLS on every table + CI check | 1 | 🟥 | In development |
 | pgTAP privacy tests | 4 | 🟥 | Planned |
 | End-to-end tests (Maestro) for core loop | 7 | 🟥 | Planned |
 | Security review (Stage 4 §9) | 7 | 🟥 | Planned |
@@ -162,7 +162,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Item | Bucket | Status |
 |---|---|---|
 | Pilot campus + 2–3 ambassadors | 🟥 | Not started |
-| 40 seed polls ready | 🟥 | Not started |
+| 40 seed polls ready | 🟥 | In design (draft) |
 | Closed beta (~50 users) run | 🟥 | Not started |
 | Go/no-go metrics met (Stage 7 Phase 8) | 🟥 | Not started |
 | Landing page live | 🟥 | Not started |

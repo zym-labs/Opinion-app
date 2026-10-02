@@ -1,0 +1,21 @@
+// Product limits from SPEC.md. Shared by the app, admin and Edge Functions.
+export const LIMITS = {
+  minAge: 18,
+  maxCategories: 5,
+  categoryCooldownDays: 7,
+  questionMax: 120,
+  optionLabelMax: 60,
+  reasonMin: 20,
+  reasonMax: 200,
+  durationMinHours: 3,
+  durationMaxHours: 24,
+  ageRangeMinSpan: 5,
+  minAudience: 20,
+  resultMinVotes: 10,
+  minorityMinReasons: 5,
+  featuredInsightsMax: 3,
+  creditUnitsPerVote: 1,
+  creditUnitsPerPoll: 3,
+  signupCreditUnits: 3,
+  resultViewedAfterSeconds: 10,
+} as const;

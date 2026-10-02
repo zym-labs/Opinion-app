@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Shared tests (incl. color contrast)
+        run: npm test -w @opinion/shared
+      - name: Typecheck
+        run: npm run typecheck --workspaces --if-present
+      - name: Lint
+        run: npx expo lint
+        working-directory: apps/mobile
+      - name: Expo doctor
+        run: npx expo-doctor
+        working-directory: apps/mobile
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase db start
+      - name: Database tests (RLS, profiles)
+        run: supabase test db
+
+  # Builds run on EAS when an EXPO_TOKEN secret is configured (Phase 0 account setup).
+  build:
+    needs: [app, database]
+    if: github.ref == 'refs/heads/main' && vars.EAS_BUILD_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - run: eas build --profile preview --platform all --non-interactive --no-wait
+        working-directory: apps/mobile

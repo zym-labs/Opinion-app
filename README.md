@@ -13,3 +13,25 @@ AI-powered decision app: post a 2-option poll to self-selected experts or a comm
 - [Stage 6 — Design system](STAGE6_DESIGN_SYSTEM.md)
 - [Stage 7 — Roadmap](STAGE7_ROADMAP.md)
 - [Stage 8 — MVP checklist](STAGE8_MVP_CHECKLIST.md)
+
+## Development
+
+Monorepo (npm workspaces):
+
+| Path | What |
+|---|---|
+| `apps/mobile` | Expo (SDK 57) app — Expo Router, Supabase auth |
+| `packages/shared` | Design tokens, product limits, Zod schemas (+ contrast tests) |
+| `supabase/` | Migrations, pgTAP tests, local config |
+| `docs/phase0` | Account setup checklist, seed polls |
+| `docs/legal` | Privacy policy, terms, guidelines (drafts) |
+
+```bash
+npm install
+cp apps/mobile/.env.example apps/mobile/.env.local   # fill in values
+npm run mobile                                       # Expo dev server
+npm test                                             # shared tests
+npx supabase start && npx supabase test db           # needs Docker
+```
+
+Sign in with Apple and Google need a development build (`npx eas-cli build --profile development`), not Expo Go.
