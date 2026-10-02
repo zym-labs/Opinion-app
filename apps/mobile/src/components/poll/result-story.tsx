@@ -40,7 +40,7 @@ function Quote({ quote, side, id }: { quote: string; side: Side; id: string }) {
   );
 }
 
-function buildCards(r: Result, faint: string): Card[] {
+function buildCards(r: Result, faint: string, starter: boolean): Card[] {
   const opt = (side: Side) => r.options?.find((o) => o.side === side);
   const name = (side: Side) => opt(side)?.label ?? `Option ${side.toUpperCase()}`;
   const pct = (side: Side) => Number(opt(side)?.pct ?? 0);
@@ -56,7 +56,11 @@ function buildCards(r: Result, faint: string): Card[] {
           The poll has closed
         </Text>
         <Text variant="title">{r.question}</Text>
-        <Text tone="muted">{r.total_votes} people voted. You can see this result once.</Text>
+        <Text tone="muted">
+          {starter
+            ? `A real poll that ran on Opinion. ${r.total_votes} people voted.`
+            : `${r.total_votes} people voted. You can see this result once.`}
+        </Text>
       </>
     ),
   });
@@ -152,6 +156,23 @@ function buildCards(r: Result, faint: string): Card[] {
     });
   }
 
+  if (starter) {
+    cards.push({
+      key: 'end',
+      label: 'That was a real poll from Opinion. Tap Next to continue.',
+      body: (
+        <>
+          <Text variant="title">That’s how a result arrives.</Text>
+          <Text tone="muted">
+            On Opinion, every poll ends like this: the split, an AI summary of both sides, and the reasons in voters’ own
+            words. Practice votes aren’t saved.
+          </Text>
+        </>
+      ),
+    });
+    return cards;
+  }
+
   cards.push({
     key: 'end',
     label: 'That is the result. It will now leave your feed. Tap Done to finish.',
@@ -174,10 +195,19 @@ function buildCards(r: Result, faint: string): Card[] {
 }
 
 /** Calls onFinish when the user leaves the last card (that's when the result counts as viewed). */
-export function ResultStory({ result, onFinish }: { result: Result; onFinish: () => void }) {
+export function ResultStory({
+  result,
+  onFinish,
+  starter = false,
+}: {
+  result: Result;
+  onFinish: () => void;
+  /** Starter polls are practice: no view-once wording, different last card. */
+  starter?: boolean;
+}) {
   const c = useColors();
   const reduceMotion = useReducedMotion();
-  const cards = buildCards(result, c.textFaint);
+  const cards = buildCards(result, c.textFaint, starter);
   const [i, setI] = useState(0);
   const last = i === cards.length - 1;
 
@@ -238,7 +268,7 @@ export function ResultStory({ result, onFinish }: { result: Result; onFinish: ()
 
       <View style={{ padding: space[4], gap: space[2] }}>
         {last ? (
-          <Button label="Done" onPress={onFinish} />
+          <Button label={starter ? 'Next' : 'Done'} onPress={onFinish} />
         ) : card.interactive ? (
           <View style={{ flexDirection: 'row', gap: space[2] }}>
             <View style={{ flex: 1 }}>

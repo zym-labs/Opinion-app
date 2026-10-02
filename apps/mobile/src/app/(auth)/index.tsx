@@ -1,4 +1,5 @@
 // A-02 Welcome + A-03 Sign in (STAGE1 §2).
+import { useQuery } from '@tanstack/react-query';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -9,7 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { track } from '@/lib/analytics';
+import { rpc } from '@/lib/api';
 import { signInWithApple, signInWithGoogle } from '@/lib/auth';
+import type { StarterPoll } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
 function isCancel(e: unknown) {
@@ -22,6 +25,13 @@ export default function SignIn() {
   const scheme = useColorScheme();
   const [busy, setBusy] = useState<'apple' | 'google' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Starter polls let newcomers try Opinion before creating an account.
+  const starters = useQuery({
+    queryKey: ['starter-polls'],
+    queryFn: () => rpc<StarterPoll[]>('get_starter_polls'),
+    staleTime: 60 * 60_000,
+  });
+  const canTry = (starters.data?.length ?? 0) > 0;
 
   async function run(method: 'apple' | 'google', fn: () => Promise<unknown>) {
     setError(null);
@@ -62,6 +72,7 @@ export default function SignIn() {
 
       <View style={{ gap: space[3] }}>
         {error ? <Banner tone="danger" message={error} /> : null}
+        {canTry ? <Button label="Try 3 real polls first" onPress={() => router.push('/try')} /> : null}
         {Platform.OS === 'ios' ? (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}

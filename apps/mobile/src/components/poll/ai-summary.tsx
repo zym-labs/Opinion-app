@@ -2,28 +2,75 @@
 // low-evidence state, "How this works" and a report action.
 import { router } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
-import type { Result, Side } from '@/lib/types';
+import type { Result, Side, SummaryPoint } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
 import { SideBadge, useSideColors } from './option-tile';
 
 const FEW_REASONS = 5;
 
-function SideCard({ side, title, label, body, pct }: {
+/** A summary point with its evidence: "N reasons" and tappable quote chips that show the voter's words. */
+function PointRow({ point, quotes }: { point: SummaryPoint; quotes: Map<string, { n: number; quote: string }> }) {
+  const c = useColors();
+  const [open, setOpen] = useState<string | null>(null);
+  const linked = point.quote_ids.filter((id) => quotes.has(id));
+  return (
+    <View style={{ gap: space[2] }}>
+      <Text>• {point.text}</Text>
+      {point.reason_count > 0 || linked.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], paddingLeft: space[3] }}>
+          {point.reason_count > 0 ? (
+            <Text variant="caption" tone="faint" style={{ paddingVertical: space[1] }}>
+              From {point.reason_count} {point.reason_count === 1 ? 'reason' : 'reasons'}
+            </Text>
+          ) : null}
+          {linked.map((id) => (
+            <Pressable
+              key={id}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: open === id }}
+              accessibilityLabel={`Show quote ${quotes.get(id)!.n}`}
+              onPress={() => setOpen(open === id ? null : id)}
+              style={{
+                paddingHorizontal: space[2],
+                paddingVertical: space[1],
+                borderRadius: radius.full,
+                borderWidth: 1,
+                borderColor: open === id ? c.ai : c.border,
+              }}>
+              <Text variant="caption" style={{ color: c.ai }}>
+                Quote {quotes.get(id)!.n}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      {open ? (
+        <Text variant="quote" style={{ paddingLeft: space[3] }}>
+          “{quotes.get(open)!.quote}”
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+function SideCard({ side, title, label, body, pct, points, quotes }: {
   side: Side;
   title: string;
   label: string;
   body: string;
   pct: number | null;
+  points?: SummaryPoint[];
+  quotes: Map<string, { n: number; quote: string }>;
 }) {
   const c = useColors();
   const s = useSideColors(side);
   return (
     <View
-      accessible
       accessibilityLabel={`${title}, option ${side.toUpperCase()}, ${label}${pct != null ? `, ${pct.toFixed(0)} percent` : ''}. ${body}`}
       style={{
         backgroundColor: c.surfaceMuted,
@@ -44,7 +91,11 @@ function SideCard({ side, title, label, body, pct }: {
           </Text>
         ) : null}
       </View>
-      <Text>{body}</Text>
+      {points?.length ? (
+        points.map((p, i) => <PointRow key={i} point={p} quotes={quotes} />)
+      ) : (
+        <Text>{body}</Text>
+      )}
     </View>
   );
 }
@@ -75,6 +126,8 @@ export function AISummary({ result }: { result: Result }) {
   const opt = (side: Side) => result.options?.find((o) => o.side === side);
   const label = (side: Side) => opt(side)?.label ?? `Option ${side.toUpperCase()}`;
   const pct = (side: Side) => (opt(side)?.pct != null ? Number(opt(side)!.pct) : null);
+  const points = (side: Side) => s.points?.filter((p) => p.side === side);
+  const quotes = new Map((result.featured ?? []).map((f, i) => [f.id, { n: i + 1, quote: f.quote }]));
 
   return (
     <View style={{ gap: space[3] }}>
@@ -84,13 +137,23 @@ export function AISummary({ result }: { result: Result }) {
           Only a few reasons were given, so this summary may not reflect everyone.
         </Text>
       ) : null}
-      <SideCard side={winner} title="Most said" label={label(winner)} body={s.majority!} pct={pct(winner)} />
+      <SideCard
+        side={winner}
+        title="Most said"
+        label={label(winner)}
+        body={s.majority!}
+        pct={pct(winner)}
+        points={points(winner)}
+        quotes={quotes}
+      />
       <SideCard
         side={loser}
         title="Others said"
         label={label(loser)}
         body={s.minority ?? 'Too few people explained this side to summarise it fairly.'}
         pct={pct(loser)}
+        points={points(loser)}
+        quotes={quotes}
       />
       {s.disclaimer ? (
         <Text variant="caption" tone="faint">

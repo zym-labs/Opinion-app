@@ -12,6 +12,7 @@ Positioning: anonymous *polling* with aggregate results — never anonymous chat
 - No paid acquisition early (installs cost about $3–4 each, with nothing to recoup it).
 
 ## Onboarding
+0. Optional: try 3 starter polls before signing up (practice votes, not saved; birth year asked first)
 1. Sign in — Apple + Google + email magic link (Apple 4.8 requires Apple if Google is offered)
 2. Age gate, 18+ only; store birth year; honour the age signals the app stores now provide (Texas/Utah laws)
 3. Choose up to 5 Expert Categories (labelled "self-selected"); editable in Settings, rate-limited

@@ -213,7 +213,7 @@ Voters see results once, so the reveal is a full-screen tap-through sequence (Sp
 - **Low evidence:** fewer than 5 reasons → warning line "Only a few reasons were given…".
 - Pending state: "The AI is reading N reasons." Failed state: points to the voters' own words.
 - Links: **How this works** (modal explaining inputs, fairness check, quote selection, limits) and **Report summary**.
-- Later: per-point citation chips once the AI's cited reason ids are stored.
+- **Citations:** each summary is 1–3 points. Under every point: "From N reasons" and **Quote** chips for the featured quotes it draws on; tapping a chip shows the voter's words inline. Reason ids never leave the server.
 
 ## Privacy cue at the moment of writing (F-02)
 Directly under the reason field, with a lock icon: "Your name is never shown. Your reason may be quoted anonymously, so leave out details that identify you or anyone else." (Replaces the separate lock line at the bottom.)
@@ -224,8 +224,9 @@ Private mastery signals only: majority-match rate, "your reason was quoted". Cre
 ## Still to build (from the report's priority table)
 | Priority | Item | Note |
 |---|---|---|
-| P0 | Vote on seed polls before sign-up | Needs Supabase anonymous sign-in + linking; design decision pending |
 | P1 | Reason sheet slides up after option select; card → vote shared-element transition | |
 | P1 | Feed routes voters to polls short of votes | Server-side ordering change |
 | P2 | Profile bento of private stats; credit count-up | |
-| — | Per-point citation chips | Store `majority_reason_ids` / `minority_reason_ids` from the AI job |
+
+## Try before signing up (built)
+Welcome → **Try 3 real polls first** → birth year (kept on the phone; under-18 stops here) → practice vote on each **starter poll** (a completed poll an admin picks in Admin → Starter polls) → its full reveal story in starter mode → **Create account**. Practice votes are never sent anywhere. The birth year is submitted automatically at the onboarding age step. No anonymous accounts are created, so there is nothing to abuse.

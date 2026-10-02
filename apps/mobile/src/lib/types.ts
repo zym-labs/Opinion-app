@@ -56,7 +56,13 @@ export type Result = {
   winner?: Side | null;
   you?: { side?: Side; in_majority: boolean | null; predicted_correctly: boolean | null } | null;
   prediction?: { a_pct: number } | null;
-  summary?: { majority: string | null; minority: string | null; label: string; disclaimer: string | null } | null;
+  summary?: {
+    majority: string | null;
+    minority: string | null;
+    points?: SummaryPoint[] | null;
+    label: string;
+    disclaimer: string | null;
+  } | null;
   featured?: { id: string; quote: string; side: Side }[];
   reason_count?: number;
   view_once?: boolean;
@@ -81,3 +87,9 @@ export type Notification = {
   read_at: string | null;
   created_at: string;
 };
+
+/** One AI summary point with its evidence (STAGE6 v2: citation links). */
+export type SummaryPoint = { side: Side; text: string; reason_count: number; quote_ids: string[] };
+
+/** Starter poll shown before sign-up: a completed poll's public result. */
+export type StarterPoll = Result & { type: PollType; is_taste: boolean };

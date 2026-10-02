@@ -12,6 +12,7 @@ const NAV = [
   ['/admin/users', 'Users'],
   ['/admin/communities', 'Communities'],
   ['/admin/seed', 'Seed polls'],
+  ['/admin/starters', 'Starter polls'],
   ['/admin/ai', 'AI failures'],
   ['/admin/metrics', 'Metrics'],
 ] as const;
