@@ -35,7 +35,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase db start
+      - run: supabase db start --debug
       - name: Database tests (RLS, profiles)
         run: supabase test db
 
