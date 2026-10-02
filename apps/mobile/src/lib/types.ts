@@ -32,6 +32,8 @@ export type FeedPoll = {
   target_label: string | null;
   is_sensitive: boolean;
   options: PollOption[];
+  /** Feed sort bucket (0 = still needs votes); used as the paging cursor. */
+  bucket?: number;
   /** Question of the poll this one follows up, if any. */
   follow_up_of?: string | null;
 };

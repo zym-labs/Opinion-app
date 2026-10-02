@@ -8,6 +8,7 @@ import { ResultView } from '@/components/poll/result-view';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
@@ -39,7 +40,7 @@ export default function ResultScreen() {
     };
   }, [viewable, id, qc]);
 
-  if (result.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
+  if (result.isLoading) return <Screen><ScreenSkeleton /></Screen>;
   if (result.error) {
     return (
       <Screen>

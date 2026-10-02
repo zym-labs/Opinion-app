@@ -7,6 +7,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
+import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { errorMessage, rpc } from '@/lib/api';
 import { enablePush } from '@/lib/push';
@@ -38,7 +39,7 @@ export default function NotificationSettings() {
       return data as Prefs | null;
     },
   });
-  if (q.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
+  if (q.isLoading) return <Screen><ScreenSkeleton /></Screen>;
   return <PrefsForm initial={q.data ?? DEFAULTS} />;
 }
 

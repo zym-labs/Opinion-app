@@ -11,6 +11,7 @@ import { StepHeader } from '@/components/step-header';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { getStoreSaysAdult } from '@/lib/age-signal';
@@ -94,7 +95,7 @@ export default function Try() {
   const [step, setStep] = useState<Step | null>(null);
 
   const polls = starters.data ?? [];
-  if (starters.isLoading || pending.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
+  if (starters.isLoading || pending.isLoading) return <Screen><ScreenSkeleton /></Screen>;
 
   const current: Step =
     step ?? (pending.data && isAdult(pending.data) ? (polls.length ? { kind: 'vote', i: 0 } : { kind: 'done' }) : { kind: 'age' });

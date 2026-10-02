@@ -16,6 +16,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
+import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { timeBucket, track } from '@/lib/analytics';
@@ -45,7 +46,7 @@ export default function Vote() {
   const reduceMotion = useReducedMotion();
 
   const p = poll.data;
-  if (poll.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
+  if (poll.isLoading) return <Screen><ScreenSkeleton /></Screen>;
   if (!p) {
     // F-07 Poll unavailable (closed, removed, already voted or not eligible).
     return (

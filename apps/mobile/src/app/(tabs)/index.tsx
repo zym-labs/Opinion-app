@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/empty-state';
 import { HeaderBar } from '@/components/header-bar';
 import { timeLeft } from '@/components/poll/countdown';
 import { PollCard } from '@/components/poll/poll-card';
+import { PollCardSkeleton } from '@/components/ui/skeleton';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -72,13 +73,20 @@ export default function Feed() {
     setRefreshing(false);
   }
 
-  const empty = !feed.data?.length && !ready.data?.length && !waiting.data?.length;
+  const polls = feed.data?.pages.flat() ?? [];
+  const empty = !polls.length && !ready.data?.length && !waiting.data?.length;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{ padding: space[4], gap: space[6], flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
+        scrollEventThrottle={200}
+        onScroll={({ nativeEvent: e }) => {
+          // Load the next page when within one screen of the end.
+          const nearEnd = e.contentOffset.y + e.layoutMeasurement.height * 2 >= e.contentSize.height;
+          if (nearEnd && feed.hasNextPage && !feed.isFetchingNextPage) feed.fetchNextPage();
+        }}>
         <HeaderBar title="Feed" />
         {offline ? <Banner tone="warning" message="You’re offline. Showing your last feed; voting is paused." /> : null}
 
@@ -96,11 +104,12 @@ export default function Feed() {
           </Section>
         ) : null}
 
-        {feed.data?.length ? (
+        {polls.length ? (
           <Section title="Open polls">
-            {feed.data.map((p) => (
+            {polls.map((p) => (
               <PollCard key={p.id} poll={p} />
             ))}
+            {feed.isFetchingNextPage ? <PollCardSkeleton /> : null}
           </Section>
         ) : null}
 

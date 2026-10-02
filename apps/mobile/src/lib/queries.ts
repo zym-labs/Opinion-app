@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { rpc } from './api';
 import { useSession } from './session';
@@ -51,7 +51,22 @@ export function useCommunities() {
   });
 }
 
-export const useFeed = () => useQuery({ queryKey: keys.feed, queryFn: () => rpc<FeedPoll[]>('get_feed') });
+const FEED_PAGE = 20;
+
+/** Feed pages: polls short of votes first, then soonest closing; the cursor is the last poll's sort key. */
+export const useFeed = () =>
+  useInfiniteQuery({
+    queryKey: keys.feed,
+    initialPageParam: null as FeedPoll | null,
+    queryFn: ({ pageParam }) =>
+      rpc<FeedPoll[]>('get_feed', {
+        p_limit: FEED_PAGE,
+        p_after_closes: pageParam?.closes_at ?? null,
+        p_after_id: pageParam?.id ?? null,
+        p_after_bucket: pageParam?.bucket ?? null,
+      }),
+    getNextPageParam: (last) => (last.length === FEED_PAGE ? last[last.length - 1] : undefined),
+  });
 export const useWaiting = () => useQuery({ queryKey: keys.waiting, queryFn: () => rpc<WaitingPoll[]>('get_waiting') });
 export const useResultsReady = () =>
   useQuery({ queryKey: keys.ready, queryFn: () => rpc<ReadyResult[]>('get_results_ready') });

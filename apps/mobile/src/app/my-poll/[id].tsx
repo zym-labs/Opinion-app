@@ -12,6 +12,7 @@ import { ShareCard, shareCard } from '@/components/poll/share-card';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
@@ -54,7 +55,7 @@ export default function MyPollScreen() {
     };
   }, [id, p?.status]);
 
-  if (!p) return <Screen><Text tone="muted">{poll.isLoading ? 'Loading…' : 'Poll not found.'}</Text></Screen>;
+  if (!p) return <Screen>{poll.isLoading ? <ScreenSkeleton /> : <Text tone="muted">Poll not found.</Text>}</Screen>;
 
   function remove() {
     Alert.alert('Delete this poll?', 'Your poll credit will be refunded.', [
