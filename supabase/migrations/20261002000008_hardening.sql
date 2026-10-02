@@ -22,13 +22,19 @@ end $$;
 create or replace function public.submit_report(
   p_target public.report_target, p_target_id uuid, p_reason public.report_reason, p_note text default null)
 returns void language plpgsql security definer set search_path = '' as $$
+declare
+  found_target boolean;
 begin
   perform public.require_user();
   perform public.hit_rate_limit(auth.uid(), 'report', 20, interval '1 day');
-  if not case p_target
-      when 'poll' then exists (select 1 from public.polls where id = p_target_id and status not in ('draft','deleted'))
-      when 'reason' then exists (select 1 from public.reasons where vote_id = p_target_id)
-      else exists (select 1 from public.featured_insights where id = p_target_id and not removed) end then
+  if p_target = 'poll' then
+    found_target := exists (select 1 from public.polls where id = p_target_id and status not in ('draft','deleted'));
+  elsif p_target = 'reason' then
+    found_target := exists (select 1 from public.reasons where vote_id = p_target_id);
+  else
+    found_target := exists (select 1 from public.featured_insights where id = p_target_id and not removed);
+  end if;
+  if not found_target then
     raise exception 'NOT_FOUND' using errcode = 'P0001';
   end if;
   insert into public.reports (reporter_id, target_type, poll_id, reason_vote_id, featured_insight_id, reason, note, severity)
