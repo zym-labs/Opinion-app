@@ -49,6 +49,24 @@ function describe(n: Notification) {
       };
     case 'follow_up':
       return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
+    case 'reengage': {
+      const step = Number(n.payload.step);
+      const count = Number(n.payload.count ?? 0);
+      const title =
+        step === 3
+          ? `${count} ${count === 1 ? 'poll in your topics is' : 'polls in your topics are'} open`
+          : step === 7
+            ? 'Results from polls you voted on are waiting'
+            : 'Your topics have new questions';
+      return { title, go: () => router.navigate('/') };
+    }
+    case 'decision_checkin':
+      return { title: `A month on: are you glad about your decision on ${q}?`, go: () => router.push('/journal') };
+    case 'info_requested':
+      return {
+        title: `People want more context on ${q}. Ask a follow-up with details?`,
+        go: () => router.push({ pathname: '/my-poll/[id]', params: { id: n.poll_id! } }),
+      };
     case 'boosted_poll':
       return { title: `Your view is wanted on ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
     case 'referral_credited':

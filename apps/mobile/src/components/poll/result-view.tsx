@@ -10,6 +10,7 @@ import { radius, space, useColors } from '@/theme';
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
 import { segmentsOf, SplitBar } from './split-bar';
+import { verdictOf } from './verdict';
 import { VerifiedLine } from './verified-line';
 
 function Insight({ quote, side, id }: { quote: string; side: Side; id: string }) {
@@ -71,6 +72,7 @@ export function ResultView({ result }: { result: Result }) {
           );
         })}
         <SplitBar segments={segmentsOf(result.options)} />
+        {verdictOf(result.options) ? <Text variant="bodyStrong">{verdictOf(result.options)}</Text> : null}
         <VerifiedLine result={result} />
         <Text variant="label" tone="muted">
           {result.total_votes} votes

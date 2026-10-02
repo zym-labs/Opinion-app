@@ -47,6 +47,10 @@ export function FriendLink({ pollId, question }: { pollId: string; question: str
     queryFn: async () => (await rpc<Stats[]>('poll_invite_stats', { p_poll: pollId }))[0] ?? null,
   });
   const [error, setError] = useState<string | null>(null);
+  const info = useQuery({
+    queryKey: ['info-requests', pollId],
+    queryFn: () => rpc<number>('poll_info_requests', { p_poll: pollId }),
+  });
 
   async function share() {
     setError(null);
@@ -71,6 +75,12 @@ export function FriendLink({ pollId, question }: { pollId: string; question: str
         <Text variant="caption" tone="faint">
           {stats.data.link_votes} votes came from your link.
         </Text>
+      ) : null}
+      {info.data ? (
+        <Banner
+          tone="warning"
+          message={`${info.data} people said they need more context to decide. When this closes, a follow-up with details can help.`}
+        />
       ) : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       {stats.data && !stats.data.friends_only ? <Boost pollId={pollId} /> : null}

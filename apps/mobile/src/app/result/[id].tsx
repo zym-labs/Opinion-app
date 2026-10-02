@@ -12,6 +12,7 @@ import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
+import { maybeAskForReview } from '@/lib/review';
 import type { Result } from '@/lib/types';
 
 export default function ResultScreen() {
@@ -80,7 +81,14 @@ export default function ResultScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-      <ResultStory result={r} onFinish={() => router.back()} />
+      <ResultStory
+        result={r}
+        onFinish={() => {
+          // A good moment to ask for a rating: they matched the room or called it.
+          if (r.you?.in_majority || r.you?.predicted_correctly) maybeAskForReview();
+          router.back();
+        }}
+      />
     </>
   );
 }

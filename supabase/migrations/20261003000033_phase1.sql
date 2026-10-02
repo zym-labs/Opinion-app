@@ -182,7 +182,7 @@ returns table (id uuid, type public.poll_type, is_taste boolean, question text, 
 language plpgsql stable security definer set search_path = '' as $$
 declare me public.profiles;
 begin
-  select * into me from public.profiles where id = p_user;
+  select * into me from public.profiles pr where pr.id = p_user;
   return query
   select p.id, p.type, p.is_taste, p.question, p.closes_at,
     case when p.daily_on is not null then 'Today’s question'

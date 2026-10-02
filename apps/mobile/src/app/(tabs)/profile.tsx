@@ -109,6 +109,7 @@ export default function Profile() {
           <Text>{s.top_categories.join(' · ')}</Text>
         </View>
       ) : null}
+      <Button label="Decision journal" onPress={() => router.push('/journal')} />
       <InviteCard />
       <Button label="Your quoted reasons" variant="secondary" onPress={() => router.push('/featured')} />
       <Button label="Settings" variant="secondary" onPress={() => router.push('/settings')} />

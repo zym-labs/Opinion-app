@@ -7,6 +7,7 @@ import { Pressable, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { track } from '@/lib/analytics';
+import { rpc } from '@/lib/api';
 import type { Result, Side, SummaryPoint } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
@@ -108,6 +109,7 @@ function SideCard({ side, title, label, body, pct, points, quotes }: {
 
 export function AISummary({ result }: { result: Result }) {
   const c = useColors();
+  const [flagged, setFlagged] = useState(false);
   const count = result.reason_count ?? 0;
 
   if (result.state === 'summary_pending') {
@@ -168,6 +170,9 @@ export function AISummary({ result }: { result: Result }) {
           {s.disclaimer}
         </Text>
       ) : null}
+      <Text variant="caption" tone="faint">
+        AI can miss nuance. The quotes are voters’ own words.
+      </Text>
       <View style={{ flexDirection: 'row', gap: space[4] }}>
         <Pressable
           accessibilityRole="button"
@@ -188,6 +193,21 @@ export function AISummary({ result }: { result: Result }) {
           }>
           <Text variant="label" tone="faint">
             Report summary
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ disabled: flagged }}
+          hitSlop={8}
+          disabled={flagged}
+          onPress={() => {
+            setFlagged(true);
+            track('summary_flagged', {});
+            // Best effort: goes to the admin AI-quality queue.
+            rpc('flag_summary', { p_poll: result.poll_id }).catch(() => {});
+          }}>
+          <Text variant="label" tone="faint">
+            {flagged ? 'Thanks, we’ll check it' : 'Summary seems off'}
           </Text>
         </Pressable>
       </View>

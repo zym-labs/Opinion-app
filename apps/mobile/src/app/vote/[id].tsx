@@ -9,10 +9,12 @@ import { useRef, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
+import { CrisisSupport } from '@/components/crisis-support';
+import { ErrorState } from '@/components/error-state';
+import { PushPrompt } from '@/components/push-prompt';
 import { CountdownPill, timeLeft } from '@/components/poll/countdown';
 import { OptionTile } from '@/components/poll/option-tile';
 import { TypeBadge } from '@/components/poll/poll-card';
-import { ErrorState } from '@/components/error-state';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
@@ -26,6 +28,27 @@ import { useOffline } from '@/lib/offline';
 import { keys } from '@/lib/queries';
 import type { FeedPoll, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
+
+function NeedInfo({ pollId, onDone }: { pollId: string; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      label="I need more info to decide"
+      variant="ghost"
+      loading={busy}
+      onPress={async () => {
+        setBusy(true);
+        try {
+          await rpc('request_info', { p_poll: pollId });
+          track('info_requested', {});
+        } finally {
+          setBusy(false);
+          onDone();
+        }
+      }}
+    />
+  );
+}
 
 export default function Vote() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,6 +65,7 @@ export default function Vote() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ closes_at: string; credit_units: number } | null>(null);
+  const [crisis, setCrisis] = useState(false);
   const idempotencyKey = useRef(Crypto.randomUUID()).current;
   const offline = useOffline();
   const reduceMotion = useReducedMotion();
@@ -85,11 +109,13 @@ export default function Vote() {
       setDone(res);
       qc.invalidateQueries({ queryKey: keys.feed });
       qc.invalidateQueries({ queryKey: keys.waiting });
+      qc.invalidateQueries({ queryKey: ['daily'] });
       qc.invalidateQueries({ queryKey: keys.credits });
     } catch (e) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       track('vote_failed', { code: e instanceof ApiError ? e.code : 'UNKNOWN' });
-      setError(errorMessage(e));
+      if (e instanceof ApiError && e.code === 'CRISIS_SUPPORT') setCrisis(true);
+      else setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -112,7 +138,16 @@ export default function Vote() {
           {units === 0 ? 'You’ve earned a new poll.' : `${units}/3 votes towards your next poll.`}
         </Text>
         <Text tone="muted">Results in {timeLeft(done.closes_at) ?? 'a moment'}. We’ll let you know.</Text>
+        <PushPrompt />
         <Button label="Back to feed" onPress={() => router.back()} />
+      </Screen>
+    );
+  }
+
+  if (crisis) {
+    return (
+      <Screen>
+        <CrisisSupport onClose={() => setCrisis(false)} />
       </Screen>
     );
   }
@@ -222,6 +257,15 @@ export default function Vote() {
       {offline ? <Banner tone="warning" message="You’re offline. Connect to vote." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       <Button label="Submit vote — final" disabled={!canSubmit} loading={busy} onPress={confirm} />
+      {!side ? (
+        <NeedInfo
+          pollId={p.id}
+          onDone={() => {
+            qc.invalidateQueries({ queryKey: keys.feed });
+            router.back();
+          }}
+        />
+      ) : null}
     </Screen>
   );
 }

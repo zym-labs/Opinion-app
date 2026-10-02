@@ -38,6 +38,10 @@ type Events = {
   friend_link_shared: Record<string, never>;
   invite_shared: Record<string, never>;
   insight_helpful: Record<string, never>;
+  info_requested: Record<string, never>;
+  summary_flagged: Record<string, never>;
+  daily_viewed: Record<string, never>;
+  checkin_saved: { glad: boolean };
   poll_boosted: { notified: number };
   template_used: { id: string };
   result_viewed: { state: string; cards_seen: number; finished: boolean };

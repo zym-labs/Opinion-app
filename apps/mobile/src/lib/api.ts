@@ -39,6 +39,7 @@ const MESSAGES: Record<string, string> = {
   REFERRAL_EXPIRED: 'Invite codes can only be used in your first 7 days.',
   ALREADY_REFERRED: 'You’ve already used an invite code.',
   ALREADY_BOOSTED: 'This poll has already been boosted.',
+  CRISIS_SUPPORT: 'This sounds like something to talk through with someone. Help is available.',
 };
 
 export const errorMessage = (e: unknown) =>

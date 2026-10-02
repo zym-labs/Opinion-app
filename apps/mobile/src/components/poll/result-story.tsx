@@ -18,6 +18,7 @@ import { radius, space, useColors } from '@/theme';
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
 import { segmentsOf, SplitBar } from './split-bar';
+import { verdictOf } from './verdict';
 import { VerifiedLine, verifiedText } from './verified-line';
 
 // interactive cards hold links, so they advance with a Next button instead of tap zones.
@@ -139,6 +140,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
           </View>
         ))}
         <SplitBar segments={segmentsOf(r.options)} haptic />
+        {verdictOf(r.options) ? <Text variant="bodyStrong">{verdictOf(r.options)}</Text> : null}
         <VerifiedLine result={r} />
         <Text tone="muted">
           {majorityLine}

@@ -20,6 +20,12 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
     const title = p.action === 'warn' ? 'A warning about your content' : p.action === 'suspend' ? 'Your account was suspended' : 'Your content was removed';
     return { title, body: 'Open Opinion to see which community guideline was broken and how to appeal.' };
   },
+  reengage: (p) => ({
+    title: p.step === 3 ? 'Polls in your topics are open' : p.step === 7 ? 'Your results are waiting' : 'New questions in your topics',
+    body: p.step === 3 ? `${p.count} people are waiting for opinions like yours.` : p.step === 7 ? 'See how the room voted.' : 'Help someone decide.',
+  }),
+  decision_checkin: (p) => ({ title: 'A month on', body: `Glad about your decision on “${p.question}”?` }),
+  info_requested: (p) => ({ title: 'People want more context', body: `On “${p.question}”. A follow-up with details could help.` }),
   boosted_poll: (p) => ({ title: 'Your view is wanted', body: `“${p.question}”` }),
   referral_credited: () => ({ title: 'A friend joined Opinion', body: 'You both earned a free poll.' }),
 };
@@ -36,6 +42,9 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   moderation_outcome: () => '/notifications',
   referral_credited: () => '/credits',
   boosted_poll: (id) => `/vote/${id}`,
+  reengage: () => '/',
+  decision_checkin: () => '/journal',
+  info_requested: (id) => `/my-poll/${id}`,
 };
 
 Deno.serve(async (req) => {

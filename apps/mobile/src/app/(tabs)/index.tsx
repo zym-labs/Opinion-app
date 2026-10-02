@@ -15,7 +15,8 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useOffline } from '@/lib/offline';
-import { useFeed, useResultsReady, useWaiting } from '@/lib/queries';
+import { useWasAway } from '@/lib/activity';
+import { useDaily, useFeed, useResultsReady, useUnreadCount, useWaiting } from '@/lib/queries';
 import { radius, space, useColors } from '@/theme';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -66,6 +67,10 @@ export default function Feed() {
   const ready = useResultsReady();
   const waiting = useWaiting();
   const offline = useOffline();
+  const daily = useDaily();
+  const away = useWasAway();
+  const { data: unread = 0 } = useUnreadCount();
+  const [awayDismissed, setAwayDismissed] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {
@@ -90,6 +95,48 @@ export default function Feed() {
         }}>
         <HeaderBar title="Feed" />
         {offline ? <Banner tone="warning" message="You’re offline. Showing your last feed; voting is paused." /> : null}
+
+        {away && !awayDismissed && ((ready.data?.length ?? 0) > 0 || unread > 0) ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityHint="Dismisses this summary"
+            onPress={() => setAwayDismissed(true)}
+            style={{ backgroundColor: c.surfaceMuted, borderRadius: radius.lg, padding: space[4], gap: space[1] }}>
+            <Text variant="bodyStrong">While you were away</Text>
+            <Text tone="muted">
+              {[
+                ready.data?.length ? `${ready.data.length} ${ready.data.length === 1 ? 'result is' : 'results are'} ready below` : null,
+                unread ? `${unread} new ${unread === 1 ? 'notification' : 'notifications'}` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+          </Pressable>
+        ) : null}
+
+        {daily.data ? (
+          daily.data.voted ? (
+            <Row
+              title={daily.data.question}
+              detail={`Today’s question · you’ve answered · results in ${timeLeft(daily.data.closes_at) ?? 'a moment'}`}
+            />
+          ) : (
+            <Section title="Today’s question">
+              <PollCard
+                poll={{
+                  id: daily.data.id,
+                  type: 'expert',
+                  is_taste: true,
+                  question: daily.data.question,
+                  closes_at: daily.data.closes_at,
+                  target_label: 'Everyone',
+                  is_sensitive: false,
+                  options: daily.data.options,
+                }}
+              />
+            </Section>
+          )
+        ) : null}
 
         {ready.data?.length ? (
           <Section title="Results ready">

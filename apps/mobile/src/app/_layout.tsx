@@ -9,6 +9,7 @@ import { identify, initMonitoring } from '@/lib/analytics';
 import { signOut } from '@/lib/auth';
 import { ensureAttested } from '@/lib/integrity';
 import { persister, shouldPersist } from '@/lib/offline';
+import { useActivity } from '@/lib/activity';
 import { usePendingLink } from '@/lib/links';
 import { useNotificationRouting } from '@/lib/push';
 import { useMe } from '@/lib/queries';
@@ -30,6 +31,7 @@ function RootNavigator() {
   const onboarded = me.data?.onboarding_step === 'complete' && status === 'active';
   useNotificationRouting(signedIn && onboarded);
   usePendingLink(signedIn && onboarded);
+  useActivity(signedIn && onboarded);
 
   // Register this device for integrity checks once the user is onboarded (best effort, in the background).
   const userId = session?.user.id;
@@ -75,6 +77,7 @@ function RootNavigator() {
         <Stack.Screen name="credits" options={{ presentation: 'modal', headerShown: true, title: 'Credits' }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
         <Stack.Screen name="featured" options={{ headerShown: true, title: 'Featured insights' }} />
+        <Stack.Screen name="journal" options={{ headerShown: true, title: 'Decision journal' }} />
         <Stack.Screen name="browse" options={{ headerShown: true, title: 'Browse topics' }} />
         <Stack.Screen name="appeals" options={{ headerShown: true, title: 'Appeals' }} />
         <Stack.Screen name="settings" />

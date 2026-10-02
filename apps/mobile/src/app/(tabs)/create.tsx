@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { CategoryPicker } from '@/components/category-picker';
+import { CrisisSupport } from '@/components/crisis-support';
 import { HeaderBar } from '@/components/header-bar';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
@@ -152,6 +153,7 @@ export default function Create() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [crisis, setCrisis] = useState(false);
   const restored = useRef(false);
   const pending = useRef<{ id: string; fingerprint: string; uploaded: boolean } | null>(null);
   // Follow-up mode: same audience as the asker's completed poll (roadmap: follow-up polls).
@@ -312,6 +314,7 @@ export default function Create() {
     } catch (e) {
       track('publish_failed', { code: e instanceof ApiError ? e.code : 'UNKNOWN' });
       if (e instanceof ApiError && e.code === 'COMMUNITY_LOCKED') setLocked(true);
+      if (e instanceof ApiError && e.code === 'CRISIS_SUPPORT') setCrisis(true);
       setError(errorMessage(e));
     } finally {
       setBusy(false);
@@ -481,7 +484,7 @@ export default function Create() {
           </Text>
         </>
       ) : null}
-      {error ? <Banner tone="danger" message={error} /> : null}
+      {crisis ? <CrisisSupport /> : error ? <Banner tone="danger" message={error} /> : null}
       {JSON.stringify(draft) !== JSON.stringify(EMPTY) ? (
         <Button label="Discard draft" variant="ghost" onPress={() => setDraft(EMPTY)} />
       ) : null}

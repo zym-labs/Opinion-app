@@ -78,3 +78,12 @@ export const useStats = () => useQuery({ queryKey: keys.stats, queryFn: () => rp
 /** Unread notifications for the bell badge. Refreshed when the app returns to the foreground. */
 export const useUnreadCount = () =>
   useQuery({ queryKey: keys.unread, queryFn: () => rpc<number>('unread_notification_count'), staleTime: 60_000 });
+
+export type DailyQuestion = { id: string; question: string; closes_at: string; options: FeedPoll['options']; voted: boolean };
+/** Today's shared question (null when none is live). */
+export const useDaily = () =>
+  useQuery({
+    queryKey: ['daily'],
+    queryFn: async () => (await rpc<DailyQuestion[]>('get_daily'))[0] ?? null,
+    staleTime: 5 * 60_000,
+  });
