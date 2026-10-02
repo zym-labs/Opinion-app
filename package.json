@@ -1,7 +1,10 @@
 {
   "name": "opinion",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "mobile": "npm run start -w mobile",
     "web": "npm run dev -w web",
@@ -14,5 +17,9 @@
   },
   "devDependencies": {
     "supabase": "^2"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   }
 }
