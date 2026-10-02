@@ -126,3 +126,7 @@ begin
   order by p.is_starter desc, p.closes_at desc limit p_limit;
 end $$;
 grant execute on function public.admin_completed_polls(int) to authenticated;
+
+-- New functions get EXECUTE for PUBLIC by default; only starter polls are meant for logged-out users.
+revoke execute on function public.admin_set_starter(uuid, boolean), public.admin_completed_polls(int)
+  from public, anon;
