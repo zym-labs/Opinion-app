@@ -85,3 +85,126 @@ Goal: make Opinion something people come back to whenever they face a choice: us
 
 ## 4. Suggested next batch
 Items **1, 2, 3 and 5**: the safety net, the decision journal, the daily question and the notification budget. All four can be built now with no accounts. Item 4 needs a native build with an App Group, and 10 needs the store accounts.
+
+---
+
+# Round 2: deeper research across every area (2026-10-03)
+
+The first round covered retention, habits and the companion question. This round goes area by area: experience, features, trust, public discovery, re-engagement, platform integrations, accessibility and law, international, performance and revenue. Each finding is checked against the current code.
+
+## A. Experience and look and feel
+- **The new native look.** iOS 26 Liquid Glass (translucent, depth, motion) and Android's Material 3 Expressive (bold colour, playful shapes) set what "premium" means now. Users say Liquid Glass makes iOS feel premium again. ([Android Central](https://www.androidcentral.com/apps-software/android-os/android-16-material-3-expressive-vs-ios-26-liquid-glass), [Apple](https://www.apple.com/newsroom/2025/06/apple-introduces-a-delightful-and-elegant-new-software-design/))
+  - *Opinion today:* NativeTabs and `expo-glass-effect` are already installed, so the tab bar gets glass for free.
+  - *Gap:* sheets, the vote-screen header and the share card don't use the glass material yet, and the Android side doesn't use Expressive.
+- **Small delights.** Brief animations or haptics under 300ms make an app feel premium, but they should be tied to real value, never used to stretch time spent. ([IxDF](https://ixdf.org/literature/article/micro-interactions-ux), [Medium: haptics](https://medium.com/@chandra.welim/haptic-feedback-the-secret-to-apps-that-feel-premium-7463fdc1ccca))
+  - *Gap:* we use haptics on vote and reveal but have no shared haptic vocabulary. Rare moments should feel different: matching the majority, being quoted, an asker going with your pick.
+- **Verdict labels (from r/AmItheAsshole, 24.5M members).** A fixed vocabulary of answers (YTA, NTA, ESH, INFO) and an "official" verdict after 18 hours turn advice into a ritual. INFO ("I need more information") is especially useful. ([Wikipedia](https://en.wikipedia.org/wiki/R/AmItheAsshole), [CBC](https://www.cbc.ca/radio/sunday/reddit-community-1.7059122))
+  - *Gap:* add an optional **"Need more info"** vote. It wouldn't count towards any option; once enough people pick it, the asker is prompted to post a follow-up with context.
+  - *Gap:* give a **verdict label** at close ("Clear call", "Split decision", "It depends"), based on how big the winning margin is.
+
+## B. New features
+- **Group decisions with friends.** Apps like Hangrily, ForkYes and Tonight's Bite settle "where shall we eat?" for a group in under 2 minutes, often with swipe voting. This is a different job from Opinion's (a decision for *us*, not for me), but friends-only polls and the planned close-friends circle nearly cover it. ([Hangrily](https://hangrily.app/dinner-decision-app), [ForkYes](https://apps.apple.com/us/app/forkyes-decide-together/id6759871715))
+  - *Idea:* a **"Decide together"** mode. Everyone in the circle votes, the result shows live once all have voted, and it closes in 15 minutes to 3 hours. It's light and viral, and each use brings in new users.
+- **Polls about pictures and voice.** Gen Z expects interactive formats: 46% engage with polls, quizzes and Q&As. Visual and voice search are growing. ([Sociallyin](https://sociallyin.com/gen-z-social-media-usage-statistics/))
+  - *Opinion today:* image options exist.
+  - *Gaps:* dictating your reason (the phone keyboard already allows this, so we only need to hint at it); and a short **voice reason** is a possible later feature, but it brings moderation and privacy costs, so park it.
+- **Decision journal and 30-day check-in.** From round 1, still the biggest feature for building a long-term habit.
+
+## C. Trust, integrity and AI
+- **Bots and fake accounts.** CAPTCHAs, honeypots, server tokens and SMS checks help. Graph-based detection of coordinated voting is the state of the art. ([NCBI: bot-compromised survey](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12415786/), [arXiv: Sybil detection](https://arxiv.org/html/2311.17929v7))
+  - *Opinion today:* App Attest and Play Integrity, rate limits, 24h credit delays, campus email checks.
+  - *Gap:* nothing detects groups of accounts voting together, e.g. many fresh accounts voting the same side on the same poll within minutes. Add a nightly job that flags these for admin review; votes are never auto-deleted.
+- **Trust in AI summaries.** Citations raise trust, but explanations can also create *false* confidence. ([arXiv: citations and trust](https://arxiv.org/pdf/2501.01303), [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0952197626021780))
+  - *Opinion today:* summaries cite real quotes and have a fairness pass.
+  - *Gap:* let readers flag a summary as "inaccurate" in one tap, feeding the admin AI-quality queue; and show a plain "AI can miss nuance, read the quotes" line next to it.
+- **Earned trust levels (Discourse).** New members earn rights by reading and taking part, and the community helps moderate. Highlighting good contributions raises quality. ([Discourse](https://blog.discourse.org/2018/06/understanding-discourse-trust-levels/))
+  - *Idea:* **voter reputation**, private and never public, built from reasons that get featured or marked helpful, accurate predictions and no upheld reports. Use it to:
+    - give more weight to reliable voters' reports;
+    - favour their quotes as featured candidates;
+    - later, offer "trusted voter" audiences in Opinion+.
+
+## D. Public face and discovery
+- **Store presence.** Featuring nominations about 3 months ahead, In-App Events, up to 70 custom product pages. ([AppTweak](https://www.apptweak.com/en/aso-blog/how-to-get-your-app-featured-on-the-app-store), [Adapty](https://adapty.io/blog/custom-product-pages-app-store/))
+- **Ratings.** Ask at a happy moment: after a good result, a featured reason or a matched decision. Only ask users who are 7+ days in with several sessions, and at most 3 times a year (Apple's cap). The North Face went from 3.68 to 4.23 stars by asking at the right time. ([AppTweak](https://www.apptweak.com/en/aso-blog/tips-to-manage-app-store-reviews), [SwiftLee](https://www.avanderlee.com/swift/skstorereviewcontroller-app-ratings/))
+  - *Gap:* we never ask. Add `expo-store-review` with these rules.
+- **App Clip (iOS).** Friend links could open a lightweight App Clip that lets people vote *without installing*. This can lift conversion by 35–50%. Android Instant Apps are being retired, so Android uses the web page plus an install. ([Linkrunner](https://linkrunner.io/blog/app-clips-android-instant-apps-deep-linking-strategy-2026))
+  - Needs native work: a separate target and a size limit. Do it later, after the first universal links work.
+- **Siri and Spotlight (App Intents).** Since WWDC26, App Intents is the only way Siri, Spotlight, Shortcuts and Apple Intelligence reach apps. ([Apple WWDC26](https://developer.apple.com/wwdc26/guides/apple-intelligence/), [Johnny Bytes](https://www.johnnybytes.com/en/blog/app-intents-how-your-ios-app-becomes-part-of-siri-spotlight-and-apple-intelligence/))
+  - *Idea:* intents like "Ask Opinion…" (start a draft), "Vote on today's question" and "How's my poll doing?". Users could then say "Hey Siri, ask Opinion which offer to take."
+- **Public result pages and vertical share video** (round 1, item 8) are still the main way to be found on Google, TikTok and Reddit.
+
+## E. Bringing people back
+- **When to win people back.** Users gone 7 days come back 20–30% of the time, users gone 30 days 5–15%, and after 90 days under 5%. Sequences at day 3, 7 and 14 recover 10–25%. Grouping lapsed users by *why* they left beats grouping by how long they've been gone. The first 90 seconds after someone returns decide whether they stay. Winning a user back costs about a fifth of acquiring a new one. ([MWM](https://mwm.ai/glossary/re-engagement), [Helpshift](https://www.helpshift.com/blog/re-engagement-campaigns-for-mobile-games/), [vmobify](https://vmobify.com/blog/push-notification-strategy))
+  - *Gap:* nothing targets lapsed users. Add a **return path**:
+    - day 3: "3 polls in your topics are closing soon";
+    - day 7: "the result of a poll you voted on is ready" (if one is);
+    - day 14: a single "we saved you a seat" message;
+    - then stop.
+  - On return, show a **"While you were away"** card: results waiting, quotes featured, asker decisions.
+- **Notification budget** (round 1, item 5) caps all of this.
+
+## F. Accessibility and law
+- **European Accessibility Act.** It has applied since June 2025, with app criteria tightening from the end of 2026 (EN 301 549 and WCAG 2.1 AA). Requirements include screen-reader labels, Dynamic Type, Reduce Motion and Bold Text. ([Level Access](https://www.levelaccess.com/blog/eu-accessibility-requirements-and-eaa-compliance/), [Digital Barrierefrei](https://www.digitalbarrierefrei.at/en/understanding/accessibility-criteria/criteria-for-apps-from-end-of-2026))
+  - *Opinion today:* labels throughout, a Reduce Motion fallback, contrast tests on our colours.
+  - *Gaps:*
+    - test at the largest text sizes (the split bar, option tiles and the bento grid may clip);
+    - publish an accessibility statement on the website;
+    - run one VoiceOver and TalkBack test of the full journey before launch.
+- **Companion-chatbot laws, the Digital Fairness Act and dark patterns** are covered in round 1. They're the reason for "decision companion, not emotional companion".
+
+## G. International growth
+- **Where downloads are growing.** iOS paid installs grew in Mexico (+426%), Brazil (+157%), India (+118%) and Indonesia (+102%). Localised apps get about 128% more downloads per country, and social apps grow about 5× faster when the content is local. ([AppsFlyer](https://www.appsflyer.com/resources/reports/top-5-data-trends-report/), [Appscreens](https://appscreens.com/blog/what-languages-should-i-localize-my-app-into))
+  - *Opinion today:* English only; strings are hard-coded and `expo-localization` is installed but unused.
+  - *Plan:* move strings into an i18n file now while the app is small, even before translating. Translate later in this order: Spanish (Mexico), Portuguese (Brazil), Hindi, Indonesian.
+  - **AI summaries should come out in the voters' language.** Our model can do this; communities and categories would be per locale.
+  - Campus-first launches usually stay in one country for the first year, so this is preparation rather than a launch task.
+
+## H. Performance
+- **Fast to open.** React Native's New Architecture with Hermes typically cuts startup by about 40–50%; apps reach a usable screen in about 1.8s. ([ImpactTechLab](https://impacttechlab.com/react-native-new-architecture-app-performance/))
+  - *Opinion today:* SDK 57 runs the New Architecture, Hermes and the React Compiler, and the feed is cached offline.
+  - *Gap:* we don't measure it. Add Sentry performance traces for cold start, feed loaded and vote submitted, and aim for under 2 seconds to a usable feed on mid-range Android.
+
+## I. Revenue
+- **Consumers.** 23% of Gen Z pay for social apps. Show a paywall only after the first result has landed. ([Bango](https://bango.com/gen-z-now-pays-for-its-social-media-fix/), [Digia](https://www.digia.tech/post/mobile-app-onboarding-activation-retention/))
+- **Businesses.** Paid survey panels charge from about $0.95 per response (Pollfish). Panels with quality controls, such as Attest and Prolific, charge more. ([Koji](https://www.koji.so/blog/pollfish-alternatives-2026), [PickFu](https://www.pickfu.com/blog/prolific-alternatives))
+  - *Opinion's edge:* verified students and experts who give *reasons*. Selling "Campus Pulse" polls to brands, clubs and universities is a strong later business. It must stay opt-in for voters, clearly labelled "Sponsored question", and paid in credits or perks.
+
+## Master roadmap (both rounds)
+
+**Phase 1 (code only):**
+1. Crisis safety net.
+2. Notification budget plus asking for push permission after the first vote.
+3. Rating prompt at happy moments.
+4. Return path for lapsed users, plus the "While you were away" card.
+5. Daily question.
+6. Decision journal with a 30-day check-in.
+7. "Need more info" vote and verdict labels.
+8. Flag-the-summary button and the "AI can miss nuance" line.
+9. Coordinated-voting detection for admins.
+10. Move strings into an i18n file.
+11. Performance traces.
+
+**Phase 2 (some native work):**
+12. Live Activity and widgets.
+13. Close friends circle and "Decide together".
+14. App Intents for Siri and Spotlight.
+15. Glass material on sheets and the share card; Material 3 Expressive accents on Android.
+16. Public result pages and vertical share video.
+17. Private voter reputation.
+
+**Phase 3 (needs accounts or contracts):**
+18. App Clip.
+19. Opinion+ subscription.
+20. Store custom product pages, In-App Events and a featuring nomination.
+21. Campus Pulse business polls.
+22. Translations into Spanish, Portuguese, Hindi and Indonesian.
+
+**What we keep refusing:**
+- public follower counts or likes;
+- live percentages before a poll closes;
+- an emotional AI persona;
+- loss-framed streaks or fake urgency;
+- infinite feeds of polls you can't act on;
+- selling personal data.
+
+These are Opinion's position, not limitations.
