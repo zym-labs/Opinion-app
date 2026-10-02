@@ -72,6 +72,11 @@ export type Credits = { units: number; polls_available: number; pending_units: n
 
 export type Stats = {
   polls_voted: number;
+  decided: number;
+  majority_matches: number;
+  contrarian_picks: number;
+  predictions_right: number;
+  predictions_made: number;
   majority_pct: number | null;
   featured_count: number;
   top_categories: string[];

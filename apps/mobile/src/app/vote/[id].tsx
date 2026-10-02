@@ -1,12 +1,13 @@
 // F-02 Vote → F-03 submitted (STAGE1 §3, STAGE6 §8).
-import { LIMITS } from '@opinion/shared';
+import { LIMITS, motion } from '@opinion/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import * as Haptics from 'expo-haptics';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
+import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
 import { CountdownPill, timeLeft } from '@/components/poll/countdown';
 import { OptionTile } from '@/components/poll/option-tile';
@@ -40,6 +41,7 @@ export default function Vote() {
   const [done, setDone] = useState<{ closes_at: string; credit_units: number } | null>(null);
   const idempotencyKey = useRef(Crypto.randomUUID()).current;
   const offline = useOffline();
+  const reduceMotion = useReducedMotion();
 
   const p = poll.data;
   if (poll.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
@@ -127,66 +129,79 @@ export default function Vote() {
         <CountdownPill closesAt={p.closes_at} />
       </View>
       <Text variant="question">{p.question}</Text>
-      <View style={{ flexDirection: 'row', gap: space[3] }} accessibilityRole="radiogroup">
-        {p.options.map((o) => (
-          <OptionTile key={o.side} option={o} selected={side === o.side} onPress={() => setSide(o.side)} />
-        ))}
-      </View>
-
-      <TextField
-        label={reasonRequired ? `Why? (required, at least ${LIMITS.reasonMin} characters)` : 'Why? (optional)'}
-        value={reason}
-        onChangeText={(t) => setReason(t.slice(0, LIMITS.reasonMax))}
-        multiline
-        style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: space[3] }}
-      />
-      <Text
-        variant="caption"
-        style={{ alignSelf: 'flex-end', color: reasonRequired && reasonLen < LIMITS.reasonMin ? c.warning : c.textFaint }}>
-        {reasonLen}/{LIMITS.reasonMax}
-      </Text>
-      {/* Privacy cue at the moment of writing (STAGE6 v2 §Privacy). */}
-      <View
-        style={{ flexDirection: 'row', gap: space[2], alignItems: 'flex-start', padding: space[3], borderRadius: radius.sm, backgroundColor: c.surfaceMuted }}>
-        <Lock size={16} color={c.textMuted} strokeWidth={1.75} style={{ marginTop: 2 }} />
-        <Text variant="label" tone="muted" style={{ flex: 1 }}>
-          Your name is never shown. Your reason may be quoted anonymously, so leave out details that identify you or
-          anyone else.
-        </Text>
-      </View>
-
-      <View style={{ gap: space[2] }}>
-        <Text variant="label" tone="muted">
-          What will most people pick? (optional)
-        </Text>
-        <View style={{ flexDirection: 'row', gap: space[2] }}>
-          {(['a', 'b'] as const).map((s) => (
-            <Chip key={s} label={s.toUpperCase()} selected={predicted === s} onPress={() => setPredicted(predicted === s ? null : s)} />
+      <Link.AppleZoomTarget>
+        <View style={{ flexDirection: 'row', gap: space[3] }} accessibilityRole="radiogroup">
+          {p.options.map((o) => (
+            <OptionTile key={o.side} option={o} selected={side === o.side} onPress={() => setSide(o.side)} />
           ))}
         </View>
-      </View>
+      </Link.AppleZoomTarget>
 
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: consent }}
-        onPress={() => setConsent(!consent)}
-        style={{ flexDirection: 'row', gap: space[3], alignItems: 'center' }}>
-        <View
-          style={{
-            width: 22,
-            height: 22,
-            borderRadius: 6,
-            borderWidth: 2,
-            borderColor: consent ? c.primary : c.border,
-            backgroundColor: consent ? c.primary : 'transparent',
-          }}
-        />
-        <Text variant="label" style={{ flex: 1 }}>
-          My reason may be featured anonymously in the results
+      {/* Details slide up once an option is picked (STAGE6 v2 P1): one decision at a time. */}
+      {side ? (
+        <Animated.View
+          entering={reduceMotion ? undefined : FadeInDown.springify().dampingRatio(1).duration(motion.spatial.duration)}
+          style={{ gap: space[4] }}>
+          <TextField
+            label={reasonRequired ? `Why? (required, at least ${LIMITS.reasonMin} characters)` : 'Why? (optional)'}
+            value={reason}
+            onChangeText={(t) => setReason(t.slice(0, LIMITS.reasonMax))}
+            multiline
+            style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: space[3] }}
+          />
+          <Text
+            variant="caption"
+            style={{ alignSelf: 'flex-end', color: reasonRequired && reasonLen < LIMITS.reasonMin ? c.warning : c.textFaint }}>
+            {reasonLen}/{LIMITS.reasonMax}
+          </Text>
+          {/* Privacy cue at the moment of writing (STAGE6 v2 §Privacy). */}
+          <View
+            style={{ flexDirection: 'row', gap: space[2], alignItems: 'flex-start', padding: space[3], borderRadius: radius.sm, backgroundColor: c.surfaceMuted }}>
+            <Lock size={16} color={c.textMuted} strokeWidth={1.75} style={{ marginTop: 2 }} />
+            <Text variant="label" tone="muted" style={{ flex: 1 }}>
+              Your name is never shown. Your reason may be quoted anonymously, so leave out details that identify you or
+              anyone else.
+            </Text>
+          </View>
+
+          <View style={{ gap: space[2] }}>
+            <Text variant="label" tone="muted">
+              What will most people pick? (optional)
+            </Text>
+            <View style={{ flexDirection: 'row', gap: space[2] }}>
+              {(['a', 'b'] as const).map((s) => (
+                <Chip key={s} label={s.toUpperCase()} selected={predicted === s} onPress={() => setPredicted(predicted === s ? null : s)} />
+              ))}
+            </View>
+          </View>
+
+          <Pressable
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: consent }}
+            onPress={() => setConsent(!consent)}
+            style={{ flexDirection: 'row', gap: space[3], alignItems: 'center' }}>
+            <View
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                borderWidth: 2,
+                borderColor: consent ? c.primary : c.border,
+                backgroundColor: consent ? c.primary : 'transparent',
+              }}
+            />
+            <Text variant="label" style={{ flex: 1 }}>
+              My reason may be featured anonymously in the results
+            </Text>
+          </Pressable>
+
+
+        </Animated.View>
+      ) : (
+        <Text variant="label" tone="muted" style={{ textAlign: 'center' }}>
+          Pick an option to continue.
         </Text>
-      </Pressable>
-
-
+      )}
       {offline ? <Banner tone="warning" message="You’re offline. Connect to vote." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       <Button label="Submit vote — final" disabled={!canSubmit} loading={busy} onPress={confirm} />

@@ -221,12 +221,13 @@ Directly under the reason field, with a lock icon: "Your name is never shown. Yo
 ## Rewards without likes (P2)
 Private mastery signals only: majority-match rate, "your reason was quoted". Credit rule always visible ("Give 3 opinions, get 1 ask"). Any streak: weekly, with a free skip, never loss-framed. No fake urgency (EU DSA Art. 25).
 
-## Still to build (from the report's priority table)
-| Priority | Item | Note |
-|---|---|---|
-| P1 | Reason sheet slides up after option select; card → vote shared-element transition | |
-| P1 | Feed routes voters to polls short of votes | Server-side ordering change |
-| P2 | Profile bento of private stats; credit count-up | |
+## Built from the report's priority table
+| Item | How |
+|---|---|
+| Vote details slide up after an option is picked | Reason, prediction, consent and privacy line enter with the spatial spring; "Pick an option to continue" before that |
+| Feed card → vote screen | Expo Router zoom transition on iOS 18+ ( on the card,  on the option tiles; alpha API). Normal push elsewhere |
+| Feed routes voters to polls short of votes |  orders polls under 10 votes first, then soonest closing; the cursor carries the bucket |
+| Profile bento of private stats | Majority matches "7 of 10", contrarian picks, predictions right, reasons quoted, polls voted, polls you can post with the "Give 3 opinions, get 1 ask" rule. Owner-only |
 
 ## Try before signing up (built)
 Welcome → **Try 3 real polls first** → birth year (kept on the phone; under-18 stops here) → practice vote on each **starter poll** (a completed poll an admin picks in Admin → Starter polls) → its full reveal story in starter mode → **Create account**. Practice votes are never sent anywhere. The birth year is submitted automatically at the onboarding age step. No anonymous accounts are created, so there is nothing to abuse.
