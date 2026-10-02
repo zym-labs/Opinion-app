@@ -22,7 +22,7 @@ import { Screen } from '@/components/ui/screen';
 import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
-import { timeBucket, track } from '@/lib/analytics';
+import { measure, timeBucket, track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { useOffline } from '@/lib/offline';
 import { keys } from '@/lib/queries';
@@ -93,10 +93,12 @@ export default function Vote() {
     setBusy(true);
     setError(null);
     try {
-      const res = await callFunction<{ closes_at: string; credit_units: number }>(
-        'votes',
-        { poll_id: id, side, reason: reason.trim() || null, predicted_side: predicted, feature_consent: consent },
-        { idempotencyKey, signed: true },
+      const res = await measure('vote.submit', () =>
+        callFunction<{ closes_at: string; credit_units: number }>(
+          'votes',
+          { poll_id: id, side, reason: reason.trim() || null, predicted_side: predicted, feature_consent: consent },
+          { idempotencyKey, signed: true },
+        ),
       );
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       track('vote_cast', {

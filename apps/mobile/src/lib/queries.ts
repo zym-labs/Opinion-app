@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
+import { measure } from './analytics';
 import { rpc } from './api';
 import { useSession } from './session';
 import { supabase } from './supabase';
@@ -60,12 +61,14 @@ export const useFeed = () =>
     queryKey: keys.feed,
     initialPageParam: null as FeedPoll | null,
     queryFn: ({ pageParam }) =>
-      rpc<FeedPoll[]>('get_feed', {
-        p_limit: FEED_PAGE,
-        p_after_closes: pageParam?.closes_at ?? null,
-        p_after_id: pageParam?.id ?? null,
-        p_after_bucket: pageParam?.bucket ?? null,
-      }),
+      measure('feed.load', () =>
+        rpc<FeedPoll[]>('get_feed', {
+          p_limit: FEED_PAGE,
+          p_after_closes: pageParam?.closes_at ?? null,
+          p_after_id: pageParam?.id ?? null,
+          p_after_bucket: pageParam?.bucket ?? null,
+        }),
+      ),
     getNextPageParam: (last) => (last.length === FEED_PAGE ? last[last.length - 1] : undefined),
   });
 export const useWaiting = () => useQuery({ queryKey: keys.waiting, queryFn: () => rpc<WaitingPoll[]>('get_waiting') });

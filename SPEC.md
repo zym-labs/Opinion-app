@@ -103,3 +103,16 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
 - **Decision outcomes.** After close, the asker shares what they chose (or "none") and whether it helped; voters are told anonymously ("Your vote matched their decision"). A reminder goes out 2 days after close if they haven't. Profile shows "Askers went with your pick".
 - **Last-call nudges.** Polls under 10 votes closing within 2 hours notify up to 30 eligible voters, at most one nudge per person per day, one round per poll.
 - **Weekly streak.** 3+ votes a week; one missed week is forgiven; private, never loss-framed.
+- **Phase 1 retention and safety (2026-10-03).**
+  - **Crisis safety net:** self-harm wording in a question or reason shows local helplines instead of posting.
+  - **Notification limit:** nudges are capped at 4 a week; results are never capped. Push permission is asked after the first vote, not during onboarding.
+  - **Rating prompt:** shown only at happy moments, 7+ days and 5+ sessions in, at most every 120 days.
+  - **Return path:** messages on day 3, 7 and 14 away, then stop; a "While you were away" card on return.
+  - **Daily question:** one shared poll a day for everyone, written ahead by admins.
+  - **Decision journal:** past decisions with a 30-day "glad you did?" check-in and personal patterns.
+  - **"Need more info":** doesn't count as a vote; the asker is told at 3 requests.
+  - **Verdict labels** on results (clear call, leaning, split, dead heat).
+  - **"Summary seems off" flag** and an "AI can miss nuance" note.
+  - **Voting-burst detection:** flagged for admin review, never removed automatically.
+  - **Translation file:** errors and tabs moved in so far.
+  - **Performance tracing:** feed load and vote submit.

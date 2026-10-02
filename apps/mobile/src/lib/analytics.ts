@@ -4,7 +4,9 @@ import PostHog from 'posthog-react-native';
 import { env } from './env';
 
 export function initMonitoring() {
-  if (env.sentryDsn) Sentry.init({ dsn: env.sentryDsn, sendDefaultPii: false });
+  // Performance: app start is tracked automatically; key flows add spans via measure().
+  // Target: usable feed in under 2 seconds on mid-range Android (research round 2, H).
+  if (env.sentryDsn) Sentry.init({ dsn: env.sentryDsn, sendDefaultPii: false, tracesSampleRate: 0.2 });
 }
 
 export const posthog = env.posthogKey ? new PostHog(env.posthogKey, { host: env.posthogHost }) : null;
@@ -61,4 +63,9 @@ export function track<E extends keyof Events>(event: E, props?: Events[E]) {
 export function timeBucket(closesAt: string) {
   const h = (new Date(closesAt).getTime() - Date.now()) / 3_600_000;
   return h < 1 ? '<1h' : h < 6 ? '1-6h' : h < 12 ? '6-12h' : '12h+';
+}
+
+/** Times a key flow (feed load, vote submit, publish) as a Sentry span. No-op without Sentry. */
+export function measure<T>(name: string, fn: () => Promise<T>): Promise<T> {
+  return Sentry.startSpan({ name, op: 'ui.action' }, fn);
 }

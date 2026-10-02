@@ -10,15 +10,17 @@ import { AuthGate } from './auth-gate';
 import { useRpc } from './use-rpc';
 
 // Third item: key into admin_queue_counts for an open-items badge.
-const NAV: readonly (readonly [string, string, ('reports' | 'appeals' | 'ai')?])[] = [
+const NAV: readonly (readonly [string, string, ('reports' | 'appeals' | 'ai' | 'integrity')?])[] = [
   ['/admin', 'Queue', 'reports'],
   ['/admin/appeals', 'Appeals', 'appeals'],
+  ['/admin/integrity', 'Integrity', 'integrity'],
+  ['/admin/daily', 'Daily question'],
   ['/admin/users', 'Users'],
   ['/admin/communities', 'Communities'],
   ['/admin/seed', 'Seed polls'],
   ['/admin/starters', 'Starter polls'],
   ['/admin/experts', 'Experts'],
-  ['/admin/ai', 'AI failures', 'ai'],
+  ['/admin/ai', 'AI quality', 'ai'],
   ['/admin/metrics', 'Metrics'],
 ];
 
