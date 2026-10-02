@@ -1,0 +1,21 @@
+appId: app.opinion.mobile
+---
+- runFlow: 01-sign-in-email.yaml
+- tapOn: "Create"
+- assertVisible: "Who should answer?"
+- tapOn: "Experts"
+- tapOn: "Question.*"
+- inputText: "Maestro test: tea or coffee for an all-nighter?"
+- tapOn: "Option A"
+- inputText: "Tea"
+- tapOn: "Option B"
+- inputText: "Coffee"
+- scrollUntilVisible:
+    element: "Tech"
+- tapOn: "Tech"
+- tapOn: "3h"
+- scrollUntilVisible:
+    element: "Publish — uses 1 poll credit"
+- assertVisible: "About .* people match this audience."
+- tapOn: "Publish — uses 1 poll credit"
+- assertVisible: "votes so far.*"

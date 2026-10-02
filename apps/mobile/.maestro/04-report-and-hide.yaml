@@ -1,0 +1,14 @@
+appId: app.opinion.mobile
+---
+- runFlow: 01-sign-in-email.yaml
+- tapOn:
+    text: "Option A.*"
+    index: 0
+- tapOn: "Report"
+- assertVisible: "What’s wrong?"
+- tapOn: "Spam or advertising"
+- tapOn: "Send report"
+- assertVisible: "Thanks for reporting"
+- tapOn: "Also hide polls from this creator"
+- assertVisible: "You won’t see this creator’s polls.*"
+- tapOn: "Done"

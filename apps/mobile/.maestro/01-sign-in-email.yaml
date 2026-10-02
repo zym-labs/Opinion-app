@@ -1,0 +1,14 @@
+appId: app.opinion.mobile
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Ask two options. Get real reasons."
+- tapOn: "Continue with email"
+- tapOn: "Email"
+- inputText: ${TEST_EMAIL}
+- tapOn: "Send code"
+- assertVisible: "Check your inbox"
+- tapOn: "6-digit code"
+- inputText: ${TEST_CODE}
+- tapOn: "Sign in"
+- assertVisible: "Feed"

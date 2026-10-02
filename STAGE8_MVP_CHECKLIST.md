@@ -55,7 +55,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Audience estimate + block under 20 | 3 | 🟥 | In development |
 | Vote-to-ask credits | 3 | 🟥 | In development |
 | Delete before first vote (refund) | 3 | 🟥 | In development |
-| Local draft saving | 3 | 🟧 | Planned |
+| Local draft saving | 3 | 🟧 | In development |
 | Creator live vote count | 3 | 🟥 | In development |
 | Multi-option polls | — | 🟦 | Roadmap |
 | Video polls | — | 🟦 | Roadmap |
@@ -76,7 +76,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Synchronous reason moderation | 4 | 🟥 | In development |
 | PII + injection screen | 4 | 🟥 | In development |
 | Idempotent vote endpoint | 4 | 🟥 | In development |
-| Offline read-only feed | 4 | 🟧 | Planned |
+| Offline read-only feed | 4 | 🟧 | In development |
 
 ## 5. Closing, AI & results
 
@@ -85,7 +85,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Poll closer job (every minute) | 5 | 🟥 | In development |
 | Thresholds (<10 votes, minority <5) | 5 | 🟥 | In development |
 | AI summary pipeline (majority/minority, citations, exact quotes) | 5 | 🟥 | In development |
-| Fairness check pass | 5 | 🟧 | Planned |
+| Fairness check pass | 5 | 🟧 | In development |
 | Retries + Failed-AI state + admin retry | 5 | 🟥 | In development |
 | AI eval set (30 fixtures) passing | 5 | 🟥 | In development |
 | AI labels + sensitive-category disclaimers | 5 | 🟥 | In development |
@@ -103,7 +103,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Notification center + preferences | 6 | 🟥 | In development |
 | Profile stats | 6 | 🟧 | In development |
 | Featured insights list | 6 | 🟧 | In development |
-| Share card (creator only) | 6 | 🟥 | In development (text share; image card pending) |
+| Share card (creator only) | 6 | 🟥 | In development |
 | Web voting link from share card | — | 🟦 | Roadmap (privacy review first) |
 | Followers, likes, comments, DMs | — | ⬛ | Excluded |
 
@@ -116,13 +116,13 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Report polls, reasons, featured insights | 3–4 | 🟥 | In development |
 | Self-harm support resources | 3 | 🟥 | In development |
 | Hide creator + manage hidden | 4 | 🟥 | In development |
-| Admin dashboard (queue, review, suspend, 2FA) | 7 | 🟥 | Planned |
-| Moderation outcome messages (DSA) | 7 | 🟥 | Planned |
+| Admin dashboard (queue, review, suspend, 2FA) | 7 | 🟥 | In development |
+| Moderation outcome messages (DSA) | 7 | 🟥 | In development |
 | Suspended-account screen | 2 | 🟥 | In development |
 | Rate limits | 7 | 🟥 | In development |
 | App Attest / Play Integrity | 7 | 🟥 | Planned |
-| Disposable-email blocking, sign-up limits | 2 | 🟥 | Planned |
-| Stricter moderation for new accounts | 7 | 🟧 | Planned |
+| Disposable-email blocking, sign-up limits | 2 | 🟥 | In development (email blocklist; per-device limits need App Attest) |
+| Stricter moderation for new accounts | 7 | 🟧 | In development |
 | Moderator response within 24h (process + rota) | 8 | 🟥 | Not started |
 
 ## 8. Legal & store
@@ -137,9 +137,9 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Vendor data agreements (Supabase, Anthropic, OpenAI, PostHog) | 7 | 🟥 | Not started |
 | Apple privacy labels, Play Data safety | 7 | 🟥 | Not started |
 | Age rating questionnaires (Apple 18+, Play) | 7 | 🟥 | Not started |
-| App Review notes + demo account | 8 | 🟥 | Not started |
-| Store listing (screenshots, description) | 8 | 🟥 | Not started |
-| Support contact published | 7 | 🟥 | Not started |
+| App Review notes + demo account | 8 | 🟥 | In design (draft) |
+| Store listing (screenshots, description) | 8 | 🟥 | In design (draft text) |
+| Support contact published | 7 | 🟥 | In development (page built) |
 
 ## 9. Quality, security, operations
 
@@ -147,8 +147,8 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 |---|---|---|---|
 | RLS on every table + CI check | 1 | 🟥 | In development |
 | pgTAP privacy tests | 4 | 🟥 | In development |
-| End-to-end tests (Maestro) for core loop | 7 | 🟥 | Planned |
-| Security review (Stage 4 §9) | 7 | 🟥 | Planned |
+| End-to-end tests (Maestro) for core loop | 7 | 🟥 | In development (flows written; need staging) |
+| Security review (Stage 4 §9) | 7 | 🟥 | In development (first pass done) |
 | Load test (2k votes/min, 1k polls closing) | 7 | 🟧 | Planned |
 | Accessibility pass + contrast test | 7 | 🟥 | Planned |
 | Sentry + alerts | 1 / 7 | 🟥 | Planned |
@@ -165,7 +165,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | 40 seed polls ready | 🟥 | In design (draft) |
 | Closed beta (~50 users) run | 🟥 | Not started |
 | Go/no-go metrics met (Stage 7 Phase 8) | 🟥 | Not started |
-| Landing page live | 🟥 | Not started |
+| Landing page live | 🟥 | In development (built; not deployed) |
 
 ## 11. Post-MVP roadmap (🟦)
 

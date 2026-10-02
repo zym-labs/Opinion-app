@@ -1,0 +1,14 @@
+appId: app.opinion.mobile
+---
+- runFlow: 01-sign-in-email.yaml
+- tapOn: "Profile"
+- assertVisible: "Only you can see your profile."
+- tapOn: "Settings"
+- tapOn: "Notifications"
+- assertVisible: "Round-up time"
+- tapOn: "8:00"
+- back
+- tapOn: "Hidden creators"
+- back
+- tapOn: "Sign out"
+- assertVisible: "Ask two options. Get real reasons."

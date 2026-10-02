@@ -1,0 +1,18 @@
+appId: app.opinion.mobile
+---
+- runFlow: 01-sign-in-email.yaml
+- assertVisible: "Open polls"
+- tapOn:
+    text: "Option A.*"
+    index: 0
+- assertVisible: "Submit vote — final"
+- tapOn: "Option A.*"
+- tapOn: "Why?.*"
+- inputText: "Battery life matters most for long lab days on campus"
+- tapOn: "My reason may be featured anonymously in the results"
+- tapOn: "Submit vote — final"
+- assertVisible: "Votes are final"
+- tapOn: "Submit vote"
+- assertVisible: "Vote submitted"
+- tapOn: "Back to feed"
+- assertVisible: "Waiting for results"
