@@ -22,7 +22,7 @@ type Prefs = {
 };
 
 const ROWS: [keyof Omit<Prefs, 'digest_hour'>, string][] = [
-  ['new_polls', 'Daily round-up of new polls'],
+  ['new_polls', 'New polls: daily round-up and follow-ups'],
   ['poll_ended', 'A poll I voted on has closed'],
   ['summary_ready', 'My poll’s results are ready'],
   ['insight_featured', 'My reason was featured'],

@@ -10,6 +10,7 @@ Deno.serve(async (req) => {
   const userId = await getUserId(req);
   if (!userId) return fail('UNAUTHENTICATED', 401);
   const raw = await req.text();
+  // deno-lint-ignore no-explicit-any -- request JSON is validated field by field below
   let body: Record<string, any>;
   try {
     body = JSON.parse(raw || '{}');

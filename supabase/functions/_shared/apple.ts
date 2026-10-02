@@ -46,7 +46,7 @@ export async function revokeRefreshToken(token: string) {
 }
 
 // AES-GCM so the token is never stored in plain text.
-async function aesKey() {
+function aesKey() {
   const raw = Uint8Array.from(atob(env('APPLE_TOKEN_KEY')), (c) => c.charCodeAt(0));
   return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
 }

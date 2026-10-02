@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   });
   if (rl) return fromDbError(rl);
 
-  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden] =
+  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden, experts, devices, campus] =
     await Promise.all([
       admin.auth.admin.getUserById(userId),
       admin.from('profiles').select('handle, status, onboarding_step, birth_year, age_source, created_at').eq('id', userId).single(),
@@ -20,15 +20,19 @@ Deno.serve(async (req) => {
       admin.from('user_communities').select('joined_at, communities(name)').eq('user_id', userId),
       admin.from('consents').select('kind, version, accepted_at').eq('user_id', userId),
       admin.from('polls')
-        .select('question, type, is_taste, status, duration_hours, published_at, closes_at, created_at, poll_options(side, label), poll_results(total_votes, pct_a, pct_b, winner, summary_majority, summary_minority)')
+        .select('question, type, is_taste, status, duration_hours, published_at, closes_at, created_at, poll_options(side, label), poll_results(total_votes, pcts, winner, summary_majority, summary_minority), parent_poll_id')
         .eq('creator_id', userId),
       admin.from('votes')
-        .select('side, predicted_side, feature_consent, created_at, polls(question), reasons(body)')
+        .select('side, predicted_side, feature_consent, verified_expert, created_at, polls(question), reasons(body)')
         .eq('voter_id', userId),
       admin.from('credit_ledger').select('delta, reason, created_at').eq('user_id', userId),
       admin.from('notifications').select('type, payload, created_at, read_at').eq('user_id', userId),
       admin.from('reports').select('target_type, reason, note, status, created_at').eq('reporter_id', userId),
       admin.from('hidden_creators').select('created_at, polls:source_poll_id(question)').eq('user_id', userId),
+      // Added with later features: verified expertise, device integrity keys, campus verification.
+      admin.from('expert_verifications').select('domain, verified_at, expires_at, categories(name)').eq('user_id', userId),
+      admin.from('device_keys').select('verified_at').eq('user_id', userId),
+      admin.from('campus_verifications').select('domain, verified_at, expires_at, communities(name)').eq('user_id', userId),
     ]);
 
   return json({
@@ -43,6 +47,9 @@ Deno.serve(async (req) => {
     notifications: notifications.data ?? [],
     reports_submitted: reports.data ?? [],
     hidden_creators: hidden.data ?? [],
+    expert_verifications: experts.data ?? [],
+    campus_verifications: campus.data ?? [],
+    integrity_keys_registered: (devices.data ?? []).length,
     note: 'Votes and reasons are shown to others only as anonymous totals and, if you agreed, anonymous quotes.',
   });
 });

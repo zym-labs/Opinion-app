@@ -1,6 +1,6 @@
 // AI summary core (STAGE4 §5): draft → fairness check → validation. Used by the worker and the eval runner.
-import Anthropic from 'npm:@anthropic-ai/sdk';
-import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
+import Anthropic from 'npm:@anthropic-ai/sdk@0.131.0';
+import { zodOutputFormat } from 'npm:@anthropic-ai/sdk@0.131.0/helpers/zod';
 import { z } from 'npm:zod@4';
 
 import { buildUserMessage, FAIRNESS_SYSTEM, SYSTEM } from './prompt.ts';

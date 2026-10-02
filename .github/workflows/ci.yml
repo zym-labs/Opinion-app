@@ -51,6 +51,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - run: deno lint
       - run: deno check */index.ts
       - run: deno test --allow-env
 
