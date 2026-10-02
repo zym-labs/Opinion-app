@@ -124,7 +124,7 @@ begin
     update public.profiles set status = 'suspended' where id = v_author;
   end if;
 
-  update public.reports set status = case when p_action = 'dismiss' then 'dismissed' else 'actioned' end,
+  update public.reports set status = (case when p_action = 'dismiss' then 'dismissed' else 'actioned' end)::public.report_status,
     resolved_at = now()
   where coalesce(reason_vote_id, featured_insight_id, poll_id) = v_key and status = 'open';
 

@@ -1,11 +1,12 @@
 // M-02 Active poll (live vote count only) / M-03 Completed (permanent result) / M-04 Share.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Alert, Share } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, View } from 'react-native';
 
 import { CountdownPill } from '@/components/poll/countdown';
 import { ResultView } from '@/components/poll/result-view';
+import { ShareCard, shareCard } from '@/components/poll/share-card';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
@@ -15,18 +16,11 @@ import { keys } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import type { MyPoll, Result } from '@/lib/types';
 
-function shareText(r: Result) {
-  const lines = [`“${r.question}”`];
-  for (const o of r.options ?? []) lines.push(`${o.side.toUpperCase()}: ${o.label ?? 'Image option'} — ${Number(o.pct ?? 0).toFixed(0)}%`);
-  if (r.summary?.majority) lines.push('', `AI summary: ${r.summary.majority}`);
-  lines.push('', 'Asked on Opinion');
-  return lines.join('\n');
-}
-
 export default function MyPollScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<View>(null);
   const poll = useQuery({
     queryKey: ['my-poll', id],
     queryFn: async () => {
@@ -96,7 +90,19 @@ export default function MyPollScreen() {
       <Screen>
         <ResultView result={result.data} />
         {result.data.state !== 'not_enough_responses' ? (
-          <Button label="Share result" variant="secondary" onPress={() => Share.share({ message: shareText(result.data!) })} />
+          <>
+            <Text variant="label" tone="muted">
+              Share card preview
+            </Text>
+            <View style={{ alignItems: 'center' }}>
+              <ShareCard ref={cardRef} result={result.data} />
+            </View>
+            <Button
+              label="Share result"
+              variant="secondary"
+              onPress={() => shareCard(cardRef).catch((e) => setError(e instanceof Error ? e.message : 'Could not share'))}
+            />
+          </>
         ) : null}
       </Screen>
     );

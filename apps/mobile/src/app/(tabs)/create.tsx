@@ -1,11 +1,12 @@
 // C-00…C-06 Create flow (STAGE1 §4) in one screen with steps.
 import { LIMITS } from '@opinion/shared';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { CategoryPicker } from '@/components/category-picker';
@@ -45,6 +46,9 @@ const EMPTY: Draft = {
   communityId: null,
   hours: 12,
 };
+
+// One draft is kept on the device (STAGE1 §4) and restored when Create opens.
+const DRAFT_KEY = 'opinion-poll-draft';
 
 const AGE_PRESETS: [number, number][] = [[18, 24], [25, 34], [35, 44], [45, 64]];
 const HOUR_PRESETS = [3, 6, 12, 24];
@@ -122,6 +126,27 @@ export default function Create() {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const restored = useRef(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(DRAFT_KEY)
+      .then((raw) => {
+        if (raw) setDraft({ ...EMPTY, ...JSON.parse(raw) });
+      })
+      .catch(() => {})
+      .finally(() => {
+        restored.current = true;
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!restored.current) return;
+    const t = setTimeout(() => {
+      const empty = JSON.stringify(draft) === JSON.stringify(EMPTY);
+      (empty ? AsyncStorage.removeItem(DRAFT_KEY) : AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft))).catch(() => {});
+    }, 500);
+    return () => clearTimeout(t);
+  }, [draft]);
 
   const myCommunities = communities?.filter((x) => me?.community_ids.includes(x.id)) ?? [];
   const targeting = {
@@ -192,6 +217,7 @@ export default function Create() {
       }
       await callFunction('polls', { action: 'publish', poll_id });
       setDraft(EMPTY);
+      AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
       qc.invalidateQueries({ queryKey: keys.credits });
       qc.invalidateQueries({ queryKey: keys.myPolls(false) });
       router.push({ pathname: '/my-poll/[id]', params: { id: poll_id } });
@@ -292,6 +318,9 @@ export default function Create() {
         )
       ) : null}
       {error ? <Banner tone="danger" message={error} /> : null}
+      {JSON.stringify(draft) !== JSON.stringify(EMPTY) ? (
+        <Button label="Discard draft" variant="ghost" onPress={() => setDraft(EMPTY)} />
+      ) : null}
       <Button label="Publish — uses 1 poll credit" disabled={!canPublish} loading={busy} onPress={publish} />
     </Screen>
   );

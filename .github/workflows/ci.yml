@@ -25,6 +25,8 @@ jobs:
       - name: Expo doctor
         run: npx expo-doctor
         working-directory: apps/mobile
+      - name: Web lint and build
+        run: npm run lint -w web && npm run build -w web
 
   database:
     runs-on: ubuntu-latest

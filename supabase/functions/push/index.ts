@@ -6,7 +6,13 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
   poll_ended: (p) => ({ title: 'Results are in', body: `“${p.question}” has closed. You can view the result once.` }),
   summary_ready: (p) => ({ title: 'Your poll results', body: `“${p.question}” is complete.` }),
   insight_featured: (p) => ({ title: 'Your reason was featured', body: `On “${p.question}”.` }),
-  moderation_outcome: () => ({ title: 'Update on your report', body: 'A moderator reviewed it.' }),
+  moderation_outcome: (p) =>
+    p.kind === 'author'
+      ? {
+          title: p.action === 'warn' ? 'A warning about your content' : 'Your content was removed',
+          body: 'Open Opinion to see which community guideline it broke and how to appeal.',
+        }
+      : { title: 'Update on your report', body: 'A moderator reviewed something you reported. Thank you.' },
 };
 
 const ROUTE: Record<string, (pollId: string | null) => string> = {

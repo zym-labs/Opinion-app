@@ -1,6 +1,6 @@
 // Poll creation (STAGE4 §3.3): create a moderated draft, then publish after image checks.
 import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
-import { moderate, moderateText } from '../_shared/moderation.ts';
+import { moderate, moderateText, NEW_ACCOUNT_THRESHOLD } from '../_shared/moderation.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -17,7 +17,9 @@ Deno.serve(async (req) => {
     if (!labelA && !body.image_a) return fail('INVALID_INPUT', 400, 'Option A needs text or an image');
     if (!labelB && !body.image_b) return fail('INVALID_INPUT', 400, 'Option B needs text or an image');
 
-    const mod = await moderateText(question, labelA, labelB);
+    const { data: isNew } = await admin.rpc('is_new_account', { p_user: userId });
+    const strict = isNew ? NEW_ACCOUNT_THRESHOLD : undefined;
+    const mod = await moderateText([question, labelA, labelB], strict);
     if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
 
     const { data: pollId, error } = await admin.rpc('create_poll_draft', {
@@ -57,7 +59,8 @@ Deno.serve(async (req) => {
       if (o.image_moderation === 'approved') continue;
       const { data: signed } = await admin.storage.from('poll-images').createSignedUrl(o.image_path, 300);
       if (!signed) return fail('IMAGE_PENDING');
-      const mod = await moderate([{ type: 'image_url', image_url: { url: signed.signedUrl } }]);
+      const { data: isNew } = await admin.rpc('is_new_account', { p_user: userId });
+      const mod = await moderate([{ type: 'image_url', image_url: { url: signed.signedUrl } }], isNew ? NEW_ACCOUNT_THRESHOLD : undefined);
       await admin.from('poll_options').update({ image_moderation: mod.state }).eq('poll_id', pollId).eq('side', o.side);
       if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
     }

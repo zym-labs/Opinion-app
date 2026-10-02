@@ -9,8 +9,10 @@ import { EmptyState } from '@/components/empty-state';
 import { HeaderBar } from '@/components/header-bar';
 import { timeLeft } from '@/components/poll/countdown';
 import { PollCard } from '@/components/poll/poll-card';
+import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { useOffline } from '@/lib/offline';
 import { useFeed, useResultsReady, useWaiting } from '@/lib/queries';
 import { radius, space, useColors } from '@/theme';
 
@@ -61,6 +63,7 @@ export default function Feed() {
   const feed = useFeed();
   const ready = useResultsReady();
   const waiting = useWaiting();
+  const offline = useOffline();
   const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {
@@ -77,6 +80,7 @@ export default function Feed() {
         contentContainerStyle={{ padding: space[4], gap: space[6], flexGrow: 1 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
         <HeaderBar title="Feed" />
+        {offline ? <Banner tone="warning" message="You’re offline. Showing your last feed; voting is paused." /> : null}
 
         {ready.data?.length ? (
           <Section title="Results ready">

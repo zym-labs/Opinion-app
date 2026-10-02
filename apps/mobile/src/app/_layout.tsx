@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { initMonitoring } from '@/lib/analytics';
+import { persister, shouldPersist } from '@/lib/offline';
 import { useNotificationRouting } from '@/lib/push';
 import { useMe } from '@/lib/queries';
 import { SessionProvider, useSession } from '@/lib/session';
@@ -12,7 +14,9 @@ import { SessionProvider, useSession } from '@/lib/session';
 SplashScreen.preventAutoHideAsync();
 initMonitoring();
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 15_000 } } });
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, staleTime: 15_000, gcTime: 24 * 60 * 60_000 } },
+});
 
 function RootNavigator() {
   const { session, loading } = useSession();
@@ -22,6 +26,11 @@ function RootNavigator() {
   const status = me.data?.status;
   const onboarded = me.data?.onboarding_step === 'complete' && status === 'active';
   useNotificationRouting(signedIn && onboarded);
+
+  // Nothing from one account may stay on the device after sign-out.
+  useEffect(() => {
+    if (!loading && !signedIn) queryClient.clear();
+  }, [loading, signedIn]);
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -58,12 +67,23 @@ function RootNavigator() {
 export default function RootLayout() {
   const scheme = useColorScheme();
   return (
-    <QueryClientProvider client={queryClient}>
+    <Providers>
       <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
         <SessionProvider>
           <RootNavigator />
         </SessionProvider>
       </ThemeProvider>
-    </QueryClientProvider>
+    </Providers>
+  );
+}
+
+function Providers({ children }: { children: ReactNode }) {
+  if (!persister) return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister, maxAge: 24 * 60 * 60_000, dehydrateOptions: { shouldDehydrateQuery: shouldPersist } }}>
+      {children}
+    </PersistQueryClientProvider>
   );
 }

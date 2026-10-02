@@ -36,10 +36,13 @@
       "expo-apple-authentication",
       [
         "@react-native-google-signin/google-signin",
-        { "iosUrlScheme": "com.googleusercontent.apps.REPLACE_IN_PHASE_0" }
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.REPLACE_IN_PHASE_0"
+        }
       ],
       "@sentry/react-native",
-      "expo-localization"
+      "expo-localization",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

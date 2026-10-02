@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
   const reason = typeof body.reason === 'string' ? body.reason.trim() : '';
   if (reason.length > 200) return fail('REASON_TOO_LONG');
 
-  const mod = reason ? await moderateText(reason) : { state: 'approved' as const, flags: null };
+  const mod = reason ? await moderateText([reason]) : { state: 'approved' as const, flags: null };
 
   const { data: closesAt, error } = await admin.rpc('cast_vote_internal', {
     p_user: userId,

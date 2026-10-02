@@ -18,6 +18,7 @@ import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { callFunction, errorMessage, rpc } from '@/lib/api';
+import { useOffline } from '@/lib/offline';
 import { keys } from '@/lib/queries';
 import type { FeedPoll, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
@@ -38,6 +39,7 @@ export default function Vote() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ closes_at: string; credit_units: number } | null>(null);
   const idempotencyKey = useRef(Crypto.randomUUID()).current;
+  const offline = useOffline();
 
   const p = poll.data;
   if (poll.isLoading) return <Screen><Text tone="muted">Loading…</Text></Screen>;
@@ -55,7 +57,7 @@ export default function Vote() {
   const reasonRequired = p.type === 'expert' && !p.is_taste;
   const reasonLen = reason.trim().length;
   const reasonOk = reasonRequired ? reasonLen >= LIMITS.reasonMin : true;
-  const canSubmit = !!side && reasonOk && consent && reasonLen <= LIMITS.reasonMax;
+  const canSubmit = !!side && reasonOk && consent && reasonLen <= LIMITS.reasonMax && !offline;
 
   async function submit() {
     setBusy(true);
@@ -182,6 +184,7 @@ export default function Vote() {
         </Text>
       </View>
 
+      {offline ? <Banner tone="warning" message="You’re offline. Connect to vote." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       <Button label="Submit vote — final" disabled={!canSubmit} loading={busy} onPress={confirm} />
     </Screen>

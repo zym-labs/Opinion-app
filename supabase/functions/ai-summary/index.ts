@@ -4,7 +4,7 @@ import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
 import { z } from 'npm:zod@4';
 
 import { admin, fail, isServiceCall, json } from '../_shared/http.ts';
-import { buildUserMessage, SUMMARY_VERSION, SYSTEM } from './prompt.ts';
+import { buildUserMessage, FAIRNESS_SYSTEM, SUMMARY_VERSION, SYSTEM } from './prompt.ts';
 
 const MODEL = 'claude-sonnet-5-5';
 const MINORITY_MIN_REASONS = 5;
@@ -25,6 +25,28 @@ type Job = {
   reasons: { id: string; side: 'a' | 'b'; text: string; consent: boolean }[];
 };
 
+const Fairness = z.object({
+  fair: z.boolean(),
+  problems: z.array(z.string()),
+});
+
+async function draftSummary(
+  messages: Anthropic.MessageParam[],
+  track: (u: { input_tokens: number; output_tokens: number }) => void,
+) {
+  const response = await client.messages.parse({
+    model: MODEL,
+    max_tokens: 4000,
+    output_config: { effort: 'medium', format: zodOutputFormat(Summary) },
+    system: SYSTEM,
+    messages,
+  });
+  track(response.usage);
+  if (response.stop_reason === 'refusal') throw new Error(`refusal: ${response.stop_details?.category ?? 'unknown'}`);
+  if (!response.parsed_output) throw new Error(`unparseable output (stop_reason ${response.stop_reason})`);
+  return response.parsed_output;
+}
+
 async function summarize(job: Job) {
   const majoritySide = job.votes_a >= job.votes_b ? 'a' : 'b';
   const minorityCount = job.reasons.filter((r) => r.side !== majoritySide).length;
@@ -35,22 +57,35 @@ async function summarize(job: Job) {
     return { majority: null, minority: null, featured: [], usage: { input_tokens: 0, output_tokens: 0 } };
   }
 
-  const response = await client.messages.parse({
-    model: MODEL,
-    max_tokens: 4000,
-    output_config: { effort: 'medium', format: zodOutputFormat(Summary) },
-    system: SYSTEM,
-    messages: [{
-      role: 'user',
-      content: buildUserMessage({
-        question: job.question, labelA: job.label_a, labelB: job.label_b,
-        votesA: job.votes_a, votesB: job.votes_b, reasons: job.reasons, minorityEnough,
-      }),
-    }],
+  const pollText = buildUserMessage({
+    question: job.question, labelA: job.label_a, labelB: job.label_b,
+    votesA: job.votes_a, votesB: job.votes_b, reasons: job.reasons, minorityEnough,
   });
-  if (response.stop_reason === 'refusal') throw new Error(`refusal: ${response.stop_details?.category ?? 'unknown'}`);
-  const out = response.parsed_output;
-  if (!out) throw new Error(`unparseable output (stop_reason ${response.stop_reason})`);
+  const usage = { input_tokens: 0, output_tokens: 0 };
+  const track = (u: { input_tokens: number; output_tokens: number }) => {
+    usage.input_tokens += u.input_tokens;
+    usage.output_tokens += u.output_tokens;
+  };
+
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: pollText }];
+  let out = await draftSummary(messages, track);
+
+  // Fairness pass (STAGE4 §5 step 4): a separate check for left-out views; one revision at most.
+  const check = await client.messages.parse({
+    model: MODEL,
+    max_tokens: 2000,
+    output_config: { effort: 'medium', format: zodOutputFormat(Fairness) },
+    system: FAIRNESS_SYSTEM,
+    messages: [{ role: 'user', content: `${pollText}\n\n<summary>${JSON.stringify(out)}</summary>` }],
+  });
+  track(check.usage);
+  if (check.stop_reason !== 'refusal' && check.parsed_output && !check.parsed_output.fair) {
+    messages.push(
+      { role: 'assistant', content: JSON.stringify(out) },
+      { role: 'user', content: `Revise the summaries to fix these problems:\n- ${check.parsed_output.problems.join('\n- ')}` },
+    );
+    out = await draftSummary(messages, track);
+  }
 
   // Validation (STAGE4 §5 step 3): citations must exist and match the right side.
   const byId = new Map(job.reasons.map((r) => [r.id, r]));
@@ -70,7 +105,7 @@ async function summarize(job: Job) {
     majority: out.majority.slice(0, 400),
     minority: minority?.slice(0, 400) ?? null,
     featured: featured.map((id) => ({ id })),
-    usage: response.usage,
+    usage,
   };
 }
 

@@ -6,8 +6,11 @@ const OPENAI_KEY = Deno.env.get('OPENAI_API_KEY');
 
 type Input = { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } };
 
-/** OpenAI omni-moderation (free). Without a key (local dev) content is approved. */
-export async function moderate(inputs: Input[]): Promise<ModerationResult> {
+/**
+ * OpenAI omni-moderation (free). Without a key (local dev) content is approved.
+ * strictThreshold: also reject when any category score reaches it (used for new accounts).
+ */
+export async function moderate(inputs: Input[], strictThreshold?: number): Promise<ModerationResult> {
   if (inputs.length === 0) return { state: 'approved', flags: null };
   if (!OPENAI_KEY) {
     console.warn('OPENAI_API_KEY not set: skipping moderation');
@@ -20,16 +23,28 @@ export async function moderate(inputs: Input[]): Promise<ModerationResult> {
   });
   if (!res.ok) throw new Error(`moderation failed: ${res.status}`);
   const data = await res.json();
-  const results = data.results as { flagged: boolean; categories: Record<string, boolean> }[];
-  const flagged = results.some((r) => r.flagged);
+  const results = data.results as {
+    flagged: boolean;
+    categories: Record<string, boolean>;
+    category_scores: Record<string, number>;
+  }[];
+  const flagged = results.some(
+    (r) => r.flagged || (strictThreshold !== undefined && Object.values(r.category_scores).some((s) => s >= strictThreshold)),
+  );
   return {
     state: flagged ? 'rejected' : 'approved',
     flags: flagged ? Object.assign({}, ...results.map((r) => r.categories)) : null,
   };
 }
 
-export const moderateText = (...texts: (string | null | undefined)[]) =>
-  moderate(texts.filter((t): t is string => !!t?.trim()).map((text) => ({ type: 'text', text })));
+/** Stricter cut-off for new accounts' first polls (STAGE2 §11). */
+export const NEW_ACCOUNT_THRESHOLD = 0.3;
+
+export const moderateText = (texts: (string | null | undefined)[], strictThreshold?: number) =>
+  moderate(
+    texts.filter((t): t is string => !!t?.trim()).map((text) => ({ type: 'text', text })),
+    strictThreshold,
+  );
 
 // Personal details are removed before reasons reach the AI or get featured (STAGE4 §5).
 const PII = [
