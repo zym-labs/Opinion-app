@@ -36,11 +36,17 @@ export async function enablePush(): Promise<boolean> {
   return true;
 }
 
+const handled = new Set<string>();
+
 /** Opens the screen a tapped notification points at (push worker sets data.url). */
 export function useNotificationRouting(enabled: boolean) {
   const last = Notifications.useLastNotificationResponse();
   useEffect(() => {
     const url = last?.notification.request.content.data?.url;
-    if (enabled && typeof url === 'string') router.push(url as never);
+    const id = last?.notification.request.identifier;
+    // Each tapped notification opens its screen once, even if the app re-enables routing later.
+    if (!enabled || typeof url !== 'string' || !id || handled.has(id)) return;
+    handled.add(id);
+    router.push(url as never);
   }, [enabled, last]);
 }

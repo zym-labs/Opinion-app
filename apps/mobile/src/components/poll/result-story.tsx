@@ -117,7 +117,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
             </Text>
           </View>
         ))}
-        <SplitBar segments={segmentsOf(r.options)} />
+        <SplitBar segments={segmentsOf(r.options)} haptic />
         <VerifiedLine result={r} />
         <Text tone="muted">
           {majorityLine}

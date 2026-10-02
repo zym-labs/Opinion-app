@@ -60,9 +60,10 @@ export async function callFunction<T>(
   let payload: Record<string, unknown> | string | undefined = body;
   if (opts.signed && body) {
     payload = JSON.stringify(body);
-    const { data: auth } = await supabase.auth.getUser();
+    // Local session, no network round trip (the server verifies the token anyway).
+    const { data: auth } = await supabase.auth.getSession();
     headers['Content-Type'] = 'application/json';
-    if (auth.user) Object.assign(headers, await integrityHeaders(auth.user.id, payload));
+    if (auth.session) Object.assign(headers, await integrityHeaders(auth.session.user.id, payload));
   }
   const { data, error } = await supabase.functions.invoke(name, {
     body: payload,

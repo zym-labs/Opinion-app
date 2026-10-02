@@ -48,7 +48,7 @@ describe('API errors', () => {
     expect(errorMessage(new Error('boom'))).toBe('Something went wrong. Please try again.');
   });
   it('signed calls send the exact JSON string with integrity headers', async () => {
-    (supabase.auth.getUser as jest.Mock).mockResolvedValueOnce({ data: { user: { id: 'u1' } } });
+    (supabase.auth.getSession as jest.Mock).mockResolvedValueOnce({ data: { session: { user: { id: 'u1' } } } });
     (supabase.functions.invoke as jest.Mock).mockResolvedValueOnce({ data: { ok: true }, error: null });
     await callFunction('votes', { poll_id: 'p1', side: 'a' }, { signed: true });
     const [, opts] = (supabase.functions.invoke as jest.Mock).mock.calls.at(-1);

@@ -54,7 +54,12 @@ const EMPTY: Draft = {
 // One draft is kept on the device (STAGE1 §4) and restored when Create opens.
 const DRAFT_KEY = 'opinion-poll-draft';
 
-const AGE_PRESETS: [number, number][] = [[18, 24], [25, 34], [35, 44], [45, 64]];
+const AGE_PRESETS: [number, number][] = [
+  [18, 24],
+  [25, 34],
+  [35, 44],
+  [45, 64],
+];
 const HOUR_PRESETS = [3, 6, 12, 24];
 
 /** Re-encodes the picked image: resizes to 1080px and strips EXIF (incl. GPS). */
@@ -88,7 +93,9 @@ function OptionEditor({ side, draft, setDraft }: { side: Side; draft: Draft; set
       <TextField
         label={`Option ${side.toUpperCase()}`}
         value={draft.labels[side]}
-        onChangeText={(t) => setDraft({ ...draft, labels: { ...draft.labels, [side]: t.slice(0, LIMITS.optionLabelMax) } })}
+        onChangeText={(t) =>
+          setDraft({ ...draft, labels: { ...draft.labels, [side]: t.slice(0, LIMITS.optionLabelMax) } })
+        }
       />
       {image ? (
         <Pressable
@@ -135,6 +142,7 @@ export default function Create() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const restored = useRef(false);
+  const pending = useRef<{ id: string; fingerprint: string; uploaded: boolean } | null>(null);
   // Follow-up mode: same audience as the asker's completed poll (roadmap: follow-up polls).
   const { followUp } = useLocalSearchParams<{ followUp?: string }>();
   const [parent, setParent] = useState<{ id: string; question: string } | null>(null);
@@ -164,6 +172,11 @@ export default function Create() {
   }, [followUp]);
 
   useEffect(() => {
+    // A follow-up starts from the parent's audience, not from an older saved draft.
+    if (followUp) {
+      restored.current = true;
+      return;
+    }
     AsyncStorage.getItem(DRAFT_KEY)
       .then((raw) => {
         if (!raw) return;
@@ -179,13 +192,15 @@ export default function Create() {
       .finally(() => {
         restored.current = true;
       });
-  }, []);
+  }, [followUp]);
 
   useEffect(() => {
     if (!restored.current) return;
     const t = setTimeout(() => {
       const empty = JSON.stringify(draft) === JSON.stringify(EMPTY);
-      (empty ? AsyncStorage.removeItem(DRAFT_KEY) : AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft))).catch(() => {});
+      (empty ? AsyncStorage.removeItem(DRAFT_KEY) : AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft))).catch(
+        () => {},
+      );
     }, 500);
     return () => clearTimeout(t);
   }, [draft]);
@@ -194,8 +209,8 @@ export default function Create() {
   const targeting = {
     p_type: draft.type,
     p_categories: draft.type === 'expert' ? draft.categoryIds : [],
-    p_age_min: draft.type === 'expert' ? draft.ageRange?.[0] ?? null : null,
-    p_age_max: draft.type === 'expert' ? draft.ageRange?.[1] ?? null : null,
+    p_age_min: draft.type === 'expert' ? (draft.ageRange?.[0] ?? null) : null,
+    p_age_max: draft.type === 'expert' ? (draft.ageRange?.[1] ?? null) : null,
     p_community: draft.type === 'community' ? draft.communityId : null,
   };
   const targetChosen = draft.type === 'expert' ? draft.categoryIds.length > 0 : !!draft.communityId;
@@ -213,8 +228,8 @@ export default function Create() {
         <HeaderBar title="Create" />
         <Text variant="question">Vote to ask</Text>
         <Text tone="muted">
-          Vote on {3 - progress} more {3 - progress === 1 ? 'poll' : 'polls'} to post your own. Voting keeps
-          Opinion fair: everyone who asks also helps others decide.
+          Vote on {3 - progress} more {3 - progress === 1 ? 'poll' : 'polls'} to post your own. Voting keeps Opinion
+          fair: everyone who asks also helps others decide.
         </Text>
         {credits.pending_units > 0 ? (
           <Banner message="Credits from new accounts unlock 24 hours after sign-up." />
@@ -234,21 +249,29 @@ export default function Create() {
     setBusy(true);
     setError(null);
     try {
-      const { poll_id } = await callFunction<{ poll_id: string }>('polls', {
-        action: 'create',
-        type: draft.type,
-        is_taste: draft.isTaste,
-        question: draft.question.trim(),
-        labels: active.map((s) => draft.labels[s].trim() || null),
-        images: active.map((s) => !!draft.images[s]),
-        category_ids: targeting.p_categories,
-        age_min: targeting.p_age_min,
-        age_max: targeting.p_age_max,
-        community_id: targeting.p_community,
-        parent_poll_id: parent?.id ?? null,
-        duration_hours: draft.hours,
-      });
-      for (const side of active) {
+      // Retrying an unchanged poll reuses its server draft (and uploaded images) instead of creating another.
+      const fingerprint = JSON.stringify({ draft, parent: parent?.id ?? null });
+      if (pending.current?.fingerprint !== fingerprint) pending.current = null;
+      const poll_id =
+        pending.current?.id ??
+        (
+          await callFunction<{ poll_id: string }>('polls', {
+            action: 'create',
+            type: draft.type,
+            is_taste: draft.isTaste,
+            question: draft.question.trim(),
+            labels: active.map((s) => draft.labels[s].trim() || null),
+            images: active.map((s) => !!draft.images[s]),
+            category_ids: targeting.p_categories,
+            age_min: targeting.p_age_min,
+            age_max: targeting.p_age_max,
+            community_id: targeting.p_community,
+            parent_poll_id: parent?.id ?? null,
+            duration_hours: draft.hours,
+          })
+        ).poll_id;
+      pending.current ??= { id: poll_id, fingerprint, uploaded: false };
+      for (const side of pending.current.uploaded ? [] : active) {
         const uri = draft.images[side];
         if (!uri) continue;
         const body = await (await fetch(uri)).arrayBuffer();
@@ -257,7 +280,9 @@ export default function Create() {
           .upload(`${poll_id}/${side}.jpg`, body, { contentType: 'image/jpeg', upsert: true });
         if (upErr) throw upErr;
       }
+      pending.current.uploaded = true;
       await callFunction('polls', { action: 'publish', poll_id }, { signed: true });
+      pending.current = null;
       track('poll_published', {
         type: draft.type,
         hours: draft.hours,
@@ -282,11 +307,17 @@ export default function Create() {
   return (
     <Screen>
       <HeaderBar title="Create" />
-      {parent ? <Banner message={`Follow-up to “${parent.question}”. Same audience as before; change it below if you like.`} /> : null}
+      {parent ? (
+        <Banner message={`Follow-up to “${parent.question}”. Same audience as before; change it below if you like.`} />
+      ) : null}
 
       <Section title="Who should answer?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>
-          <Chip label="Experts" selected={draft.type === 'expert'} onPress={() => setDraft({ ...draft, type: 'expert' })} />
+          <Chip
+            label="Experts"
+            selected={draft.type === 'expert'}
+            onPress={() => setDraft({ ...draft, type: 'expert' })}
+          />
           <Chip
             label="A community"
             selected={draft.type === 'community'}
@@ -379,7 +410,12 @@ export default function Create() {
       <Section title="How long should it run?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>
           {HOUR_PRESETS.map((h) => (
-            <Chip key={h} label={`${h}h`} selected={draft.hours === h} onPress={() => setDraft({ ...draft, hours: h })} />
+            <Chip
+              key={h}
+              label={`${h}h`}
+              selected={draft.hours === h}
+              onPress={() => setDraft({ ...draft, hours: h })}
+            />
           ))}
         </View>
       </Section>

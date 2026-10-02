@@ -3,7 +3,7 @@ jest.mock('@/lib/supabase', () => ({
   supabase: {
     rpc: jest.fn(),
     functions: { invoke: jest.fn() },
-    auth: { getUser: jest.fn(async () => ({ data: { user: null } })) },
+    auth: { getSession: jest.fn(async () => ({ data: { session: null } })) },
     storage: { from: () => ({ createSignedUrl: async () => ({ data: null }) }) },
   },
 }));

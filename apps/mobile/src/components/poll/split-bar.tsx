@@ -26,7 +26,18 @@ function Seg({ progress, from, to, color }: { progress: SharedValue<number>; fro
   return <Animated.View style={[{ height: '100%', flexBasis: 0, backgroundColor: color }, style]} />;
 }
 
-export function SplitBar({ segments, animate = true, height = 16 }: { segments: Segment[]; animate?: boolean; height?: number }) {
+export function SplitBar({
+  segments,
+  animate = true,
+  haptic = false,
+  height = 16,
+}: {
+  segments: Segment[];
+  animate?: boolean;
+  /** Only the reveal story vibrates when the bar settles (STAGE6 v2 haptic map). */
+  haptic?: boolean;
+  height?: number;
+}) {
   const c = useColors();
   const reduceMotion = useReducedMotion();
   const progress = useSharedValue(animate ? 0 : 1);
@@ -39,13 +50,15 @@ export function SplitBar({ segments, animate = true, height = 16 }: { segments: 
       return;
     }
     progress.value = 0;
-    const settle = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const settle = () => {
+      if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    };
     progress.value = reduceMotion
       ? withTiming(1, { duration: 0 }, () => runOnJS(settle)())
       : withSpring(1, motion.reveal, (done) => {
           if (done) runOnJS(settle)();
         });
-  }, [key, animate, reduceMotion, progress]);
+  }, [key, animate, haptic, reduceMotion, progress]);
 
   return (
     <View

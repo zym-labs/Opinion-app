@@ -61,9 +61,11 @@ export default function Notifications() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: keys.notifications, queryFn: () => rpc<Notification[]>('get_notifications') });
 
+  // Mark read only after the list has loaded, so new items still show as unread on this visit.
+  const loaded = q.isSuccess;
   useEffect(() => {
-    rpc('mark_notifications_read').catch(() => {});
-  }, []);
+    if (loaded) rpc('mark_notifications_read').catch(() => {});
+  }, [loaded]);
 
   if (!q.isLoading && !q.data?.length) {
     return (

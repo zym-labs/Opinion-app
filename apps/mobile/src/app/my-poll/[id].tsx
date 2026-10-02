@@ -25,13 +25,10 @@ export default function MyPollScreen() {
   const cardRef = useRef<View>(null);
   const poll = useQuery({
     queryKey: ['my-poll', id],
-    queryFn: async () => {
-      const [active, done] = await Promise.all([
-        rpc<MyPoll[]>('get_my_polls', { p_completed: false }),
-        rpc<MyPoll[]>('get_my_polls', { p_completed: true }),
-      ]);
-      return [...active, ...done].find((p) => p.id === id) ?? null;
-    },
+    queryFn: async () => (await rpc<MyPoll[]>('get_my_poll', { p_poll: id }))[0] ?? null,
+    // Until the poll is finished, re-check so the screen moves on when it closes and the summary lands.
+    refetchInterval: (q) =>
+      q.state.data && ['completed', 'failed_ai', 'removed'].includes(q.state.data.status) ? false : 30_000,
   });
   const p = poll.data;
   const finished = p && ['completed', 'failed_ai'].includes(p.status);
