@@ -16,6 +16,7 @@ export const keys = {
   myPolls: (completed: boolean) => ['my-polls', completed],
   stats: ['stats'],
   notifications: ['notifications'],
+  unread: ['unread'],
 };
 
 export function useMe() {
@@ -73,3 +74,7 @@ export const useResultsReady = () =>
 export const useCredits = () =>
   useQuery({ queryKey: keys.credits, queryFn: async () => (await rpc<Credits[]>('get_credits'))[0] });
 export const useStats = () => useQuery({ queryKey: keys.stats, queryFn: () => rpc<Stats>('my_stats') });
+
+/** Unread notifications for the bell badge. Refreshed when the app returns to the foreground. */
+export const useUnreadCount = () =>
+  useQuery({ queryKey: keys.unread, queryFn: () => rpc<number>('unread_notification_count'), staleTime: 60_000 });

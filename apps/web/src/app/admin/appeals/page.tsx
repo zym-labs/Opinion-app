@@ -1,11 +1,17 @@
 'use client';
 
 // AD-09 Appeals against moderation decisions (DSA Art. 20). Reversing restores the content and the account.
+import { useState } from 'react';
+
 import { rpc } from '@/lib/supabase';
 
 import { useRpc } from '../use-rpc';
 
+type Status = 'open' | 'upheld' | 'reversed';
+
 type Row = {
+  admin_note: string | null;
+  resolved_by: string | null;
   appeal_id: string;
   message: string;
   created_at: string;
@@ -18,7 +24,8 @@ type Row = {
 };
 
 export default function Appeals() {
-  const { data, error, reload } = useRpc<Row[]>('admin_appeals');
+  const [status, setStatus] = useState<Status>('open');
+  const { data, error, reload } = useRpc<Row[]>('admin_appeals', { p_status: status });
 
   function resolve(id: string, reverse: boolean) {
     const note = prompt(reverse ? 'Why reverse? (sent to the audit log)' : 'Why uphold? (sent to the audit log)');
@@ -32,8 +39,15 @@ export default function Appeals() {
     <div className="stack">
       <h1 style={{ margin: 0 }}>Appeals</h1>
       <p className="muted">Where possible, a different moderator from the one who decided should review the appeal.</p>
+      <div className="row">
+        {(['open', 'upheld', 'reversed'] as const).map((s) => (
+          <button key={s} aria-pressed={status === s} onClick={() => setStatus(s)}>
+            {s[0].toUpperCase() + s.slice(1)}
+          </button>
+        ))}
+      </div>
       {error && <p className="error">{error}</p>}
-      {data?.length === 0 && <p className="muted">No open appeals.</p>}
+      {data?.length === 0 && <p className="muted">No {status} appeals.</p>}
       {data && data.length > 0 && (
         <table className="data">
           <thead>
@@ -59,8 +73,17 @@ export default function Appeals() {
                   <div className="faint">{new Date(r.created_at).toLocaleString()}</div>
                 </td>
                 <td>
-                  <button onClick={() => resolve(r.appeal_id, true)}>Reverse</button>{' '}
-                  <button onClick={() => resolve(r.appeal_id, false)}>Uphold</button>
+                  {status === 'open' ? (
+                    <>
+                      <button onClick={() => resolve(r.appeal_id, true)}>Reverse</button>{' '}
+                      <button onClick={() => resolve(r.appeal_id, false)}>Uphold</button>
+                    </>
+                  ) : (
+                    <span className="faint">
+                      @{r.resolved_by ?? 'unknown'}
+                      {r.admin_note ? `: ${r.admin_note}` : ''}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

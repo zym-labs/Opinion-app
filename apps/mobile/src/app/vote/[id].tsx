@@ -12,6 +12,7 @@ import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated'
 import { CountdownPill, timeLeft } from '@/components/poll/countdown';
 import { OptionTile } from '@/components/poll/option-tile';
 import { TypeBadge } from '@/components/poll/poll-card';
+import { ErrorState } from '@/components/error-state';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
@@ -47,6 +48,7 @@ export default function Vote() {
 
   const p = poll.data;
   if (poll.isLoading) return <Screen><ScreenSkeleton /></Screen>;
+  if (poll.isError) return <Screen><ErrorState error={poll.error} onRetry={() => poll.refetch()} /></Screen>;
   if (!p) {
     // F-07 Poll unavailable (closed, removed, already voted or not eligible).
     return (

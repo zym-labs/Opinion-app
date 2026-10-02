@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
+import { ErrorState } from '@/components/error-state';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderBar } from '@/components/header-bar';
 import { timeLeft } from '@/components/poll/countdown';
@@ -42,7 +43,7 @@ export default function MyPolls() {
   const polls = { data: q.data?.pages.flat(), isLoading: q.isLoading };
 
   return (
-    <Screen>
+    <Screen onRefresh={() => q.refetch()}>
       <HeaderBar title="My Polls" />
       <View style={{ flexDirection: 'row', gap: space[2] }}>
         <Chip label="Active" selected={!completed} onPress={() => setCompleted(false)} />
@@ -71,6 +72,8 @@ export default function MyPolls() {
         ))
       ) : polls.isLoading ? (
         <ScreenSkeleton />
+      ) : q.isError ? (
+        <ErrorState error={q.error} onRetry={() => q.refetch()} />
       ) : (
         <View style={{ flex: 1, gap: space[3] }}>
           <EmptyState

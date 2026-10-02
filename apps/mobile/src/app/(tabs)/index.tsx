@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ErrorState } from '@/components/error-state';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderBar } from '@/components/header-bar';
 import { timeLeft } from '@/components/poll/countdown';
@@ -125,7 +126,8 @@ export default function Feed() {
           </Section>
         ) : null}
 
-        {empty && !feed.isLoading ? (
+        {feed.isError && !polls.length ? <ErrorState error={feed.error} onRetry={() => feed.refetch()} /> : null}
+        {empty && !feed.isLoading && !feed.isError ? (
           <View style={{ flex: 1, gap: space[3] }}>
             <EmptyState
               title="No open polls for your interests"

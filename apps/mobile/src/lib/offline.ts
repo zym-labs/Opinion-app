@@ -1,12 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import { onlineManager, type Query } from '@tanstack/react-query';
+import { focusManager, onlineManager, type Query } from '@tanstack/react-query';
+import { AppState } from 'react-native';
 
 // Offline: the feed and lists stay readable from the last sync; voting and posting need a connection.
 onlineManager.setEventListener((setOnline) =>
   NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
 );
+
+// Stale queries (feed, unread badge…) refetch when the app returns to the foreground.
+focusManager.setEventListener((setFocused) => {
+  const sub = AppState.addEventListener('change', (state) => setFocused(state === 'active'));
+  return () => sub.remove();
+});
 
 export const persister = createAsyncStoragePersister({ storage: AsyncStorage, key: 'opinion-cache' });
 

@@ -11,6 +11,7 @@ import { ResultView } from '@/components/poll/result-view';
 import { ShareCard, shareCard } from '@/components/poll/share-card';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/error-state';
 import { Screen } from '@/components/ui/screen';
 import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
@@ -55,7 +56,19 @@ export default function MyPollScreen() {
     };
   }, [id, p?.status]);
 
-  if (!p) return <Screen>{poll.isLoading ? <ScreenSkeleton /> : <Text tone="muted">Poll not found.</Text>}</Screen>;
+  if (!p) {
+    return (
+      <Screen>
+        {poll.isLoading ? (
+          <ScreenSkeleton />
+        ) : poll.isError ? (
+          <ErrorState error={poll.error} onRetry={() => poll.refetch()} />
+        ) : (
+          <Text tone="muted">Poll not found.</Text>
+        )}
+      </Screen>
+    );
+  }
 
   function remove() {
     Alert.alert('Delete this poll?', 'Your poll credit will be refunded.', [

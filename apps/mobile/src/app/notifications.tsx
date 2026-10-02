@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Pressable } from 'react-native';
 
+import { ErrorState } from '@/components/error-state';
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
@@ -81,19 +82,29 @@ export default function Notifications() {
   // Mark read only after the list has loaded, so new items still show as unread on this visit.
   const loaded = q.isSuccess;
   useEffect(() => {
-    if (loaded) rpc('mark_notifications_read').catch(() => {});
-  }, [loaded]);
+    if (loaded)
+      rpc('mark_notifications_read')
+        .then(() => qc.setQueryData(keys.unread, 0))
+        .catch(() => {});
+  }, [loaded, qc]);
 
-  if (!q.isLoading && !q.data?.length) {
+  if (q.isError && !q.data) {
     return (
       <Screen>
+        <ErrorState error={q.error} onRetry={() => q.refetch()} />
+      </Screen>
+    );
+  }
+  if (!q.isLoading && !q.data?.length) {
+    return (
+      <Screen onRefresh={() => q.refetch()}>
         <EmptyState title="No notifications" body="We’ll let you know when results are in." />
       </Screen>
     );
   }
 
   return (
-    <Screen>
+    <Screen onRefresh={() => q.refetch()}>
       {q.data?.map((n) => {
         const d = describe(n);
         return (
