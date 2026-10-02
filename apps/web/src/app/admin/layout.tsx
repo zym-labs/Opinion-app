@@ -9,6 +9,7 @@ import { AuthGate } from './auth-gate';
 
 const NAV = [
   ['/admin', 'Queue'],
+  ['/admin/appeals', 'Appeals'],
   ['/admin/users', 'Users'],
   ['/admin/communities', 'Communities'],
   ['/admin/seed', 'Seed polls'],

@@ -1,7 +1,6 @@
 // N-01 Notification center.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { useEffect } from 'react';
 import { Pressable } from 'react-native';
 
@@ -9,7 +8,6 @@ import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { rpc } from '@/lib/api';
-import { LEGAL_URLS } from '@/lib/legal';
 import { keys } from '@/lib/queries';
 import type { Notification } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
@@ -54,6 +52,13 @@ function describe(n: Notification) {
       return { title: `Your reason was featured on ${q}`, go: () => router.push('/featured') };
     default: {
       // Statement of reasons for authors (DSA Art. 17); outcome note for reporters.
+      if (n.payload.kind === 'appeal') {
+        const title =
+          n.payload.outcome === 'reversed'
+            ? 'Your appeal was accepted and the decision was reversed.'
+            : 'Your appeal was reviewed. The decision stands.';
+        return { title, go: () => router.push('/appeals') };
+      }
       if (n.payload.kind !== 'author') {
         return { title: 'A moderator reviewed something you reported. Thank you.', go: () => {} };
       }
@@ -62,8 +67,8 @@ function describe(n: Notification) {
       const title =
         n.payload.action === 'warn'
           ? `Warning: ${what.toLowerCase()} broke the rule “${rule}”. Repeated breaks can lead to suspension.`
-          : `${what} was removed because it broke the rule “${rule}”. To appeal, contact support.`;
-      return { title, go: () => WebBrowser.openBrowserAsync(LEGAL_URLS.support) };
+          : `${what} was removed because it broke the rule “${rule}”. Tap to appeal.`;
+      return { title, go: () => router.push('/appeals') };
     }
   }
 }
