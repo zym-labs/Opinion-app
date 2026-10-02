@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   });
   if (rl) return fromDbError(rl);
 
-  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden, experts, devices, campus] =
+  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden, experts, devices, campus, decisions, appeals] =
     await Promise.all([
       admin.auth.admin.getUserById(userId),
       admin.from('profiles').select('handle, status, onboarding_step, birth_year, age_source, created_at').eq('id', userId).single(),
@@ -33,6 +33,9 @@ Deno.serve(async (req) => {
       admin.from('expert_verifications').select('domain, verified_at, expires_at, categories(name)').eq('user_id', userId),
       admin.from('device_keys').select('verified_at').eq('user_id', userId),
       admin.from('campus_verifications').select('domain, verified_at, expires_at, communities(name)').eq('user_id', userId),
+      // Moderation decisions about the caller and their appeals; moderator identities and internal notes are left out.
+      admin.from('moderation_actions').select('action, rule, created_at').eq('target_user_id', userId),
+      admin.from('appeals').select('message, status, created_at, resolved_at').eq('user_id', userId),
     ]);
 
   return json({
@@ -49,6 +52,8 @@ Deno.serve(async (req) => {
     hidden_creators: hidden.data ?? [],
     expert_verifications: experts.data ?? [],
     campus_verifications: campus.data ?? [],
+    moderation_decisions: decisions.data ?? [],
+    appeals: appeals.data ?? [],
     integrity_keys_registered: (devices.data ?? []).length,
     note: 'Votes and reasons are shown to others only as anonymous totals and, if you agreed, anonymous quotes.',
   });

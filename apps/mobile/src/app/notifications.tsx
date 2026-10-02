@@ -1,7 +1,7 @@
 // N-01 Notification center.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Pressable } from 'react-native';
 
 import { ErrorState } from '@/components/error-state';
@@ -60,19 +60,26 @@ function describe(n: Notification) {
             : 'Your appeal was reviewed. The decision stands.';
         return { title, go: () => router.push('/appeals') };
       }
+      if (n.payload.kind === 'account_restored') {
+        return { title: 'Your account is active again.', go: () => {} };
+      }
       if (n.payload.kind !== 'author') {
         return { title: 'A moderator reviewed something you reported. Thank you.', go: () => {} };
       }
       const rule = RULES[String(n.payload.rule)] ?? 'the community guidelines';
       const what = n.payload.target === 'poll' ? `Your poll ${q}` : 'Your reason';
       const title =
-        n.payload.action === 'warn'
+        n.payload.action === 'suspend'
+          ? `Your account was suspended because it broke the rule “${rule}”. Tap to appeal.`
+          : n.payload.action === 'warn'
           ? `Warning: ${what.toLowerCase()} broke the rule “${rule}”. Repeated breaks can lead to suspension.`
           : `${what} was removed because it broke the rule “${rule}”. Tap to appeal.`;
       return { title, go: () => router.push('/appeals') };
     }
   }
 }
+
+const isToday = (iso: string) => new Date(iso).toDateString() === new Date().toDateString();
 
 export default function Notifications() {
   const c = useColors();
@@ -105,11 +112,18 @@ export default function Notifications() {
 
   return (
     <Screen onRefresh={() => q.refetch()}>
-      {q.data?.map((n) => {
+      {q.data?.map((n, i) => {
         const d = describe(n);
+        const today = isToday(n.created_at);
+        const header = i === 0 || isToday(q.data![i - 1].created_at) !== today ? (today ? 'Today' : 'Earlier') : null;
         return (
+          <Fragment key={n.id}>
+          {header ? (
+            <Text variant="label" tone="muted" accessibilityRole="header">
+              {header}
+            </Text>
+          ) : null}
           <Pressable
-            key={n.id}
             accessibilityRole="button"
             onPress={() => {
               qc.invalidateQueries({ queryKey: keys.notifications });
@@ -123,9 +137,12 @@ export default function Notifications() {
             }}>
             <Text variant={n.read_at ? 'body' : 'bodyStrong'}>{d.title}</Text>
             <Text variant="caption" tone="faint">
-              {new Date(n.created_at).toLocaleString()}
+              {today
+                ? new Date(n.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+                : new Date(n.created_at).toLocaleString()}
             </Text>
           </Pressable>
+          </Fragment>
         );
       })}
     </Screen>

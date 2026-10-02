@@ -3,6 +3,7 @@
 // AD-04 User lookup by internal handle or email.
 import { useState } from 'react';
 
+import { RULES } from '@/lib/rules';
 import { rpc } from '@/lib/supabase';
 
 type User = {
@@ -20,6 +21,7 @@ export default function Users() {
   const [query, setQuery] = useState('');
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [rule, setRule] = useState('');
 
   async function search() {
     setError(null);
@@ -31,10 +33,11 @@ export default function Users() {
   }
 
   async function setStatus(status: 'active' | 'suspended') {
-    const note = prompt(status === 'suspended' ? 'Reason for suspension (internal)' : 'Reason for unsuspending (internal)');
+    if (status === 'suspended' && !rule) return setError('Pick the rule broken. The user is told which one.');
+    const note = prompt(status === 'suspended' ? 'Internal note (not shown to the user)' : 'Reason for unsuspending (internal)');
     if (note === null) return;
     try {
-      await rpc('admin_set_status', { p_user: user!.id, p_status: status, p_note: note });
+      await rpc('admin_set_status', { p_user: user!.id, p_status: status, p_rule: status === 'suspended' ? rule : null, p_note: note });
       await search();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error');
@@ -80,9 +83,19 @@ export default function Users() {
             {user.status === 'suspended' ? (
               <button onClick={() => setStatus('active')}>Unsuspend</button>
             ) : user.status === 'active' ? (
-              <button className="danger" onClick={() => setStatus('suspended')}>
-                Suspend
-              </button>
+              <>
+                <select aria-label="Rule broken" value={rule} onChange={(e) => setRule(e.target.value)}>
+                  <option value="">Rule broken…</option>
+                  {RULES.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <button className="danger" onClick={() => setStatus('suspended')}>
+                  Suspend
+                </button>
+              </>
             ) : null}
           </div>
         </section>

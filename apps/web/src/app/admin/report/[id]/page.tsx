@@ -4,6 +4,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { RULES } from '@/lib/rules';
 import { imageUrl, rpc } from '@/lib/supabase';
 
 import { useRpc } from '../../use-rpc';
@@ -17,18 +18,6 @@ type Item = {
   author: { id: string; handle: string; status: string; created_at: string; strikes: number } | null;
 };
 
-// Rule names shown to authors in their statement of reasons (match COMMUNITY_GUIDELINES.md).
-const RULES = [
-  ['harassment', 'Targets or identifies a private person'],
-  ['personal_info', 'Shares personal information'],
-  ['hate', 'Hate'],
-  ['sexual', 'Sexual content'],
-  ['self_harm', 'Encourages self-harm or dangerous acts'],
-  ['spam', 'Spam, advertising or vote coordination'],
-  ['ai_manipulation', 'Tries to manipulate the AI summary'],
-  ['misleading_expertise', 'Misleading claims of expertise'],
-  ['illegal', 'Illegal content'],
-] as const;
 
 function OptionImage({ path }: { path: string }) {
   const [src, setSrc] = useState<string | null>(null);

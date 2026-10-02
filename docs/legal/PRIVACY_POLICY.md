@@ -43,7 +43,8 @@ Reasons from voters are processed by [Anthropic] to create summaries and select 
 | Account data | Until you delete your account |
 | Raw reason text | 90 days after the poll closes (featured quotes kept, anonymised) |
 | Poll results | For the creator's history; unlinked from deleted accounts |
-| Reports and moderation records | 2 years |
+| Notifications | Read ones 90 days; all at most 1 year |
+| Reports, moderation records and appeals | 2 years |
 | Backups | Up to 30 days |
 
 ## Your rights
