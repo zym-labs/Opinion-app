@@ -66,6 +66,8 @@ export type Result = {
   } | null;
   featured?: { id: string; quote: string; side: Side }[];
   reason_count?: number;
+  /** How verified experts voted; null when fewer than 5 did. */
+  verified?: { total: number; pcts: Partial<Record<Side, number>> } | null;
   view_once?: boolean;
 };
 

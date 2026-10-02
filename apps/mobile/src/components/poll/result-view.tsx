@@ -10,6 +10,7 @@ import { radius, space, useColors } from '@/theme';
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
 import { segmentsOf, SplitBar } from './split-bar';
+import { VerifiedLine } from './verified-line';
 
 function Insight({ quote, side, id }: { quote: string; side: Side; id: string }) {
   const c = useColors();
@@ -70,6 +71,7 @@ export function ResultView({ result }: { result: Result }) {
           );
         })}
         <SplitBar segments={segmentsOf(result.options)} />
+        <VerifiedLine result={result} />
         <Text variant="label" tone="muted">
           {result.total_votes} votes
         </Text>

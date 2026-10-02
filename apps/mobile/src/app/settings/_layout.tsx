@@ -8,6 +8,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="communities" options={{ title: 'Communities' }} />
       <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
       <Stack.Screen name="hidden" options={{ title: 'Hidden creators' }} />
+      <Stack.Screen name="experts" options={{ title: 'Verify expertise' }} />
       <Stack.Screen name="delete" options={{ title: 'Delete account' }} />
     </Stack>
   );

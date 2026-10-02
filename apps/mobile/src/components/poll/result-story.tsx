@@ -17,6 +17,7 @@ import { radius, space, useColors } from '@/theme';
 import { AISummary } from './ai-summary';
 import { SideBadge, useSideColors } from './option-tile';
 import { segmentsOf, SplitBar } from './split-bar';
+import { VerifiedLine, verifiedText } from './verified-line';
 
 // interactive cards hold links, so they advance with a Next button instead of tap zones.
 type Card = { key: string; label: string; body: ReactNode; interactive?: boolean };
@@ -98,7 +99,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
     key: 'split',
     label: sides
       .map((s) => `Option ${s.toUpperCase()}, ${name(s)}, ${pct(s).toFixed(0)} percent${mine === s ? ', your pick' : ''}`)
-      .join('. ') + `. ${majorityLine}${r.you?.predicted_correctly ? ' You also predicted the result correctly.' : ''}`,
+      .join('. ') + `. ${verifiedText(r) ? `${verifiedText(r)}. ` : ''}${majorityLine}${r.you?.predicted_correctly ? ' You also predicted the result correctly.' : ''}`,
     body: (
       <>
         <Text variant="label" tone="muted">
@@ -117,6 +118,7 @@ export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
           </View>
         ))}
         <SplitBar segments={segmentsOf(r.options)} />
+        <VerifiedLine result={r} />
         <Text tone="muted">
           {majorityLine}
           {r.you?.predicted_correctly ? ' And you called it.' : ''}

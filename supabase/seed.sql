@@ -33,3 +33,8 @@ on conflict (slug) do nothing;
 insert into public.community_domains (community_id, domain)
 select id, 'example.edu' from public.communities where slug = 'pilot-campus'
 on conflict do nothing;
+
+-- Example verifiable domain for Medicine (manage the real list in Admin → Experts).
+insert into public.expert_domains (category_id, domain, label)
+select id, 'nhs.net', 'NHS staff' from public.categories where slug = 'medicine'
+on conflict do nothing;
