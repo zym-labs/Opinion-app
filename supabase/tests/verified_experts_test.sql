@@ -16,25 +16,25 @@ insert into public.poll_options (poll_id, side, label) values
 insert into public.poll_target_categories (poll_id, category_id)
 select '00000000-0000-0000-0000-00000000e001', id from public.categories where slug = 'medicine';
 
--- Users 201-206 are verified for Medicine; 207-212 are not.
+-- All 12 voters are verified for Medicine.
 insert into public.expert_verifications (user_id, category_id, email_hash, domain)
 select ('00000000-0000-0000-0000-' || lpad((200 + i)::text, 12, '0'))::uuid, (select id from public.categories where slug = 'medicine'),
   'hash' || i, 'nhs.net'
-from generate_series(1, 6) i;
+from generate_series(1, 12) i;
 
 insert into public.votes (poll_id, voter_id, side, feature_consent)
 select '00000000-0000-0000-0000-00000000e001', ('00000000-0000-0000-0000-' || lpad((200 + i)::text, 12, '0'))::uuid,
   (case when i <= 5 then 'a' else 'b' end)::public.vote_side, true
 from generate_series(1, 12) i;
 
-select is((select count(*)::int from public.votes where poll_id = '00000000-0000-0000-0000-00000000e001' and verified_expert), 6,
+select is((select count(*)::int from public.votes where poll_id = '00000000-0000-0000-0000-00000000e001' and verified_expert), 12,
   'votes from verified experts are marked');
-select is((public.verified_breakdown('00000000-0000-0000-0000-00000000e001')->>'total')::int, 6, 'breakdown counts verified votes');
-select is((public.verified_breakdown('00000000-0000-0000-0000-00000000e001')->'pcts'->>'a')::numeric, 83.3, 'verified split per option');
+select is((public.verified_breakdown('00000000-0000-0000-0000-00000000e001')->>'total')::int, 12, 'breakdown counts verified votes');
+select is((public.verified_breakdown('00000000-0000-0000-0000-00000000e001')->'pcts'->>'a')::numeric, 41.7, 'verified split per option');
 
 delete from public.votes where poll_id = '00000000-0000-0000-0000-00000000e001' and voter_id::text in
-  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000202');
-select is(public.verified_breakdown('00000000-0000-0000-0000-00000000e001'), null, 'hidden below 5 verified votes');
+  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000203');
+select is(public.verified_breakdown('00000000-0000-0000-0000-00000000e001'), null, 'hidden below 10 verified votes');
 
 select * from finish();
 rollback;
