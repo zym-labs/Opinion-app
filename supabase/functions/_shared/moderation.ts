@@ -37,6 +37,23 @@ export async function moderate(inputs: Input[], strictThreshold?: number): Promi
   };
 }
 
+// Crisis safety net: someone asking or answering about hurting themselves gets support, not a poll.
+const CRISIS = [
+  /\b(kill|hurt|harm)\s+my\s*self\b/i,
+  /\bend(ing)?\s+(my|it)\s+(life|all)\b/i,
+  /\bsuicid(e|al)\b/i,
+  /\b(want|wanna)\s+to\s+die\b/i,
+  /\bself[-\s]?harm(ing)?\b/i,
+  /\bnot\s+(want|wanting)\s+to\s+(live|be\s+alive)\b/i,
+];
+
+/** True when moderation flagged self-harm intent or instructions, or the text plainly mentions it. */
+export function isCrisis(texts: (string | null | undefined)[], mod?: ModerationResult) {
+  const f = mod?.flags ?? {};
+  if (f['self-harm/intent'] || f['self-harm/instructions'] || f['self-harm']) return true;
+  return texts.some((t) => !!t && CRISIS.some((re) => re.test(t)));
+}
+
 /** Stricter cut-off for new accounts' first polls (STAGE2 §11). */
 export const NEW_ACCOUNT_THRESHOLD = 0.3;
 

@@ -1,7 +1,7 @@
 // Voting (STAGE4 §3.2): the reason is moderated before the vote is saved.
 import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
 import { checkIntegrity } from '../_shared/integrity.ts';
-import { looksLikeInjection, moderateText, redactPii } from '../_shared/moderation.ts';
+import { isCrisis, looksLikeInjection, moderateText, redactPii } from '../_shared/moderation.ts';
 
 // Idempotency for retried requests (per instance): bounded, short-lived, and tied to the exact body.
 const SEEN_MAX = 1000;
@@ -38,6 +38,7 @@ Deno.serve(async (req) => {
   if (reason.length > 200) return fail('REASON_TOO_LONG');
 
   const mod = reason ? await moderateText([reason]) : { state: 'approved' as const, flags: null };
+  if (reason && isCrisis([reason], mod)) return fail('CRISIS_SUPPORT');
 
   const { data: closesAt, error } = await admin.rpc('cast_vote_internal', {
     p_user: userId,
