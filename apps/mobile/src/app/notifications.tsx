@@ -36,6 +36,8 @@ function describe(n: Notification) {
       return { title: `Results are in: ${q}`, go: () => router.push({ pathname: '/result/[id]', params: { id: n.poll_id! } }) };
     case 'summary_ready':
       return { title: `Your poll is complete: ${q}`, go: () => router.push({ pathname: '/my-poll/[id]', params: { id: n.poll_id! } }) };
+    case 'follow_up':
+      return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
     case 'insight_featured':
       return { title: `Your reason was featured on ${q}`, go: () => router.push('/featured') };
     default: {

@@ -6,6 +6,7 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
   poll_ended: (p) => ({ title: 'Results are in', body: `“${p.question}” has closed. You can view the result once.` }),
   summary_ready: (p) => ({ title: 'Your poll results', body: `“${p.question}” is complete.` }),
   insight_featured: (p) => ({ title: 'Your reason was featured', body: `On “${p.question}”.` }),
+  follow_up: (p) => ({ title: 'A follow-up to a poll you voted on', body: `“${p.question}”` }),
   moderation_outcome: (p) =>
     p.kind === 'author'
       ? {
@@ -20,6 +21,7 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   poll_ended: (id) => `/result/${id}`,
   summary_ready: (id) => `/my-poll/${id}`,
   insight_featured: () => '/featured',
+  follow_up: (id) => `/vote/${id}`,
   moderation_outcome: () => '/notifications',
 };
 

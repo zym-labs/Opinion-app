@@ -94,3 +94,9 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
 
 ## Stages
 0 Sign-off → 1 App Flow → 2 Auth & Onboarding (+legal) → 3 Database → 4 API (after BaaS decision) → 5 Tech Stack → 6 Design System → 7 Roadmap → 8 MVP Checklist
+
+## Post-MVP features built (2026-10-02)
+- **2–4 options per poll.** Majority = top option; the minority summary covers every other option. Ties at the top have no winner.
+- **Verified experts.** Users verify a work/university email on an admin-approved domain for one of their categories (hash only, 12 months). Results show "Verified experts (N): …" only when ≥ 5 verified experts voted.
+- **Creator insights.** Private to the asker: verified vs self-selected split, prediction accuracy, share explaining or agreeing to be quoted. Groups under 10 votes hidden; no timings.
+- **Follow-up polls.** From a completed poll; same audience by default; "Follow-up to …" in feed and vote screen; the original poll's voters are notified.

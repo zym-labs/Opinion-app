@@ -32,6 +32,8 @@ export type FeedPoll = {
   target_label: string | null;
   is_sensitive: boolean;
   options: PollOption[];
+  /** Question of the poll this one follows up, if any. */
+  follow_up_of?: string | null;
 };
 
 export type WaitingPoll = { id: string; question: string; closes_at: string; my_side: Side; options: PollOption[] };
@@ -46,6 +48,8 @@ export type MyPoll = {
   closes_at: string | null;
   created_at: string;
   removed_reason: string | null;
+  parent_poll_id?: string | null;
+  follow_up_count?: number;
 };
 
 export type Result = {
@@ -89,7 +93,7 @@ export type Stats = {
 
 export type Notification = {
   id: string;
-  type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome';
+  type: 'new_polls_digest' | 'poll_ended' | 'summary_ready' | 'insight_featured' | 'moderation_outcome' | 'follow_up';
   poll_id: string | null;
   payload: Record<string, unknown>;
   read_at: string | null;

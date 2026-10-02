@@ -47,6 +47,11 @@ export function PollCard({ poll }: { poll: FeedPoll }) {
             </Text>
             <CountdownPill closesAt={poll.closes_at} />
           </View>
+          {poll.follow_up_of ? (
+            <Text variant="caption" tone="muted" numberOfLines={1}>
+              Follow-up to “{poll.follow_up_of}”
+            </Text>
+          ) : null}
           <Text variant="question">{poll.question}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
             {poll.options.map((o) => (

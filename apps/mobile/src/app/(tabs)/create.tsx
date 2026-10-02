@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
@@ -135,6 +135,33 @@ export default function Create() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const restored = useRef(false);
+  // Follow-up mode: same audience as the asker's completed poll (roadmap: follow-up polls).
+  const { followUp } = useLocalSearchParams<{ followUp?: string }>();
+  const [parent, setParent] = useState<{ id: string; question: string } | null>(null);
+  useEffect(() => {
+    if (!followUp) return;
+    rpc<{
+      question: string;
+      type: PollType;
+      is_taste: boolean;
+      community_id: string | null;
+      age_min: number | null;
+      age_max: number | null;
+      category_ids: number[];
+    }>('get_follow_up_template', { p_parent: followUp })
+      .then((t) => {
+        setParent({ id: followUp, question: t.question });
+        setDraft((d) => ({
+          ...d,
+          type: t.type,
+          isTaste: t.is_taste,
+          communityId: t.community_id,
+          categoryIds: t.category_ids,
+          ageRange: t.age_min != null && t.age_max != null ? [t.age_min, t.age_max] : null,
+        }));
+      })
+      .catch(() => setParent(null));
+  }, [followUp]);
 
   useEffect(() => {
     AsyncStorage.getItem(DRAFT_KEY)
@@ -218,6 +245,7 @@ export default function Create() {
         age_min: targeting.p_age_min,
         age_max: targeting.p_age_max,
         community_id: targeting.p_community,
+        parent_poll_id: parent?.id ?? null,
         duration_hours: draft.hours,
       });
       for (const side of active) {
@@ -237,6 +265,8 @@ export default function Create() {
         age_range: !!targeting.p_age_min,
       });
       setDraft(EMPTY);
+      setParent(null);
+      router.setParams({ followUp: undefined });
       AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
       qc.invalidateQueries({ queryKey: keys.credits });
       qc.invalidateQueries({ queryKey: keys.myPolls(false) });
@@ -252,6 +282,7 @@ export default function Create() {
   return (
     <Screen>
       <HeaderBar title="Create" />
+      {parent ? <Banner message={`Follow-up to “${parent.question}”. Same audience as before; change it below if you like.`} /> : null}
 
       <Section title="Who should answer?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>

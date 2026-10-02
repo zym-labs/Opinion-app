@@ -57,7 +57,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Delete before first vote (refund) | 3 | 🟥 | In development |
 | Local draft saving | 3 | 🟧 | In development |
 | Creator live vote count | 3 | 🟥 | In development |
-| Multi-option polls | — | 🟦 | Roadmap |
+| Multi-option polls | — | 🟦 | In development (2–4 options) |
 | Video polls | — | 🟦 | Roadmap |
 | Editing after publish, early end | — | ⬛ | Excluded |
 | Live percentages | — | ⬛ | Excluded |
@@ -169,7 +169,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 
 ## 11. Post-MVP roadmap (🟦)
 
-Verified experts · reputation · multi-option polls · video polls · creator analytics · freemium (boosts, deeper summaries) · B2B pulse polls · more campuses and segments · web voting links.
+Built: multi-option polls (2–4), verified experts, creator insights, follow-up polls. Still post-MVP: reputation · video polls · freemium (boosts, deeper summaries) · B2B pulse polls · more campuses and segments · web voting links.
 
 ## 12. Intentionally excluded (⬛)
 

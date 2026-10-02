@@ -48,6 +48,12 @@ Deno.serve(async (req) => {
       p_moderation: mod.state,
     });
     if (error) return fromDbError(error);
+    if (body.parent_poll_id) {
+      const { error: linkError } = await admin.rpc('set_follow_up_parent', {
+        p_user: userId, p_poll: pollId, p_parent: body.parent_poll_id,
+      });
+      if (linkError) return fromDbError(linkError);
+    }
     // Image slots: the app uploads to poll-images/<poll_id>/<side>.jpg next.
     for (const [i, side] of SIDES.slice(0, labels.length).entries()) {
       if (images[i]) {

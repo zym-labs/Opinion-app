@@ -109,6 +109,16 @@ export default function MyPollScreen() {
             />
           </>
         ) : null}
+        <Button
+          label="Ask a follow-up"
+          variant="secondary"
+          onPress={() => router.push({ pathname: '/create', params: { followUp: id } })}
+        />
+        {p.follow_up_count ? (
+          <Text variant="caption" tone="faint">
+            {p.follow_up_count} {p.follow_up_count === 1 ? 'follow-up' : 'follow-ups'} asked from this poll.
+          </Text>
+        ) : null}
       </Screen>
     );
   }

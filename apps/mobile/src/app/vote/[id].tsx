@@ -137,6 +137,11 @@ export default function Vote() {
         </Text>
         <CountdownPill closesAt={p.closes_at} />
       </View>
+      {p.follow_up_of ? (
+        <Text variant="label" tone="muted">
+          Follow-up to “{p.follow_up_of}”
+        </Text>
+      ) : null}
       <Text variant="question">{p.question}</Text>
       <Link.AppleZoomTarget>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }} accessibilityRole="radiogroup">
