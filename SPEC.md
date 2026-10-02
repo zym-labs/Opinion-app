@@ -54,7 +54,7 @@ Positioning: anonymous *polling* with aggregate results — never anonymous chat
 References: Habermas Machine (DeepMind 2024), Jigsaw Sensemaker, Pol.is.
 
 ## Results
-- Voters see results once ("viewed" = screen closed or 10s after open), then the poll leaves their feed.
+- Voters see results once, as a short story sequence ("viewed" = leaving the result, or 5 minutes after opening as a crash backup), then the poll leaves their feed.
 - Creators keep permanent history; vote outcomes stored for profile stats.
 - Creator never sees raw reasons, only the AI summary and 3 anonymous featured insights
 - Opening a "poll ended" notification after viewing shows an "already viewed" state

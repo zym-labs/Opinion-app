@@ -58,6 +58,7 @@ export type Result = {
   prediction?: { a_pct: number } | null;
   summary?: { majority: string | null; minority: string | null; label: string; disclaimer: string | null } | null;
   featured?: { id: string; quote: string; side: Side }[];
+  reason_count?: number;
   view_once?: boolean;
 };
 

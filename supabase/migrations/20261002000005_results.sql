@@ -140,9 +140,9 @@ begin
     closed := closed + 1;
   end loop;
 
-  -- View-once backup: results opened more than 10s ago count as viewed.
+  -- View-once backup if the app closes mid-reveal: results opened 5+ minutes ago count as viewed.
   update public.result_views set viewed_at = now()
-  where viewed_at is null and first_opened_at < now() - interval '10 seconds';
+  where viewed_at is null and first_opened_at < now() - interval '5 minutes';
   return closed;
 end $$;
 
@@ -280,6 +280,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
                     then 'Crowd opinions, not professional advice.' end) end,
     'featured', coalesce((select jsonb_agg(jsonb_build_object('id', f.id, 'quote', f.quote, 'side', f.side) order by f.rank)
                  from public.featured_insights f where f.poll_id = p.id and not f.removed), '[]'),
+    'reason_count', (select count(*) from public.votes v join public.reasons rs on rs.vote_id = v.id
+                     where v.poll_id = p.id and rs.moderation = 'approved'),
     'view_once', not p_is_creator)
   from public.polls p join public.poll_results r on r.poll_id = p.id
   where p.id = p_poll;

@@ -1,8 +1,9 @@
-// F-05 Result (view once) / F-05a-b states / F-06 already viewed.
+// F-05 Result as a once-only story / F-05a not enough responses / F-06 already viewed.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef } from 'react';
 
+import { ResultStory } from '@/components/poll/result-story';
 import { ResultView } from '@/components/poll/result-view';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
@@ -11,8 +12,6 @@ import { Text } from '@/components/ui/text';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
 import type { Result } from '@/lib/types';
-
-const VIEWED_AFTER_MS = 10_000;
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,20 +24,18 @@ export default function ResultScreen() {
     gcTime: 0,
     retry: false,
   });
+  const viewable = !!result.data && result.data.state !== 'already_viewed';
+  const marked = useRef(false);
 
-  const viewable = result.data && result.data.state !== 'already_viewed';
-
+  // Viewed = the user leaves the result (last card, Done, or back). The server marks it
+  // anyway 5 minutes after opening in case the app is closed mid-story.
   useEffect(() => {
     if (!viewable) return;
-    const mark = () => {
+    return () => {
+      if (marked.current) return;
+      marked.current = true;
       rpc('mark_result_viewed', { p_poll: id }).catch(() => {});
       qc.invalidateQueries({ queryKey: keys.ready });
-    };
-    // Viewed = screen closed, or 10 seconds after opening (server also enforces this).
-    const timer = setTimeout(mark, VIEWED_AFTER_MS);
-    return () => {
-      clearTimeout(timer);
-      mark();
     };
   }, [viewable, id, qc]);
 
@@ -70,10 +67,19 @@ export default function ResultScreen() {
     );
   }
 
+  if (r.state === 'not_enough_responses') {
+    return (
+      <Screen>
+        <ResultView result={r} />
+        <Button label="Done" variant="secondary" onPress={() => router.back()} />
+      </Screen>
+    );
+  }
+
   return (
-    <Screen>
-      <ResultView result={r} />
-      <Button label="Done" variant="secondary" onPress={() => router.back()} />
-    </Screen>
+    <>
+      <Stack.Screen options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+      <ResultStory result={r} onFinish={() => router.back()} />
+    </>
   );
 }

@@ -60,3 +60,11 @@ export const type = {
   caption: { fontSize: 12, lineHeight: 16, fontWeight: '500' },
   quote: { fontSize: 17, lineHeight: 26, fontWeight: '400', fontStyle: 'italic' },
 } as const;
+
+// Motion (STAGE6 v2): one spatial spring for movement, one effect spring for colour/opacity.
+// Damping ratio 1 = critically damped (no overshoot), so fast taps never look broken.
+export const motion = {
+  spatial: { dampingRatio: 1, duration: 450 },
+  effect: { dampingRatio: 1, duration: 200 },
+  reveal: { dampingRatio: 1, duration: 1200 }, // result split bar, 50/50 → real split
+} as const;

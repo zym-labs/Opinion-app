@@ -17,5 +17,5 @@ export const LIMITS = {
   creditUnitsPerVote: 1,
   creditUnitsPerPoll: 3,
   signupCreditUnits: 3,
-  resultViewedAfterSeconds: 10,
+  resultViewedBackupSeconds: 300,
 } as const;

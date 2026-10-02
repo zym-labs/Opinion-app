@@ -29,10 +29,15 @@ const REASONS = [
 const SUPPORT_URL = 'https://findahelpline.com';
 
 export default function Report() {
-  const { target, id, hide } = useLocalSearchParams<{ target: 'poll' | 'reason' | 'featured_insight'; id: string; hide?: string }>();
+  const { target, id, hide, summary } = useLocalSearchParams<{
+    target: 'poll' | 'reason' | 'featured_insight';
+    id: string;
+    hide?: string;
+    summary?: string;
+  }>();
   const qc = useQueryClient();
   const [reason, setReason] = useState<(typeof REASONS)[number][0] | null>(null);
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(summary ? 'About the AI summary: ' : '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -82,7 +87,7 @@ export default function Report() {
 
   return (
     <Screen>
-      <Text variant="question">What’s wrong?</Text>
+      <Text variant="question">{summary ? 'What’s wrong with the summary?' : 'What’s wrong?'}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
         {REASONS.map(([value, label]) => (
           <Chip key={value} label={label} selected={reason === value} onPress={() => setReason(value)} />

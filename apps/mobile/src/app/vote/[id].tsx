@@ -74,6 +74,7 @@ export default function Vote() {
       qc.invalidateQueries({ queryKey: keys.waiting });
       qc.invalidateQueries({ queryKey: keys.credits });
     } catch (e) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setError(errorMessage(e));
     } finally {
       setBusy(false);
@@ -144,6 +145,15 @@ export default function Vote() {
         style={{ alignSelf: 'flex-end', color: reasonRequired && reasonLen < LIMITS.reasonMin ? c.warning : c.textFaint }}>
         {reasonLen}/{LIMITS.reasonMax}
       </Text>
+      {/* Privacy cue at the moment of writing (STAGE6 v2 §Privacy). */}
+      <View
+        style={{ flexDirection: 'row', gap: space[2], alignItems: 'flex-start', padding: space[3], borderRadius: radius.sm, backgroundColor: c.surfaceMuted }}>
+        <Lock size={16} color={c.textMuted} strokeWidth={1.75} style={{ marginTop: 2 }} />
+        <Text variant="label" tone="muted" style={{ flex: 1 }}>
+          Your name is never shown. Your reason may be quoted anonymously, so leave out details that identify you or
+          anyone else.
+        </Text>
+      </View>
 
       <View style={{ gap: space[2] }}>
         <Text variant="label" tone="muted">
@@ -176,13 +186,6 @@ export default function Vote() {
         </Text>
       </Pressable>
 
-      <View
-        style={{ flexDirection: 'row', gap: space[2], alignItems: 'center', padding: space[3], borderRadius: radius.sm, backgroundColor: c.surfaceMuted }}>
-        <Lock size={16} color={c.textMuted} strokeWidth={1.75} />
-        <Text variant="label" tone="muted">
-          Your vote and reason are private.
-        </Text>
-      </View>
 
       {offline ? <Banner tone="warning" message="You’re offline. Connect to vote." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}

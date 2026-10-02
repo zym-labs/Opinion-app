@@ -55,6 +55,7 @@ function RootNavigator() {
         <Stack.Screen name="result/[id]" options={{ headerShown: true, title: 'Result' }} />
         <Stack.Screen name="my-poll/[id]" options={{ headerShown: true, title: 'Your poll' }} />
         <Stack.Screen name="report" options={{ presentation: 'modal', headerShown: true, title: 'Report' }} />
+        <Stack.Screen name="how-ai-works" options={{ presentation: 'modal', headerShown: true, title: '' }} />
         <Stack.Screen name="credits" options={{ presentation: 'modal', headerShown: true, title: 'Credits' }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
         <Stack.Screen name="featured" options={{ headerShown: true, title: 'Featured insights' }} />

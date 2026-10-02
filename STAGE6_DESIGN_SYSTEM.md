@@ -163,3 +163,69 @@ Target WCAG AA (4.5:1 body, 3:1 large text/icons), enforced by a contrast test i
 1. `tokens.ts` + Tailwind config (light/dark).
 2. Component library in `apps/mobile/components/ui/` with a Storybook (React Native) catalogue.
 3. Figma file (optional) mirroring the tokens and components for the key screens: onboarding, feed, vote, result, create, My Polls, profile.
+
+---
+
+# v2 — Premium upgrades (2026-10-02)
+
+Based on [reports/Opinion premium UI UX.md](reports/Opinion%20premium%20UI%20UX.md). The "Calm verdict" direction stays; premium effort goes into three once-only moments: the vote, the reveal and the AI summary.
+
+## Platform chrome
+- **iOS 26 Liquid Glass on chrome only:** native tabs, headers and sheets get it from the system. Poll cards, option tiles, question text and quotes stay opaque. `expo-glass-effect` only behind `isLiquidGlassAvailable()`; never animate a GlassView's (or a parent's) opacity to 0.
+- **Android:** take Material 3 Expressive's springs and large targets, not its shape-morphing.
+
+## Motion tokens (`packages/shared/src/tokens.ts` → `motion`)
+| Token | Spring | Use |
+|---|---|---|
+| `spatial` | damping ratio 1, ~450ms | Sheets, tiles moving, layout changes |
+| `effect` | damping ratio 1, ~200ms | Colour, opacity, borders |
+| `reveal` | damping ratio 1, ~1.2s | Result split bar, 50/50 → real split |
+Critically damped: no overshoot, and retargeting mid-flight never jumps. Reduce Motion → instant change or fade. (Replaces §6's 600ms ease-out.)
+
+## Haptic map (complete — nothing else vibrates)
+| Moment | Call |
+|---|---|
+| Option selected | `selectionAsync()` |
+| Vote submitted | `notificationAsync(Success)` |
+| Vote failed | `notificationAsync(Error)` |
+| Result split settles | `impactAsync(Light)` |
+| Story card advances | `selectionAsync()` |
+No haptics on scroll, feed taps or the countdown.
+
+## Reveal: the result is a story (F-05)
+Voters see results once, so the reveal is a full-screen tap-through sequence (Spotify Wrapped pattern):
+1. **Sealed** — "The poll has closed", question, vote count, "you can see this once".
+2. **Your pick** — badge + option.
+3. **The room said** — big percentages, `SplitBar` springs from 50/50, line on majority/minority and prediction.
+4. **AI summary** — see below.
+5. **In voters' own words** — featured quotes (serif), selection rule stated.
+6. **Gone after this** — then Done.
+
+- Tap zones: left third back, right two-thirds forward. Cards with links (AI, quotes) use Back/Next buttons instead.
+- Progress segments at the top; each card has one full screen-reader label (option, %, your pick, majority).
+- **Viewed is committed when the user leaves the result** (Done, back, or close), not on first render. Server backup: 5 minutes after opening.
+- No confetti, trophies, green/red or "winner" styling; Indigo/Amber + letters only.
+- Creators keep the static `ResultView` in My Polls, using the same `SplitBar` and `AISummary`.
+
+## AI summary (component `AISummary`)
+- Header: "✦ Written by AI from N voters' reasons" (specific labels beat a bare "AI-generated").
+- **Equal weight:** "Most said" and "Others said" cards are identical in size and type; only the A/B stripe, label and % differ.
+- **Low evidence:** fewer than 5 reasons → warning line "Only a few reasons were given…".
+- Pending state: "The AI is reading N reasons." Failed state: points to the voters' own words.
+- Links: **How this works** (modal explaining inputs, fairness check, quote selection, limits) and **Report summary**.
+- Later: per-point citation chips once the AI's cited reason ids are stored.
+
+## Privacy cue at the moment of writing (F-02)
+Directly under the reason field, with a lock icon: "Your name is never shown. Your reason may be quoted anonymously, so leave out details that identify you or anyone else." (Replaces the separate lock line at the bottom.)
+
+## Rewards without likes (P2)
+Private mastery signals only: majority-match rate, "your reason was quoted". Credit rule always visible ("Give 3 opinions, get 1 ask"). Any streak: weekly, with a free skip, never loss-framed. No fake urgency (EU DSA Art. 25).
+
+## Still to build (from the report's priority table)
+| Priority | Item | Note |
+|---|---|---|
+| P0 | Vote on seed polls before sign-up | Needs Supabase anonymous sign-in + linking; design decision pending |
+| P1 | Reason sheet slides up after option select; card → vote shared-element transition | |
+| P1 | Feed routes voters to polls short of votes | Server-side ordering change |
+| P2 | Profile bento of private stats; credit count-up | |
+| — | Per-point citation chips | Store `majority_reason_ids` / `minority_reason_ids` from the AI job |
