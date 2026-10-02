@@ -1,3 +1,4 @@
+import { integrityHeaders } from './integrity';
 import { supabase } from './supabase';
 
 /** API error with a code from STAGE4 §8. */
@@ -51,12 +52,22 @@ export async function rpc<T>(fn: string, args?: Record<string, unknown>): Promis
 export async function callFunction<T>(
   name: string,
   body?: Record<string, unknown>,
-  opts: { method?: 'POST' | 'DELETE'; idempotencyKey?: string } = {},
+  opts: { method?: 'POST' | 'DELETE'; idempotencyKey?: string; signed?: boolean } = {},
 ): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (opts.idempotencyKey) headers['Idempotency-Key'] = opts.idempotencyKey;
+  // Signed requests send the exact JSON string the integrity token covers.
+  let payload: Record<string, unknown> | string | undefined = body;
+  if (opts.signed && body) {
+    payload = JSON.stringify(body);
+    const { data: auth } = await supabase.auth.getUser();
+    headers['Content-Type'] = 'application/json';
+    if (auth.user) Object.assign(headers, await integrityHeaders(auth.user.id, payload));
+  }
   const { data, error } = await supabase.functions.invoke(name, {
-    body,
+    body: payload,
     method: opts.method ?? 'POST',
-    headers: opts.idempotencyKey ? { 'Idempotency-Key': opts.idempotencyKey } : undefined,
+    headers,
   });
   if (error) {
     const payload = await (error as { context?: Response }).context?.json?.().catch(() => null);

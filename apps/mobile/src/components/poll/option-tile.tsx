@@ -80,6 +80,7 @@ export function OptionTile({ option, selected, onPress, compact }: {
           style={{ width: '100%', aspectRatio: 4 / 5, borderRadius: radius.lg, backgroundColor: c.surfaceMuted }}
           contentFit="cover"
           accessibilityIgnoresInvertColors
+          accessible={false} // the tile itself is labelled
         />
       ) : null}
       <Text variant={compact ? 'label' : 'bodyStrong'} numberOfLines={compact ? 2 : undefined}>

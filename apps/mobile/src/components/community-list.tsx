@@ -6,6 +6,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
+import { track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { keys, useCommunities, useMe } from '@/lib/queries';
 import type { Community } from '@/lib/types';
@@ -71,6 +72,7 @@ function CampusVerify({ community, onDone }: { community: Community; onDone: () 
             onPress={() =>
               run(async () => {
                 await callFunction('campus', { action: 'verify', community_id: community.id, code });
+                track('campus_verified', {});
                 onDone();
               })
             }
@@ -95,7 +97,10 @@ export function CommunityList() {
     setError(null);
     try {
       if (joined.has(community.id)) await rpc('leave_community', { p_community: community.id });
-      else await rpc('join_community', { p_community: community.id });
+      else {
+        await rpc('join_community', { p_community: community.id });
+        track('community_joined', { kind: community.kind });
+      }
       await qc.invalidateQueries({ queryKey: keys.me });
     } catch (e) {
       if (e instanceof ApiError && e.code === 'CAMPUS_VERIFICATION_REQUIRED') setVerifying(community.id);

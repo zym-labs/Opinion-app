@@ -11,6 +11,7 @@ import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
+import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
 import { space } from '@/theme';
@@ -47,6 +48,7 @@ export default function Report() {
     setBusy(true);
     try {
       await rpc('submit_report', { p_target: target, p_target_id: id, p_reason: reason, p_note: note || null });
+      track('report_submitted', { target, reason: reason! });
       setSent(true);
     } catch (e) {
       setError(errorMessage(e));
@@ -58,6 +60,7 @@ export default function Report() {
   async function hideCreator() {
     try {
       await rpc('hide_creator', { p_poll: id });
+      track('creator_hidden', {});
       setHidden(true);
       qc.invalidateQueries({ queryKey: keys.feed });
     } catch (e) {

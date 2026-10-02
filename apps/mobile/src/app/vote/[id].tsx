@@ -18,7 +18,8 @@ import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
-import { callFunction, errorMessage, rpc } from '@/lib/api';
+import { timeBucket, track } from '@/lib/analytics';
+import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { useOffline } from '@/lib/offline';
 import { keys } from '@/lib/queries';
 import type { FeedPoll, Side } from '@/lib/types';
@@ -68,15 +69,23 @@ export default function Vote() {
       const res = await callFunction<{ closes_at: string; credit_units: number }>(
         'votes',
         { poll_id: id, side, reason: reason.trim() || null, predicted_side: predicted, feature_consent: consent },
-        { idempotencyKey },
+        { idempotencyKey, signed: true },
       );
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      track('vote_cast', {
+        type: p!.type,
+        is_taste: p!.is_taste,
+        with_reason: reasonLen > 0,
+        predicted: !!predicted,
+        seconds_left_bucket: timeBucket(p!.closes_at),
+      });
       setDone(res);
       qc.invalidateQueries({ queryKey: keys.feed });
       qc.invalidateQueries({ queryKey: keys.waiting });
       qc.invalidateQueries({ queryKey: keys.credits });
     } catch (e) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      track('vote_failed', { code: e instanceof ApiError ? e.code : 'UNKNOWN' });
       setError(errorMessage(e));
     } finally {
       setBusy(false);

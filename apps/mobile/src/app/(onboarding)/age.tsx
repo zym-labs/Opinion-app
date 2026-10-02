@@ -12,6 +12,7 @@ import { TextField } from '@/components/ui/text-field';
 import { ApiError, callFunction, errorMessage } from '@/lib/api';
 import { signOut } from '@/lib/auth';
 import { getStoreSaysAdult } from '@/lib/age-signal';
+import { track } from '@/lib/analytics';
 import { clearPendingBirthYear, getPendingBirthYear } from '@/lib/pending-age';
 import { keys } from '@/lib/queries';
 import { space } from '@/theme';
@@ -50,7 +51,10 @@ export default function Age() {
       await qc.invalidateQueries({ queryKey: keys.me });
       router.replace('/terms');
     } catch (e) {
-      if (e instanceof ApiError && e.code === 'AGE_BLOCKED') setBlocked(true);
+      if (e instanceof ApiError && e.code === 'AGE_BLOCKED') {
+        track('age_blocked', { source: new Date().getFullYear() - Number(value) >= 18 ? 'store_signal' : 'birth_year' });
+        setBlocked(true);
+      }
       else setError(errorMessage(e));
     } finally {
       setBusy(false);

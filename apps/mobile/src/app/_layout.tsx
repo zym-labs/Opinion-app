@@ -5,7 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { initMonitoring } from '@/lib/analytics';
+import { identify, initMonitoring } from '@/lib/analytics';
+import { ensureAttested } from '@/lib/integrity';
 import { persister, shouldPersist } from '@/lib/offline';
 import { useNotificationRouting } from '@/lib/push';
 import { useMe } from '@/lib/queries';
@@ -26,6 +27,13 @@ function RootNavigator() {
   const status = me.data?.status;
   const onboarded = me.data?.onboarding_step === 'complete' && status === 'active';
   useNotificationRouting(signedIn && onboarded);
+
+  // Register this device for integrity checks once the user is onboarded (best effort, in the background).
+  const userId = session?.user.id;
+  useEffect(() => {
+    if (userId && onboarded) ensureAttested(userId);
+  }, [userId, onboarded]);
+  useEffect(() => identify(userId ?? null), [userId]);
 
   // Nothing from one account may stay on the device after sign-out.
   useEffect(() => {

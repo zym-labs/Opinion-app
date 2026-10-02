@@ -10,6 +10,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
+import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
 import { LEGAL_URLS, TERMS_VERSION } from '@/lib/legal';
 import { keys } from '@/lib/queries';
@@ -31,6 +32,7 @@ export default function Terms() {
     setBusy(true);
     try {
       await rpc('accept_terms', { p_version: TERMS_VERSION });
+      track('terms_accepted', {});
       await qc.invalidateQueries({ queryKey: keys.me });
       router.replace('/categories');
     } catch (e) {

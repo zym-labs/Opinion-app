@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
+import { track } from '@/lib/analytics';
 import type { Result, Side, SummaryPoint } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
@@ -34,7 +35,10 @@ function PointRow({ point, quotes }: { point: SummaryPoint; quotes: Map<string, 
               accessibilityRole="button"
               accessibilityState={{ expanded: open === id }}
               accessibilityLabel={`Show quote ${quotes.get(id)!.n}`}
-              onPress={() => setOpen(open === id ? null : id)}
+              onPress={() => {
+                if (open !== id) track('summary_quote_opened', {});
+                setOpen(open === id ? null : id);
+              }}
               style={{
                 paddingHorizontal: space[2],
                 paddingVertical: space[1],
@@ -161,7 +165,13 @@ export function AISummary({ result }: { result: Result }) {
         </Text>
       ) : null}
       <View style={{ flexDirection: 'row', gap: space[4] }}>
-        <Pressable accessibilityRole="button" hitSlop={8} onPress={() => router.push('/how-ai-works')}>
+        <Pressable
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={() => {
+            track('how_ai_works_opened', {});
+            router.push('/how-ai-works');
+          }}>
           <Text variant="label" style={{ color: c.ai }}>
             How this works
           </Text>

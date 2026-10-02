@@ -14,6 +14,7 @@ import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { getStoreSaysAdult } from '@/lib/age-signal';
+import { track } from '@/lib/analytics';
 import { rpc } from '@/lib/api';
 import { getPendingBirthYear, isAdult, setPendingBirthYear } from '@/lib/pending-age';
 import type { Side, StarterPoll } from '@/lib/types';
@@ -30,6 +31,8 @@ function AgeStep({ onDone }: { onDone: (adult: boolean) => void }) {
     // The store's age signal overrides a typed adult birth year when it says under 18.
     const adult = isAdult(y) && (await getStoreSaysAdult()) !== false;
     if (adult) setPendingBirthYear(y);
+    if (adult) track('try_started', {});
+    else track('age_blocked', { source: isAdult(y) ? 'store_signal' : 'birth_year' });
     onDone(adult);
   }
   return (
@@ -116,7 +119,10 @@ export default function Try() {
           poll={polls[current.i]}
           n={current.i + 1}
           total={polls.length}
-          onVote={(side) => setStep({ kind: 'reveal', i: current.i, side })}
+          onVote={(side) => {
+            track('try_poll_voted', { n: current.i + 1 });
+            setStep({ kind: 'reveal', i: current.i, side });
+          }}
         />
       );
     case 'reveal': {
@@ -137,7 +143,13 @@ export default function Try() {
             Create an account to vote on live polls, get results like these for your own questions, and keep your vote
             anonymous every time.
           </Text>
-          <Button label="Create account" onPress={() => router.replace('/')} />
+          <Button
+            label="Create account"
+            onPress={() => {
+              track('try_completed', { polls: polls.length });
+              router.replace('/');
+            }}
+          />
         </Screen>
       );
   }

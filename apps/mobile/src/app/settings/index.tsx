@@ -7,6 +7,7 @@ import { Linking } from 'react-native';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { track } from '@/lib/analytics';
 import { errorMessage } from '@/lib/api';
 import { signOut } from '@/lib/auth';
 import { exportMyData } from '@/lib/data-export';
@@ -21,6 +22,7 @@ export default function Settings() {
     setError(null);
     try {
       await exportMyData();
+      track('data_exported', {});
     } catch (e) {
       setError(errorMessage(e));
     } finally {

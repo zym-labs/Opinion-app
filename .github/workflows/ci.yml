@@ -17,6 +17,8 @@ jobs:
       - run: npm ci
       - name: Shared tests (incl. color contrast)
         run: npm test -w @opinion/shared
+      - name: Mobile unit tests
+        run: npm test -w mobile
       - name: Typecheck
         run: npm run typecheck --workspaces --if-present
       - name: Lint

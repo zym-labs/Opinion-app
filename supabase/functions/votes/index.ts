@@ -1,5 +1,6 @@
 // Voting (STAGE4 §3.2): the reason is moderated before the vote is saved.
 import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
+import { checkIntegrity } from '../_shared/integrity.ts';
 import { looksLikeInjection, moderateText, redactPii } from '../_shared/moderation.ts';
 
 const seen = new Map<string, unknown>(); // idempotency, per instance
@@ -12,7 +13,15 @@ Deno.serve(async (req) => {
   const key = req.headers.get('Idempotency-Key');
   if (key && seen.has(`${userId}:${key}`)) return json(seen.get(`${userId}:${key}`));
 
-  const body = await req.json().catch(() => ({}));
+  // Read raw text: integrity tokens sign the exact body.
+  const raw = await req.text();
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(raw || '{}');
+  } catch {
+    return fail('INVALID_INPUT');
+  }
+  if (!(await checkIntegrity(req, userId, raw, 'vote'))) return fail('INTEGRITY_FAILED', 403);
   const side = body.side === 'a' || body.side === 'b' ? body.side : null;
   if (!side) return fail('INVALID_INPUT');
   const predicted = body.predicted_side === 'a' || body.predicted_side === 'b' ? body.predicted_side : null;

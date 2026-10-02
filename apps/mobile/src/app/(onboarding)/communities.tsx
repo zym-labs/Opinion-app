@@ -9,6 +9,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
+import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
 import { enablePush } from '@/lib/push';
 import { keys } from '@/lib/queries';
@@ -24,7 +25,9 @@ export default function Communities() {
     setBusy(true);
     try {
       await rpc('complete_onboarding');
-      if (withPush) await enablePush().catch(() => false);
+      track('onboarding_complete', {});
+      const granted = withPush ? await enablePush().catch(() => false) : false;
+      track('notif_permission', { granted });
       // The root layout switches to the tabs once onboarding is complete.
       await qc.invalidateQueries({ queryKey: keys.me });
     } catch (e) {

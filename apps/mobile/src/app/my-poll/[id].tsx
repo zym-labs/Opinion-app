@@ -11,6 +11,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
+import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
@@ -100,7 +101,7 @@ export default function MyPollScreen() {
             <Button
               label="Share result"
               variant="secondary"
-              onPress={() => shareCard(cardRef).catch((e) => setError(e instanceof Error ? e.message : 'Could not share'))}
+              onPress={() => (track('share_card', {}), shareCard(cardRef)).catch((e) => setError(e instanceof Error ? e.message : 'Could not share'))}
             />
           </>
         ) : null}

@@ -8,6 +8,7 @@ import { StepHeader } from '@/components/step-header';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { track } from '@/lib/analytics';
 import { errorMessage, rpc } from '@/lib/api';
 import { keys, useMe } from '@/lib/queries';
 
@@ -22,6 +23,7 @@ export default function Categories() {
     setBusy(true);
     try {
       await rpc('set_categories', { p_ids: ids });
+      track('categories_saved', { count: ids.length });
       await qc.invalidateQueries({ queryKey: keys.me });
       router.replace('/communities');
     } catch (e) {

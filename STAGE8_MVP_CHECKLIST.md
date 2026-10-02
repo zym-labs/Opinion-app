@@ -120,7 +120,7 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | Moderation outcome messages (DSA) | 7 | 🟥 | In development |
 | Suspended-account screen | 2 | 🟥 | In development |
 | Rate limits | 7 | 🟥 | In development |
-| App Attest / Play Integrity | 7 | 🟥 | Planned |
+| App Attest / Play Integrity | 7 | 🟥 | In development (report mode; enforce after beta) |
 | Disposable-email blocking, sign-up limits | 2 | 🟥 | In development (email blocklist; per-device limits need App Attest) |
 | Stricter moderation for new accounts | 7 | 🟧 | In development |
 | Moderator response within 24h (process + rota) | 8 | 🟥 | Not started |
@@ -150,9 +150,9 @@ Launch-readiness tracker. Every item has a **bucket** and a **status**. Phase = 
 | End-to-end tests (Maestro) for core loop | 7 | 🟥 | In development (flows written; need staging) |
 | Security review (Stage 4 §9) | 7 | 🟥 | In development (first pass done) |
 | Load test (2k votes/min, 1k polls closing) | 7 | 🟧 | In development (k6 script; needs staging) |
-| Accessibility pass + contrast test | 7 | 🟥 | Planned |
+| Accessibility pass + contrast test | 7 | 🟥 | In development (contrast CI test + local a11y lint rules; manual VoiceOver/TalkBack pass pending) |
 | Sentry + alerts | 1 / 7 | 🟥 | Planned |
-| PostHog funnels + north-star dashboard | 1 / 6 | 🟥 | Planned |
+| PostHog funnels + north-star dashboard | 1 / 6 | 🟥 | In development (events instrumented; dashboards need PostHog account) |
 | Backups / point-in-time recovery | 1 | 🟥 | Planned |
 | Data retention jobs | 6 | 🟧 | In development |
 | Staging environment | 1 | 🟥 | In development (deploy script ready; needs accounts) |

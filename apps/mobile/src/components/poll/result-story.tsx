@@ -3,13 +3,14 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Lock } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, useReducedMotion } from 'react-native-reanimated';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { track } from '@/lib/analytics';
 import type { Result, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
@@ -40,7 +41,7 @@ function Quote({ quote, side, id }: { quote: string; side: Side; id: string }) {
   );
 }
 
-function buildCards(r: Result, faint: string, starter: boolean): Card[] {
+export function buildCards(r: Result, faint: string, starter: boolean): Card[] {
   const opt = (side: Side) => r.options?.find((o) => o.side === side);
   const name = (side: Side) => opt(side)?.label ?? `Option ${side.toUpperCase()}`;
   const pct = (side: Side) => Number(opt(side)?.pct ?? 0);
@@ -209,11 +210,25 @@ export function ResultStory({
   const reduceMotion = useReducedMotion();
   const cards = buildCards(result, c.textFaint, starter);
   const [i, setI] = useState(0);
+  // How far voters get through the reveal (not tracked for starter polls).
+  const seen = useRef({ max: 1, finished: false });
+  useEffect(() => {
+    seen.current.max = Math.max(seen.current.max, i + 1);
+  }, [i]);
+  useEffect(() => {
+    const s = seen.current;
+    return () => {
+      if (!starter) track('result_viewed', { state: result.state, cards_seen: s.max, finished: s.finished });
+    };
+  }, [starter, result.state]);
   const last = i === cards.length - 1;
 
   const go = (next: number) => {
     if (next < 0) return;
-    if (next >= cards.length) return onFinish();
+    if (next >= cards.length) {
+      seen.current.finished = true;
+      return onFinish();
+    }
     Haptics.selectionAsync();
     setI(next);
   };
@@ -237,12 +252,12 @@ export function ResultStory({
         <Animated.View
           key={card.key}
           entering={reduceMotion ? undefined : FadeIn.duration(220)}
-          exiting={reduceMotion ? undefined : FadeOut.duration(120)}
           style={{ flex: 1 }}>
           <ScrollView
             contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: space[6], gap: space[5] }}
-            accessible
-            accessibilityLabel={card.label}>
+            // Plain cards read as one label; cards with buttons must keep their children reachable.
+            accessible={!card.interactive}
+            accessibilityLabel={card.interactive ? undefined : card.label}>
             {card.body}
           </ScrollView>
         </Animated.View>
@@ -268,7 +283,13 @@ export function ResultStory({
 
       <View style={{ padding: space[4], gap: space[2] }}>
         {last ? (
-          <Button label={starter ? 'Next' : 'Done'} onPress={onFinish} />
+          <Button
+            label={starter ? 'Next' : 'Done'}
+            onPress={() => {
+              seen.current.finished = true;
+              onFinish();
+            }}
+          />
         ) : card.interactive ? (
           <View style={{ flexDirection: 'row', gap: space[2] }}>
             <View style={{ flex: 1 }}>

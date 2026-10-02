@@ -12,7 +12,8 @@
       "bundleIdentifier": "app.opinion.mobile",
       "usesAppleSignIn": true,
       "entitlements": {
-        "com.apple.developer.declared-age-range": true
+        "com.apple.developer.declared-age-range": true,
+        "com.apple.developer.devicecheck.appattest-environment": "production"
       }
     },
     "android": {

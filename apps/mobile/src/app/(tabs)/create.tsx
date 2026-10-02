@@ -17,7 +17,8 @@ import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
-import { callFunction, errorMessage, rpc } from '@/lib/api';
+import { track } from '@/lib/analytics';
+import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { keys, useCommunities, useCredits, useMe } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import type { PollType, Side } from '@/lib/types';
@@ -91,7 +92,11 @@ function OptionEditor({ side, draft, setDraft }: { side: Side; draft: Draft; set
           accessibilityRole="button"
           accessibilityLabel={`Remove image for option ${side.toUpperCase()}`}
           onPress={() => setDraft({ ...draft, images: { ...draft.images, [side]: null } })}>
-          <Image source={{ uri: image }} style={{ width: '100%', aspectRatio: 4 / 5, borderRadius: radius.lg }} />
+          <Image
+            source={{ uri: image }}
+            accessible={false}
+            style={{ width: '100%', aspectRatio: 4 / 5, borderRadius: radius.lg }}
+          />
           <Text variant="caption" tone="muted" style={{ textAlign: 'center' }}>
             Tap to remove
           </Text>
@@ -215,13 +220,20 @@ export default function Create() {
           .upload(`${poll_id}/${side}.jpg`, body, { contentType: 'image/jpeg', upsert: true });
         if (upErr) throw upErr;
       }
-      await callFunction('polls', { action: 'publish', poll_id });
+      await callFunction('polls', { action: 'publish', poll_id }, { signed: true });
+      track('poll_published', {
+        type: draft.type,
+        hours: draft.hours,
+        with_images: !!(draft.images.a || draft.images.b),
+        age_range: !!targeting.p_age_min,
+      });
       setDraft(EMPTY);
       AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
       qc.invalidateQueries({ queryKey: keys.credits });
       qc.invalidateQueries({ queryKey: keys.myPolls(false) });
       router.push({ pathname: '/my-poll/[id]', params: { id: poll_id } });
     } catch (e) {
+      track('publish_failed', { code: e instanceof ApiError ? e.code : 'UNKNOWN' });
       setError(errorMessage(e));
     } finally {
       setBusy(false);

@@ -1,12 +1,19 @@
 // Poll creation (STAGE4 §3.3): create a moderated draft, then publish after image checks.
 import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
+import { checkIntegrity } from '../_shared/integrity.ts';
 import { moderate, moderateText, NEW_ACCOUNT_THRESHOLD } from '../_shared/moderation.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   const userId = await getUserId(req);
   if (!userId) return fail('UNAUTHENTICATED', 401);
-  const body = await req.json().catch(() => ({}));
+  const raw = await req.text();
+  let body: Record<string, any>;
+  try {
+    body = JSON.parse(raw || '{}');
+  } catch {
+    return fail('INVALID_INPUT');
+  }
 
   if (body.action === 'create') {
     const question = String(body.question ?? '').trim();
@@ -48,6 +55,7 @@ Deno.serve(async (req) => {
   }
 
   if (body.action === 'publish') {
+    if (!(await checkIntegrity(req, userId, raw, 'publish'))) return fail('INTEGRITY_FAILED', 403);
     const pollId = String(body.poll_id ?? '');
     const { data: poll } = await admin.from('polls').select('id, creator_id').eq('id', pollId).maybeSingle();
     if (!poll || poll.creator_id !== userId) return fail('POLL_NOT_FOUND', 404);
