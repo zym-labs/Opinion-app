@@ -29,7 +29,7 @@ begin
   update public.polls set status = 'removed', removed_reason = 'creator_deleted'
   where creator_id = p_user and status in ('draft','active','closing','summarizing');
   update public.polls set reflection = null, public_code = null, invite_code = null,
-    decision_side = null, decision_none = null, decision_helpful = null, decided_at = null,
+    decision_side = null, decision_none = false, decision_helpful = null, decided_at = null,
     checkin_glad = null, checkin_at = null
   where creator_id = p_user;
   update public.poll_results set ai_take = null
