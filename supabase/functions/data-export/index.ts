@@ -12,15 +12,15 @@ Deno.serve(async (req) => {
   });
   if (rl) return fromDbError(rl);
 
-  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden, experts, devices, campus, decisions, appeals] =
+  const [{ data: user }, profile, categories, communities, consents, polls, votes, credits, notifications, reports, hidden, experts, devices, campus, decisions, appeals, referredBy, referrals, circle, circlesIn, infoRequests, helpfulMarks, summaryFlags, subscription, reputation, invitedTo] =
     await Promise.all([
       admin.auth.admin.getUserById(userId),
-      admin.from('profiles').select('handle, status, onboarding_step, birth_year, age_source, created_at').eq('id', userId).single(),
+      admin.from('profiles').select('handle, status, onboarding_step, birth_year, age_source, created_at, locale, decision_areas, sponsored_opt_in, last_active_at').eq('id', userId).single(),
       admin.from('user_categories').select('categories(name)').eq('user_id', userId),
       admin.from('user_communities').select('joined_at, communities(name)').eq('user_id', userId),
       admin.from('consents').select('kind, version, accepted_at').eq('user_id', userId),
       admin.from('polls')
-        .select('question, type, is_taste, status, duration_hours, published_at, closes_at, created_at, poll_options(side, label), poll_results(total_votes, pcts, winner, summary_majority, summary_minority), parent_poll_id')
+        .select('question, type, is_taste, status, duration_hours, published_at, closes_at, created_at, friends_only, public_code, decision_side, decision_none, decision_helpful, decided_at, checkin_glad, reflection, poll_options(side, label), poll_results(total_votes, pcts, winner, summary_majority, summary_minority, ai_take), parent_poll_id')
         .eq('creator_id', userId),
       admin.from('votes')
         .select('side, predicted_side, feature_consent, verified_expert, created_at, polls(question), reasons(body)')
@@ -36,6 +36,17 @@ Deno.serve(async (req) => {
       // Moderation decisions about the caller and their appeals; moderator identities and internal notes are left out.
       admin.from('moderation_actions').select('action, rule, created_at').eq('target_user_id', userId),
       admin.from('appeals').select('message, status, created_at, resolved_at').eq('user_id', userId),
+      // Growth and engagement features. Other people's identities are never included (counts only).
+      admin.from('referrals').select('created_at, credited_at').eq('referee_id', userId),
+      admin.from('referrals').select('created_at, credited_at').eq('referrer_id', userId),
+      admin.from('circle_members').select('created_at').eq('owner_id', userId),
+      admin.from('circle_members').select('created_at').eq('member_id', userId),
+      admin.from('info_requests').select('created_at, polls(question)').eq('user_id', userId),
+      admin.from('insight_reactions').select('created_at, featured_insights(quote)').eq('user_id', userId),
+      admin.from('summary_flags').select('created_at, polls(question)').eq('user_id', userId),
+      admin.from('subscriptions').select('product_id, active, expires_at, store, updated_at').eq('user_id', userId).maybeSingle(),
+      admin.from('voter_reputation').select('featured, helpful, predictions_right, upheld_against, score, updated_at').eq('user_id', userId).maybeSingle(),
+      admin.from('poll_invitees').select('created_at, polls(question)').eq('user_id', userId),
     ]);
 
   return json({
@@ -54,6 +65,16 @@ Deno.serve(async (req) => {
     campus_verifications: campus.data ?? [],
     moderation_decisions: decisions.data ?? [],
     appeals: appeals.data ?? [],
+    referral_used: referredBy.data ?? [],
+    friends_referred: referrals.data ?? [],
+    close_friends_in_your_circle: (circle.data ?? []).length,
+    circles_you_are_in: (circlesIn.data ?? []).length,
+    more_info_requests: infoRequests.data ?? [],
+    helpful_marks_given: helpfulMarks.data ?? [],
+    summaries_flagged: summaryFlags.data ?? [],
+    opinion_plus: subscription.data ?? null,
+    reputation: reputation.data ?? null,
+    polls_opened_by_link: invitedTo.data ?? [],
     integrity_keys_registered: (devices.data ?? []).length,
     note: 'Votes and reasons are shown to others only as anonymous totals and, if you agreed, anonymous quotes.',
   });

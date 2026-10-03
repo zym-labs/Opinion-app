@@ -13,7 +13,8 @@ Deno.serve(async (req) => {
 
   // Images of polls that were removed by the deletion.
   const { data: polls } = await admin.from('polls').select('id').eq('creator_id', userId).eq('status', 'removed');
-  const paths = (polls ?? []).flatMap((p) => [`${p.id}/a.jpg`, `${p.id}/b.jpg`]);
+  // Polls have up to 4 options (a–d).
+  const paths = (polls ?? []).flatMap((p) => ['a', 'b', 'c', 'd'].map((side) => `${p.id}/${side}.jpg`));
   if (paths.length) await admin.storage.from('poll-images').remove(paths);
 
   // Sign in with Apple: revoke the token before the account (and its stored token) is deleted.
