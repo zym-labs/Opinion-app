@@ -25,7 +25,7 @@ import { TextField } from '@/components/ui/text-field';
 import { measure, timeBucket, track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
 import { useOffline } from '@/lib/offline';
-import { keys } from '@/lib/queries';
+import { keys, useCategories } from '@/lib/queries';
 import type { FeedPoll, Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
 
@@ -68,6 +68,7 @@ export default function Vote() {
   const [crisis, setCrisis] = useState(false);
   const idempotencyKey = useRef(Crypto.randomUUID()).current;
   const offline = useOffline();
+  const { data: categories } = useCategories();
   const reduceMotion = useReducedMotion();
 
   const p = poll.data;
@@ -183,6 +184,9 @@ export default function Vote() {
         </Text>
       ) : null}
       <Text variant="question">{p.question}</Text>
+      {categories
+        ?.filter((cat) => cat.safety_note && p.target_label?.split(' · ').includes(cat.name))
+        .map((cat) => <Banner key={cat.id} message={cat.safety_note!} />)}
       <Link.AppleZoomTarget>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }} accessibilityRole="radiogroup">
           {p.options.map((o) => (

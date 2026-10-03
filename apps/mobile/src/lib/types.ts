@@ -18,7 +18,7 @@ export type Me = {
   categories_changed_at: string | null;
 };
 
-export type Category = { id: number; slug: string; name: string; is_sensitive: boolean; sort: number; archived?: boolean };
+export type Category = { id: number; slug: string; name: string; is_sensitive: boolean; sort: number; archived?: boolean; safety_note?: string | null };
 export type Community = { id: string; slug: string; name: string; description: string; kind: 'topic' | 'campus' };
 
 export type PollOption = { side: Side; label: string | null; image_path: string | null };

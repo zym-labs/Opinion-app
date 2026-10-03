@@ -140,3 +140,10 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
   - **Named-person check:** questions singling out an identifiable private person are blocked.
   - **Sponsored cap:** one sponsored question per person per week.
   - **Public transparency report** at `/transparency`.
+- **Phase 5 (2026-10-03).**
+  - **"Ask real people" for AI assistants:** an MCP server (`supabase/functions/mcp`, setup in `docs/launch/ASSISTANT_APP.md`). Same moderation; 3 assistant posts per person per day.
+  - **Story slides:** 3 Stories-size slides saved to Photos for carousels.
+  - **Relationships topic:** sensitive, with a safety note shown when voting and creating.
+  - **Campus safety partnership:** a campus support line first on the crisis card; crisis-card views counted per day and campus with no identity; totals-only partner reports with small numbers hidden.
+  - **Paywall:** annual plan first, with the free trial shown.
+  - **Opinion Wrapped:** a yearly shareable card.

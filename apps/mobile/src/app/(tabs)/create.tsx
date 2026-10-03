@@ -21,7 +21,7 @@ import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
-import { keys, useCommunities, useCredits, useMe, usePlus } from '@/lib/queries';
+import { keys, useCategories, useCommunities, useCredits, useMe, usePlus } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { SIDES, type PollType, type Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
@@ -153,6 +153,7 @@ export default function Create() {
   const { data: communities } = useCommunities();
   const { data: credits } = useCredits();
   const { data: plus } = usePlus();
+  const { data: categories } = useCategories();
   const { data: areas = [] } = useQuery({ queryKey: ['decision-areas'], queryFn: () => rpc<Area[]>('my_decision_areas') });
   // "Think it through": private 10/10/10 notes, kept in the decision journal.
   const [notes, setNotes] = useState({ ten_minutes: '', ten_months: '', ten_years: '' });
@@ -485,6 +486,12 @@ export default function Create() {
           <Button label="Try the 10/10/10 check" variant="ghost" onPress={() => setThinking(true)} />
         )}
       </Section>
+
+      {draft.type === 'expert'
+        ? categories
+            ?.filter((cat) => cat.safety_note && draft.categoryIds.includes(cat.id))
+            .map((cat) => <Banner key={cat.id} message={cat.safety_note!} />)
+        : null}
 
       <Section title="How long should it run?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>

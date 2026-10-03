@@ -1,11 +1,13 @@
 // Crisis safety net: shown instead of posting when a question or reason mentions self-harm.
 // Opinion is not a crisis service, so we point to people who are, right away.
+import { useQuery } from '@tanstack/react-query';
 import { getLocales } from 'expo-localization';
 import * as WebBrowser from 'expo-web-browser';
 import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { rpc } from '@/lib/api';
 import { radius, space, useColors } from '@/theme';
 
 type Line = { name: string; call?: string; text?: string };
@@ -24,6 +26,12 @@ export function CrisisSupport({ onClose }: { onClose?: () => void }) {
   const c = useColors();
   const region = getLocales()[0]?.regionCode ?? '';
   const line = LINES[region];
+  // Campus partners can add their own counselling line; it comes first for their students.
+  const campus = useQuery({
+    queryKey: ['campus-support'],
+    queryFn: () => rpc<{ community: string; name: string | null; phone: string | null; url: string | null }[]>('my_campus_support'),
+    staleTime: 60 * 60_000,
+  });
   return (
     <View
       accessibilityRole="alert"
@@ -33,6 +41,12 @@ export function CrisisSupport({ onClose }: { onClose?: () => void }) {
         It sounds like you might be going through something really hard. A poll isn’t the right place for this, but
         talking to someone can help, right now, for free.
       </Text>
+      {campus.data?.map((s) => (
+        <View key={s.community} style={{ gap: space[2] }}>
+          {s.phone ? <Button label={`Call ${s.name ?? s.community} (${s.phone})`} onPress={() => Linking.openURL(`tel:${s.phone!.replace(/\s/g, '')}`)} /> : null}
+          {s.url ? <Button label={`${s.name ?? s.community}: get support`} variant="secondary" onPress={() => WebBrowser.openBrowserAsync(s.url!)} /> : null}
+        </View>
+      ))}
       {line?.call ? <Button label={`Call ${line.name} (${line.call})`} onPress={() => Linking.openURL(`tel:${line.call}`)} /> : null}
       {line?.text ? (
         <Button label={`Text ${line.text}`} variant="secondary" onPress={() => Linking.openURL(`sms:${line.text}`)} />

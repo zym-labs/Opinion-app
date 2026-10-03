@@ -44,6 +44,7 @@ type Events = {
   circle_shared: Record<string, never>;
   plus_purchase_started: { package: string };
   room_created: { options: number };
+  wrapped_shared: Record<string, never>;
   ai_take_opened: Record<string, never>;
   journal_exported: Record<string, never>;
   result_made_public: Record<string, never>;

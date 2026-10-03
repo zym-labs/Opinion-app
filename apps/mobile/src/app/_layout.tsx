@@ -77,6 +77,7 @@ function RootNavigator() {
         <Stack.Screen name="credits" options={{ presentation: 'modal', headerShown: true, title: 'Credits' }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
         <Stack.Screen name="featured" options={{ headerShown: true, title: 'Featured insights' }} />
+        <Stack.Screen name="wrapped" options={{ presentation: 'modal', headerShown: true, title: '' }} />
         <Stack.Screen name="room/new" options={{ headerShown: true, title: 'New room' }} />
         <Stack.Screen name="plus" options={{ presentation: 'modal', headerShown: true, title: '' }} />
         <Stack.Screen name="circle" options={{ headerShown: true, title: 'Close friends' }} />

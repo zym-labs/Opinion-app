@@ -13,6 +13,7 @@ import { CreatorInsights } from '@/components/poll/insights';
 import { PublicResult } from '@/components/poll/public-result';
 import { ResultView } from '@/components/poll/result-view';
 import { type CardFormat, ShareCard, shareCard } from '@/components/poll/share-card';
+import { StorySlides } from '@/components/poll/story-slides';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
@@ -145,6 +146,7 @@ export default function MyPollScreen() {
                 )
               }
             />
+            <StorySlides result={result.data} />
             <PublicResult pollId={id} onLink={setPublicLink} />
           </>
         ) : null}

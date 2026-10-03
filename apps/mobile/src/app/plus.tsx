@@ -82,10 +82,15 @@ export default function OpinionPlus() {
         ) : packages.isLoading ? (
           <ScreenSkeleton lines={1} />
         ) : (
-          packages.data?.map((p: PurchasesPackage) => (
+          [...(packages.data ?? [])]
+            .sort((a, b) => Number(b.packageType === 'ANNUAL') - Number(a.packageType === 'ANNUAL'))
+            .map((p: PurchasesPackage) => (
             <Button
               key={p.identifier}
-              label={`${p.product.title || 'Opinion+'} · ${p.product.priceString}`}
+              variant={p.packageType === 'ANNUAL' ? 'primary' : 'secondary'}
+              label={`${p.packageType === 'ANNUAL' ? 'Yearly (best value)' : p.packageType === 'MONTHLY' ? 'Monthly' : p.product.title || 'Opinion+'} · ${p.product.priceString}${
+                p.product.introPrice?.price === 0 ? ` · ${p.product.introPrice.periodNumberOfUnits} ${p.product.introPrice.periodUnit.toLowerCase()}s free` : ''
+              }`}
               loading={busy}
               onPress={() => {
                 track('plus_purchase_started', { package: p.identifier });

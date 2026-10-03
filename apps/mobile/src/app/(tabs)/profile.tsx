@@ -127,6 +127,7 @@ export default function Profile() {
         </View>
       ) : null}
       <ImpactCard />
+      <Button label={`Your ${new Date().getFullYear()} Wrapped`} variant="ghost" onPress={() => router.push('/wrapped')} />
       <Button label="Decision journal" onPress={() => router.push('/journal')} />
       <Button label="Decide together in a room" variant="secondary" onPress={() => router.push('/room/new')} />
       <Button label="Close friends" variant="secondary" onPress={() => router.push('/circle')} />

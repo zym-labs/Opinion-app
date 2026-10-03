@@ -16,6 +16,7 @@ const NAV: readonly (readonly [string, string, ('reports' | 'appeals' | 'ai' | '
   ['/admin/integrity', 'Integrity', 'integrity'],
   ['/admin/daily', 'Daily question'],
   ['/admin/pulse', 'Campus Pulse'],
+  ['/admin/campus', 'Campus partners'],
   ['/admin/users', 'Users'],
   ['/admin/communities', 'Communities'],
   ['/admin/seed', 'Seed polls'],
