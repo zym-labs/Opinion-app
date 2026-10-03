@@ -17,7 +17,7 @@ Every assistant post goes through the same checks as the app:
 App Attest can't run inside an assistant, so the daily limit is tighter (3 posts per person per day). Results stay sealed until a poll closes, exactly as in the app.
 
 ## Setup
-1. **Turn on Supabase's OAuth server.** In the Supabase dashboard, go to Authentication → OAuth Server and enable it. Set the authorization path to a consent page on the website (`/oauth/consent`; a simple page that shows the requesting app and calls `supabase.auth.oauth.approveAuthorization`). Allow dynamic client registration, which MCP clients use.
+1. **Turn on Supabase's OAuth server.** In the Supabase dashboard, go to Authentication → OAuth Server and enable it. Set the authorization path to `/oauth/consent`, which is already built in `apps/web/src/app/oauth/consent`. It signs the person in (Apple, Google or email code; existing accounts only), shows what the app can and can't do, and approves or denies. Make sure the Site URL (Authentication → URL Configuration) is the website domain, and allow dynamic client registration, which MCP clients use. People can see and revoke connected apps in the app under Settings → Connected apps.
 2. **Set the secret** `PUBLIC_SITE_URL` (e.g. `https://opinion.app`) so friend links in replies point at your domain.
 3. **Deploy:** run `supabase functions deploy mcp`. `verify_jwt = false` is already set in `config.toml`, because clients first call without a token to discover OAuth; the function then checks the token itself.
 4. **Check it works:** an unauthenticated POST should return `401` with `WWW-Authenticate: Bearer resource_metadata=".../mcp?resource-metadata"`, and that URL should return the protected-resource metadata pointing at `<project>/auth/v1`.

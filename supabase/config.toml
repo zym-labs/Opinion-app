@@ -365,12 +365,12 @@ enabled = false
 
 # OAuth server configuration
 [auth.oauth_server]
-# Enable OAuth server functionality
-enabled = false
-# Path for OAuth consent flow UI
+# Enable OAuth server functionality (AI assistants connecting through the mcp function)
+enabled = true
+# Path for OAuth consent flow UI (apps/web/src/app/oauth/consent)
 authorization_url_path = "/oauth/consent"
-# Allow dynamic client registration
-allow_dynamic_registration = false
+# Allow dynamic client registration (MCP clients register themselves)
+allow_dynamic_registration = true
 
 [edge_runtime]
 enabled = true

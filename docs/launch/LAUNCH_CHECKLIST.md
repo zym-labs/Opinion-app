@@ -70,7 +70,7 @@ Never set `EXPO_PUBLIC_DEMO` in store builds.
   - daily question, return path and decision check-ins;
   - vote bursts, reputation and impact recaps;
   - pruning notifications and rooms.
-- [ ] Auth: providers Apple, Google and email; redirect URLs; **OAuth server** on (assistant app) plus a consent page at `/oauth/consent` (**not built yet**, see [ASSISTANT_APP.md](ASSISTANT_APP.md)).
+- [ ] Auth: providers Apple, Google and email; redirect URLs; **OAuth server** on (assistant app) with the authorization path `/oauth/consent` (built) and dynamic registration on (see [ASSISTANT_APP.md](ASSISTANT_APP.md)).
 - [ ] Create the first admin (`update profiles set is_admin = true …`) and turn on admin MFA (aal2).
 - [ ] Seed: categories, communities and campus domains, starter polls, expert domains ([SEED_POLLS.md](../phase0/SEED_POLLS.md)).
 - [ ] Write the **daily questions** for the first 2–4 weeks (Admin → Daily question).
