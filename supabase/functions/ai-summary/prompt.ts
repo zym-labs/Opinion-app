@@ -24,6 +24,8 @@ export function buildUserMessage(input: {
   majoritySide: string;
   reasons: { id: string; side: string; text: string; consent: boolean }[];
   minorityEnough: boolean;
+  /** Asker's language (BCP 47, e.g. 'es' or 'pt-BR'). Summaries are written in it. */
+  language?: string;
 }) {
   const esc = (t: string) => t.replace(/[<>]/g, '');
   const reasons = input.reasons
@@ -37,7 +39,8 @@ ${options}
 Majority side: ${input.majoritySide.toUpperCase()}
 The minority is everyone who chose any other option.
 ${input.minorityEnough ? '' : 'There are too few minority reasons: return an empty minority_points list.\n'}
-<reasons>
+${input.language && !input.language.startsWith('en') ? `Write every point in the language with code "${input.language.replace(/[^a-zA-Z-]/g, '')}", whatever language the reasons are in.
+` : ''}<reasons>
 ${reasons}
 </reasons>`;
 }

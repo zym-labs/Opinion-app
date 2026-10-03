@@ -427,3 +427,7 @@ verify_jwt = false
 
 [functions.push]
 verify_jwt = false
+
+# RevenueCat webhooks authenticate with their own shared secret, not a Supabase JWT.
+[functions.revenuecat]
+verify_jwt = false

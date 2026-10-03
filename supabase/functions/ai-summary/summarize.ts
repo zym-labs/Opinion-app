@@ -26,6 +26,8 @@ export type Job = {
   /** 2–4 options with their vote counts. */
   options: { side: Side; label: string | null; votes: number }[];
   reasons: { id: string; side: Side; text: string; consent: boolean }[];
+  /** Asker's language; summaries are written in it. */
+  language?: string;
 };
 
 const Fairness = z.object({
@@ -63,6 +65,7 @@ export async function summarize(job: Job) {
 
   const pollText = buildUserMessage({
     question: job.question, options: job.options, majoritySide, reasons: job.reasons, minorityEnough,
+    language: job.language,
   });
   const usage = { input_tokens: 0, output_tokens: 0 };
   const track = (u: { input_tokens: number; output_tokens: number }) => {

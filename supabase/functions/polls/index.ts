@@ -22,7 +22,8 @@ Deno.serve(async (req) => {
     // Validate enums and ranges here so bad input is a 400, not a database 500.
     if (body.type !== 'expert' && body.type !== 'community') return fail('INVALID_INPUT', 400, 'Unknown poll type');
     const hours = Number(body.duration_hours);
-    if (!Number.isInteger(hours) || hours < 3 || hours > 24) return fail('INVALID_INPUT', 400, 'Duration must be 3–24 hours');
+    // Up to 24h for everyone; 25–48h needs Opinion+ (checked by the database).
+    if (!Number.isInteger(hours) || hours < 3 || hours > 48) return fail('INVALID_INPUT', 400, 'Duration must be 3–48 hours');
     const question = String(body.question ?? '').trim();
     // 2–4 options; each needs text, an image, or both.
     const rawLabels: unknown[] = Array.isArray(body.labels) ? body.labels : [];
