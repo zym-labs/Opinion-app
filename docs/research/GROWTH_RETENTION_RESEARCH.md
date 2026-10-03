@@ -208,3 +208,117 @@ The first round covered retention, habits and the companion question. This round
 - selling personal data.
 
 These are Opinion's position, not limitations.
+
+---
+
+# Round 3: broad research for the next stage (2026-10-03)
+
+Rounds 1–2 shaped Phases 1–3, which are now built. This round looks wider at:
+- why earlier anonymous apps failed;
+- how people now use AI for advice;
+- companion, journaling and offline-friendship apps;
+- decision science;
+- creator-led growth and AI assistants as a distribution channel;
+- subscriptions, privacy, moderation and design trends.
+
+Each finding is mapped to what Opinion has today and what to build next.
+
+## 1. The big picture: people want real humans, and they're asking AI anyway
+- **AI is already the advisor.** About half of ChatGPT use is asking for advice or recommendations. 27% of US adults use AI for personal, emotional or social questions. Over 40% of Gen Z ChatGPT users have asked it for career advice. ([Washington Post](https://www.washingtonpost.com/technology/interactive/2026/09/02/27-us-adults-turn-ai-personal-emotional-social-queries/), [Pew](https://www.pewresearch.org/internet/2026/06/17/americans-and-ai-2026-chatbots-smart-devices-and-views-on-impact/), [Benton](https://www.benton.org/headlines/here%E2%80%99s-what-data-says-people-ask-chatgpt))
+- **But human perspectives are gaining value.** Trust in Reddit is rising, people add "Reddit" to searches to get human answers, and Reddit's CEO says that "as AI becomes more prevalent, people increasingly seek out real human perspectives". ([Siege Media](https://www.siegemedia.com/research/reddit-sentiment), [CX Today](https://www.cxtoday.com/community-social-engagement/reddit-human-first-ai-customer-experience/))
+- **AI advice differs from human advice.** UCLA found ChatGPT's life advice to young adults often differed from what 300+ people advised, and that difference widens the options people consider. ([UCLA Anderson](https://anderson-review.ucla.edu/ai-asked-for-life-advice-for-young-adults-doesnt-just-echo-what-humans-recommend))
+- **Decisions are exhausting.** 86% of Gen Z report "menu anxiety". 55% are delaying major life decisions. Too much choice cuts action sharply (in one test, 28% acted with 6 options against 4% with 24). ([Yahoo/Prezzo](https://finance.yahoo.com/news/86-gen-z-experience-menu-163353427.html), [Deloitte](https://www.deloitte.com/global/en/issues/work/genz-millennial-survey.html), [SpeakWise](https://speakwiseapp.com/blog/decision-fatigue-statistics))
+
+**Positioning:** *"Real people's reasons, organised by AI."* Opinion sits where AI advice and Reddit meet, and is anonymous, fast and judgment-free. Keep 2–4 options (choice overload is real). Offer AI as a *labelled second opinion*, never as a friend.
+
+## 2. Lessons from anonymous apps that died
+- **What killed them.** Yik Yak, Secret, Sarahah, NGL, Ask.fm and others failed over bullying, harassment and moderation they couldn't control. Hyper-local feeds made bullying feel physically threatening. Removing anonymity to fix it killed Yik Yak's growth. ([Failory](https://www.failory.com/cemetery/yik-yak), [Phys.org](https://phys.org/news/2017-05-anonymous-app-yik-yak.html), [IBTimes](https://www.ibtimes.com/secret-anonymous-app-shut-down-after-failing-attract-college-students-way-rival-yik-1902385))
+- **Universities push back.** In 2024 the UNC system moved to block Yik Yak, Fizz, Sidechat and Whisper from campus Wi-Fi over "reckless disregard … indifference to bullying". ([Inside Higher Ed](https://www.insidehighered.com/news/tech-innovation/teaching-learning/2024/03/13/unc-system-banning-anonymous-social-apps-over), [Daily Tar Heel](https://dailytarheel.com/310802/university/university-anonymous-app-ban/))
+
+**What already protects Opinion:**
+- questions only, no free posting;
+- 2–4 fixed options;
+- reasons are moderated, with personal details removed;
+- results only for 10+ voters;
+- no comments or replies;
+- no location feed;
+- reports, appeals, crisis support and burst detection.
+
+**Gaps:**
+1. **Named people in questions.** A question like "Is Sam from Bio 101 annoying?" would pass ordinary moderation. Add a check that blocks questions about identifiable private people.
+2. **Campus trust.** Offer universities a safety partnership: a published transparency report, a direct line to report problems, counselling-service helplines on the crisis card, and campus-level stats without personal data. That makes Opinion the anonymous app universities *recommend*, not ban.
+
+## 3. Lessons from BeReal and the streak research
+- **BeReal's fall.** Daily users fell about 61% from peak. The daily ping became a chore, users felt pressure to look interesting, and bringing in celebrities and brands broke the friends-first promise. ([Dazed](https://www.dazeddigital.com/life-culture/article/61166/1/why-did-bereal-fail-social-media-instagram-authenticity), [EM360](https://em360tech.com/tech-articles/what-happened-bereal-authenticity-obscurity), [Wikipedia](https://en.wikipedia.org/wiki/BeReal))
+  - *For Opinion:*
+    - the daily question must stay optional and varied, never a chore;
+    - Campus Pulse needs a **frequency cap** (at most one sponsored question per person per week) so brands never crowd out friends;
+    - keep celebrities out.
+- **Streak anxiety.** All-or-nothing streaks are a top reason people quit habit apps (one study found 63% more abandonment after a single miss). 47% of people have deleted an app because it caused stress. Forgiving, weekly and milestone-based progress works better. ([Habit Doom](https://habitdoom.com/blog/streak-anxiety-habit-trackers), [Incogni](https://blog.incogni.com/digital-fatigue-and-burnout/), [Routinery](https://www.routinery.app/blog/micro-rewards-vs-streaks-adherence-science))
+  - *For Opinion:* the weekly, forgiving streak is right. Add **milestones that aren't tied to time** ("100 opinions given", "helped 50 people decide") and frame them around the effect on others.
+
+## 4. What makes people stay: motivation, not compulsion
+- **Self-determination theory.** People stay with apps that support three needs: *autonomy* (choice and control), *competence* (clear progress and feedback) and *relatedness* (connection). Apps that meet them get higher ratings and keep people longer. ([ScienceDirect](https://www.sciencedirect.com/science/article/pii/S1071581920300513), [ResearchGate](https://www.researchgate.net/publication/368760824_Self-Determination_Theory_and_Technology_Design))
+  - *Autonomy:* topic choice, notification controls and opt-ins are in place. Add a **"What Opinion knows about me" privacy dashboard**.
+  - *Competence:* predictions and the journal exist. Add a **calibration score** ("you predict the room 72% of the time").
+  - *Relatedness:* circles exist. Add **"Your impact" recaps**: "This month your reasons helped 23 people decide, and 4 askers went with your pick." Make a shareable yearly **Opinion Wrapped**.
+- **Journaling apps show reflection retains.** Rosebud's prompts, weekly AI insights and gentle streaks kept testers journaling 5 days in 7, against 2–3 for other apps. ([Rosebud](https://www.rosebud.app/), [MyLifeNote](https://blog.mylifenote.ai/ai-journaling-apps-compared/))
+  - *For Opinion:* add a **monthly journal insight** (a short AI summary of your own decisions) and a few decision prompts.
+
+## 5. Better decisions, not just faster ones
+- **Independent votes make crowds wiser.** Even small social influence reduces a crowd's accuracy without adding to it (Lorenz et al., 2011). Opinion's sealed, view-once results protect independence; say so in marketing. ([ResearchGate](https://www.researchgate.net/publication/51130820_How_social_influence_can_undermine_the_wisdom_of_crowd_effect))
+- **Bridging.** X Community Notes only shows notes rated helpful by people who usually disagree, which cut reposts of misinformation by 25–34%. ([PNAS](https://www.pnas.org/doi/10.1073/pnas.2503413122), [arXiv](https://arxiv.org/pdf/2510.09585))
+  - *For Opinion:* pick featured quotes that were marked "this helped me" by **voters on both sides**. That surfaces reasons that are fair, not just popular.
+- **Decision frameworks.** "10/10/10" (how will I feel in 10 minutes, 10 months, 10 years?) and regret minimisation help people weigh choices. Good process and good outcome are different things. ([Glasp](https://glasp.co/articles/regret-minimization-framework), [Decisions Matter](https://decisionsmatter.in/field-notes/regret-minimization-framework))
+  - *For Opinion:* add an optional **"Think it through"** step to Create (private 10/10/10 notes, kept in the journal), and a journal line separating "good call" from "good luck".
+- **Social-proof nudges.** They work mostly when people are unsure, and fake or inflated numbers destroy trust. ([NCBI](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7325907/))
+  - *For Opinion:* only show real numbers, never live tallies, and never "people like you chose X" before someone has voted.
+
+## 6. Growth channels
+- **Creator content on TikTok** gets the cheapest installs for 18–35s. It wears out in about 7.6 days, so new videos are needed constantly. The first 3 seconds change cost per install 2–4×. Typical cost per install is $1.75–$4. Ambassador and creator programs are central. ([Moburst](https://www.moburst.com/ugc-best-practices-in-2026-what-the-data-actually-says-about-content-that-converts/), [vmobify](https://vmobify.com/blog/tiktok-app-install-campaigns), [Business of Apps](https://www.businessofapps.com/news/app-market-trends-2026/))
+  - *For Opinion:* every result is ready-made content ("I asked 140 students if I should take the internship…"). Add **animated vertical video exports** of the result story, and run a campus ambassador program with codes (referrals exist).
+- **Apps inside AI assistants.** ChatGPT has about 900M weekly users and an app directory built on MCP (Model Context Protocol). Apps appear inside conversations. ([VentureBeat](https://venturebeat.com/technology/openai-now-accepting-chatgpt-app-submissions-from-third-party-devs-launches), [Phiture](https://phiture.com/asostack/chat-gpt-app-directory/))
+  - *For Opinion:* an **"Ask real people" app for ChatGPT and Claude**. When someone asks an AI "should I take job A or B?", the assistant offers to post it to Opinion and later fetches the human result. This could be the biggest distribution channel, and it fits "AI advice plus human perspective" exactly. It needs OAuth sign-in and strict rate limits.
+- **Personalised onboarding.** A 3–5 question quiz that visibly changes the experience lifts conversion; under 3 questions feels generic and over 5 feels like a chore. ([Adapty](https://adapty.io/blog/how-to-fix-your-onboarding-flow/))
+  - *For Opinion:* add a step **"What are you deciding about these days?"** (study, career, relationships, money, style, everyday). It should shape templates, the daily question and the feed order.
+
+## 7. Being with people offline, and new areas
+- **Offline is winning again.** Timeleft has gathered 3M+ people in 200+ cities, and 222 runs quiz-matched events. Game-based in-person events grew 400%. ([Timeleft](https://timeleft.com/blog/best-apps-to-make-friends/), [Fast Company](https://www.fastcompany.com/91265745/smartphones-are-making-people-lonely-this-app-thinks-it-has-the-cure), [YPulse](https://www.ypulse.com/newsfeed/2024/05/14/a-new-wave-of-apps-and-groups-are-focusing-on-in-person-events-to-combat-loneliness/))
+  - *For Opinion:* a **Room mode** for a group in the same place (a party, a class, a club meeting). Show a QR code, everyone votes anonymously on their phone, and the result appears on one screen when all have voted. It's a fun, offline-first growth loop where every room brings in new users.
+- **Relationship advice is a big unmet need.** About half of Gen Z use AI for their love lives, and "situationships" create constant small decisions. ([Medium/coto](https://medium.com/@cotoapp/5-best-apps-for-anonymous-relationship-advice-and-emotional-support-a2c805b844af), [Rolling Out](https://rollingout.com/2026/04/09/gen-z-situationships-no-label/))
+  - *For Opinion:* a **Relationships** topic with extra safeguards: no names or screenshots, stricter moderation, and a "healthy relationships" resource link next to the crisis support.
+
+## 8. Money, privacy, moderation, design
+- **Subscriptions.** Social and lifestyle apps have the lowest monthly first renewal rate (42%). Long trials (17–32 days) convert about 70% better than short ones. ([RevenueCat](https://www.revenuecat.com/blog/growth/subscription-app-trends-benchmarks-2026), [RevenueCat renewals](https://www.revenuecat.com/blog/growth/average-subscription-renewal-rates-by-app-category))
+  - *For Opinion:* lead with an **annual plan** and a **14–30 day trial**, offered after the first result. Expect Campus Pulse to bring more revenue than consumer subscriptions.
+- **Privacy is a reason to choose an app.** 81% of Gen Z worry about privacy, only 14% fully trust platforms, and 69% of consumers want only necessary data collected. 41% would trust more with clear explanations. ([Data Folio3](https://data.folio3.com/blog/data-privacy-stats/), [Usercentrics](https://usercentrics.com/magazine/articles/gen-z-wants-transparency-not-hyperpersonalization/))
+  - *For Opinion:* the privacy dashboard, plus "we never sell data, never show who voted" said clearly in the store listing and onboarding.
+- **Moderation.** Google's Perspective API shuts down on 31 Dec 2026; we already use OpenAI's moderation. Language models can now catch context-based abuse such as targeting a person. ([Mixpeek](https://mixpeek.com/curated-lists/best-ai-content-moderation-tools), [Digital Applied](https://www.digitalapplied.com/blog/ai-content-moderation-2026-llm-trust-safety-guide))
+- **Design and brand.** Partiful grew about 400% year on year with humorous, casual, good-looking design and a witty brand voice. The 2026 Apple Design Awards rewarded Delight and Fun, Inclusivity, Interaction and Social Impact; Opinion fits Social Impact and Inclusivity. ([CNBC](https://www.cnbc.com/2025/04/19/meet-partiful-the-gen-z-party-planning-staple-thats-taking-on-apple.html), [Apple](https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/))
+  - *For Opinion:* a **playful brand voice** in empty states and loading text, seasonal themes for the daily question, and shareable result cards worth posting.
+
+## Roadmap after round 3
+
+**Phase 4 (code only, buildable now):**
+1. Bridging-based featured quotes: favour quotes marked helpful by voters on both sides.
+2. Personalisation step in onboarding ("What are you deciding about?") that shapes templates, the daily question and the feed.
+3. "Think it through" in Create (private 10/10/10 notes) and decision-quality reflection in the journal.
+4. AI second opinion after results: clearly labelled, shown next to the human result, never instead of it, no persona.
+5. "Your impact" monthly recap, milestones not tied to time, and a calibration score.
+6. "What Opinion knows about me" privacy dashboard.
+7. Room mode: in-person group decisions by QR code.
+8. Safety: block questions about identifiable private people; cap sponsored questions at 1 per person per week; a public transparency report page.
+
+**Phase 5 (bigger builds):**
+9. An Opinion app for ChatGPT and Claude, with OAuth and rate limits.
+10. Animated vertical video export of results.
+11. A Relationships topic with extra safeguards.
+12. Campus safety partnership program and a university dashboard (totals only).
+13. Opinion+ annual plan with a trial.
+14. Opinion Wrapped (yearly shareable recap).
+
+**Phase 6 (outside the app):**
+- campus ambassador and creator program;
+- full translations;
+- offline "Opinion Nights" on campuses;
+- Campus Pulse sales.
