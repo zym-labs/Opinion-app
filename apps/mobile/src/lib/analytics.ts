@@ -42,6 +42,8 @@ type Events = {
   insight_helpful: Record<string, never>;
   info_requested: Record<string, never>;
   circle_shared: Record<string, never>;
+  plus_purchase_started: { package: string };
+  journal_exported: Record<string, never>;
   result_made_public: Record<string, never>;
   story_shared: Record<string, never>;
   summary_flagged: Record<string, never>;

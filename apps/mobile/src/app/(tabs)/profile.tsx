@@ -127,6 +127,7 @@ export default function Profile() {
       ) : null}
       <Button label="Decision journal" onPress={() => router.push('/journal')} />
       <Button label="Close friends" variant="secondary" onPress={() => router.push('/circle')} />
+      <Button label="Opinion+" variant="secondary" onPress={() => router.push('/plus')} />
       <InviteCard />
       <Button label="Your quoted reasons" variant="secondary" onPress={() => router.push('/featured')} />
       <Button label="Settings" variant="secondary" onPress={() => router.push('/settings')} />

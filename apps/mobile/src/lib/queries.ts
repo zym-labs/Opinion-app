@@ -90,3 +90,8 @@ export const useDaily = () =>
     queryFn: async () => (await rpc<DailyQuestion[]>('get_daily'))[0] ?? null,
     staleTime: 5 * 60_000,
   });
+
+export type Plus = { active: boolean; expires_at: string | null; boosts_left: number };
+/** Opinion+ status (read-only; set by the store webhook). */
+export const usePlus = () =>
+  useQuery({ queryKey: ['plus'], queryFn: async () => (await rpc<Plus[]>('my_plus'))[0] ?? null, staleTime: 60_000 });

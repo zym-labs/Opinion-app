@@ -20,7 +20,7 @@ import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { track } from '@/lib/analytics';
 import { ApiError, callFunction, errorMessage, rpc } from '@/lib/api';
-import { keys, useCommunities, useCredits, useMe } from '@/lib/queries';
+import { keys, useCommunities, useCredits, useMe, usePlus } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { SIDES, type PollType, type Side } from '@/lib/types';
 import { radius, space, useColors } from '@/theme';
@@ -149,6 +149,7 @@ export default function Create() {
   const { data: me } = useMe();
   const { data: communities } = useCommunities();
   const { data: credits } = useCredits();
+  const { data: plus } = usePlus();
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -449,7 +450,7 @@ export default function Create() {
 
       <Section title="How long should it run?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>
-          {HOUR_PRESETS.map((h) => (
+          {(plus?.active ? [...HOUR_PRESETS, 48] : HOUR_PRESETS).map((h) => (
             <Chip
               key={h}
               label={`${h}h`}

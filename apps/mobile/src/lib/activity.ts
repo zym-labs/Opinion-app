@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { rpc } from './api';
+import { locale } from './i18n';
 import { countSession } from './review';
 
 const LAST_OPEN = 'last-open';
@@ -23,6 +24,7 @@ export function useActivity(enabled: boolean) {
     if (!enabled) return;
     touch();
     countSession();
+    rpc('set_locale', { p_locale: locale }).catch(() => {});
     const sub = AppState.addEventListener('change', (s) => s === 'active' && touch());
     return () => sub.remove();
   }, [enabled]);

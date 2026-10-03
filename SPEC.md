@@ -116,3 +116,16 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
   - **Voting-burst detection:** flagged for admin review, never removed automatically.
   - **Translation file:** errors and tabs moved in so far.
   - **Performance tracing:** feed load and vote submit.
+- **Phase 2 (2026-10-03).**
+  - **iOS Home Screen widget** for the daily question.
+  - **Lock Screen Live Activity** for your live poll: vote count and countdown only, never results.
+  - **Close friends circle:** up to 20 people joined by link; friends-only polls reach them automatically. The owner sees a count, never names.
+  - **Public result pages** the asker opts into (at `/r/<code>`), with Stories-size (9:16) share cards.
+  - **Glass surfaces** on iOS 26.
+  - **Private voter reputation:** trusted voters' reports get priority.
+- **Phase 3 (2026-10-03).**
+  - **Opinion+:** the store, via the RevenueCat webhook, is the only source of membership. Perks: 2 free boosts a month, 48-hour polls, journal export. Voting, results and AI summaries stay free.
+  - **Campus Pulse:** sponsored questions, opt-in, always labelled with the sponsor, worth +2 credits; sponsors see totals only.
+  - **AI summaries in the asker's language.**
+  - **Translation drafts** for Spanish, Portuguese, Hindi and Indonesian (errors and tabs so far).
+  - **Store playbook and native plans:** see `docs/launch/STORE_PLAYBOOK.md` and `docs/launch/NATIVE_FEATURES_PLAN.md`.

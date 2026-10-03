@@ -31,6 +31,32 @@ const ROWS: [keyof Omit<Prefs, 'digest_hour'>, string][] = [
 
 const DEFAULTS: Prefs = { new_polls: true, poll_ended: true, summary_ready: true, insight_featured: true, digest_hour: 18 };
 
+/** Campus Pulse: questions from clubs, unions and brands. Off unless you turn it on; +2 credits each. */
+function SponsoredToggle() {
+  const q = useQuery({ queryKey: ['sponsored-opt-in'], queryFn: () => rpc<boolean>('my_sponsored_opt_in') });
+  const [on, setOn] = useState<boolean | null>(null);
+  const value = on ?? !!q.data;
+  return (
+    <View style={{ gap: space[1] }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+        <Text style={{ flex: 1 }}>Show sponsored questions</Text>
+        <Switch
+          accessibilityLabel="Show sponsored questions"
+          value={value}
+          onValueChange={(v) => {
+            setOn(v);
+            rpc('set_sponsored_opt_in', { p_on: v }).catch(() => setOn(!v));
+          }}
+        />
+      </View>
+      <Text variant="caption" tone="faint">
+        Clubs, student unions and brands asking your community. Always labelled with who asks; they only see totals,
+        like any asker. You get 2 extra credits for each one you answer.
+      </Text>
+    </View>
+  );
+}
+
 export default function NotificationSettings() {
   const q = useQuery({
     queryKey: ['prefs'],
@@ -80,6 +106,7 @@ function PrefsForm({ initial }: { initial: Prefs }) {
         ))}
       </View>
       {msg ? <Banner message={msg} /> : null}
+      <SponsoredToggle />
       <Button
         label="Turn on push notifications"
         variant="secondary"

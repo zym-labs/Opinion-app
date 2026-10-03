@@ -3,11 +3,18 @@
 import { getLocales } from 'expo-localization';
 
 import { en, type StringKey } from '@/locales/en';
+import { es } from '@/locales/es';
+import { hi } from '@/locales/hi';
+import { id } from '@/locales/id';
+import { pt } from '@/locales/pt';
 
 type Dict = Partial<Record<StringKey, string>>;
-const DICTS: Record<string, Dict> = { en };
+const DICTS: Record<string, Dict> = { en, es, pt, hi, id };
 
 const lang = getLocales()[0]?.languageCode ?? 'en';
+
+/** Device language (e.g. 'es'), sent to the server so AI summaries come back in it. */
+export const locale = /^[a-z]{2}$/.test(lang) ? lang : 'en';
 const dict: Dict = DICTS[lang] ?? en;
 
 /** Translate a key. {name} placeholders are filled from vars. */

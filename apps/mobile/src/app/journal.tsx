@@ -2,7 +2,7 @@
 // 30 days on, whether you're glad. Private to you. Patterns appear once there are a few entries.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable, Share, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -12,6 +12,7 @@ import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { track } from '@/lib/analytics';
 import { rpc } from '@/lib/api';
+import { usePlus } from '@/lib/queries';
 import { maybeAskForReview } from '@/lib/review';
 import { radius, space, useColors } from '@/theme';
 
@@ -79,6 +80,36 @@ function Checkin({ entry }: { entry: Entry }) {
   );
 }
 
+/** Opinion+: export the journal as plain text through the share sheet (Notes, Files, email…). */
+function ExportJournal({ entries }: { entries: Entry[] }) {
+  const { data: plus } = usePlus();
+  if (!plus?.active) {
+    return <Button label="Export journal (Opinion+)" variant="ghost" onPress={() => router.push('/plus')} />;
+  }
+  const text = entries
+    .map((e) =>
+      [
+        `${new Date(e.closed_at).toLocaleDateString()} · ${e.question}`,
+        e.winner ? `The room: ${e.winner} (${Number(e.winner_pct ?? 0).toFixed(0)}%) of ${e.total_votes} votes` : 'No result',
+        e.chose ? `I chose: ${e.chose}` : e.decision_none ? 'I chose none of them' : 'Decision not recorded',
+        e.checkin_glad === null ? '' : `A month on: ${e.checkin_glad ? 'glad' : 'not so sure'}`,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    )
+    .join('\n\n');
+  return (
+    <Button
+      label="Export journal"
+      variant="secondary"
+      onPress={() => {
+        track('journal_exported', {});
+        Share.share({ title: 'My decision journal', message: text }).catch(() => {});
+      }}
+    />
+  );
+}
+
 export default function Journal() {
   const c = useColors();
   const q = useQuery({ queryKey: ['journal'], queryFn: () => rpc<Entry[]>('my_journal') });
@@ -100,6 +131,7 @@ export default function Journal() {
     <Screen onRefresh={() => q.refetch()}>
       <Text tone="muted">Only you can see this.</Text>
       <Patterns entries={entries} />
+      <ExportJournal entries={entries} />
       {entries.map((e) => (
         <Pressable
           key={e.poll_id}

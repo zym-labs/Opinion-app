@@ -69,7 +69,7 @@ select is((select target_label from public.get_feed() where id = current_setting
   'shown with the sponsor label after opting in');
 reset role;
 select public.cast_vote_internal(pg_temp.uid(3), current_setting('test.sp')::uuid, 'a', null, null, true, 'approved', null);
-select is((select delta from public.credit_ledger where user_id = pg_temp.uid(3) and reason = 'sponsored'), 2,
+select is((select delta::int from public.credit_ledger where user_id = pg_temp.uid(3) and reason = 'sponsored'), 2,
   'voters get 2 extra credit units');
 
 -- Language reaches the AI job.
