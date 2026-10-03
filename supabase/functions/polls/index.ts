@@ -1,6 +1,7 @@
 // Poll creation (STAGE4 §3.3): create a moderated draft, then publish after image checks.
 import { admin, cors, fail, fromDbError, getUserId, json } from '../_shared/http.ts';
 import { checkIntegrity } from '../_shared/integrity.ts';
+import { targetsPrivatePerson } from '../_shared/ai.ts';
 import { isCrisis, moderate, moderateText, NEW_ACCOUNT_THRESHOLD } from '../_shared/moderation.ts';
 
 const SIDES = ['a', 'b', 'c', 'd'] as const;
@@ -40,6 +41,8 @@ Deno.serve(async (req) => {
     const mod = await moderateText([question, ...labels], strict);
     if (isCrisis([question, ...labels], mod)) return fail('CRISIS_SUPPORT');
     if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
+    // Questions that single out an identifiable private person are not allowed (anti-bullying).
+    if (await targetsPrivatePerson([question, ...labels.filter((l): l is string => !!l)])) return fail('TARGETS_PERSON');
 
     const { data: pollId, error } = await admin.rpc('create_poll_draft', {
       p_user: userId,
