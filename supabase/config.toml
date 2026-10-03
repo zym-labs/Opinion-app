@@ -431,3 +431,7 @@ verify_jwt = false
 # RevenueCat webhooks authenticate with their own shared secret, not a Supabase JWT.
 [functions.revenuecat]
 verify_jwt = false
+
+# MCP clients first call without a token to discover OAuth; the function checks the token itself.
+[functions.mcp]
+verify_jwt = false

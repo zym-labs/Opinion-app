@@ -39,7 +39,11 @@ Deno.serve(async (req) => {
     const { data: isNew } = await admin.rpc('is_new_account', { p_user: userId });
     const strict = isNew ? NEW_ACCOUNT_THRESHOLD : undefined;
     const mod = await moderateText([question, ...labels], strict);
-    if (isCrisis([question, ...labels], mod)) return fail('CRISIS_SUPPORT');
+    if (isCrisis([question, ...labels], mod)) {
+      // Counted per day and campus only, no identity (campus safety partnership).
+      await admin.rpc('record_crisis', { p_user: userId });
+      return fail('CRISIS_SUPPORT');
+    }
     if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
     // Questions that single out an identifiable private person are not allowed (anti-bullying).
     if (await targetsPrivatePerson([question, ...labels.filter((l): l is string => !!l)])) return fail('TARGETS_PERSON');

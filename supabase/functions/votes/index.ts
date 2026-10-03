@@ -38,7 +38,11 @@ Deno.serve(async (req) => {
   if (reason.length > 200) return fail('REASON_TOO_LONG');
 
   const mod = reason ? await moderateText([reason]) : { state: 'approved' as const, flags: null };
-  if (reason && isCrisis([reason], mod)) return fail('CRISIS_SUPPORT');
+  if (reason && isCrisis([reason], mod)) {
+    // Counted per day and campus only, no identity (campus safety partnership).
+    await admin.rpc('record_crisis', { p_user: userId });
+    return fail('CRISIS_SUPPORT');
+  }
 
   const { data: closesAt, error } = await admin.rpc('cast_vote_internal', {
     p_user: userId,

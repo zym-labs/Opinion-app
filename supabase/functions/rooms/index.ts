@@ -17,7 +17,11 @@ Deno.serve(async (req) => {
   if (labels.length < 2 || labels.length > 4 || labels.some((l) => l.length > 60)) return fail('INVALID_INPUT', 400, 'Rooms have 2 to 4 options');
 
   const mod = await moderateText([question, ...labels]);
-  if (isCrisis([question, ...labels], mod)) return fail('CRISIS_SUPPORT');
+  if (isCrisis([question, ...labels], mod)) {
+    // Counted per day and campus only, no identity (campus safety partnership).
+    await admin.rpc('record_crisis', { p_user: userId });
+    return fail('CRISIS_SUPPORT');
+  }
   if (mod.state === 'rejected') return fail('CONTENT_REJECTED');
   if (await targetsPrivatePerson([question, ...labels])) return fail('TARGETS_PERSON');
 
