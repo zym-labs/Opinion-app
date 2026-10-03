@@ -50,6 +50,11 @@
               "scheme": "https",
               "host": "opinion.example",
               "pathPrefix": "/f/"
+            },
+            {
+              "scheme": "https",
+              "host": "opinion.example",
+              "pathPrefix": "/room/"
             }
           ],
           "category": [

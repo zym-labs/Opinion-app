@@ -49,6 +49,11 @@ function describe(n: Notification) {
       };
     case 'follow_up':
       return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
+    case 'impact_recap':
+      return {
+        title: `Last month you helped ${Number(n.payload.votes)} people decide. See your impact.`,
+        go: () => router.navigate('/profile'),
+      };
     case 'circle_poll':
       return {
         title: `A friend wants your quick take: ${q}`,

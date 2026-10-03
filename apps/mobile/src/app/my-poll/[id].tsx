@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
 import { ErrorState } from '@/components/error-state';
+import { AiTakeCard } from '@/components/poll/ai-take';
 import { CountdownPill } from '@/components/poll/countdown';
 import { DecisionCard } from '@/components/poll/decision-card';
 import { FriendLink } from '@/components/poll/friend-link';
@@ -118,6 +119,7 @@ export default function MyPollScreen() {
     return (
       <Screen>
         <ResultView result={result.data} />
+        {result.data.state !== 'not_enough_responses' ? <AiTakeCard pollId={id} initial={result.data.ai_take} /> : null}
         <DecisionCard poll={p} options={result.data.options ?? []} />
         {result.data.state !== 'not_enough_responses' ? (
           <CreatorInsights pollId={id} options={result.data.options ?? []} />

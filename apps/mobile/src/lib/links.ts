@@ -10,9 +10,10 @@ export const pollLink = (code: string) => `${SITE}/p/${code}`;
 export const inviteLink = (code: string) => `${SITE}/i/${code}`;
 export const circleLink = (code: string) => `${SITE}/f/${code}`;
 export const resultLink = (code: string) => `${SITE}/r/${code}`;
+export const roomLink = (code: string) => `${SITE}/room/${code}`;
 
 const PENDING_KEY = 'pending-link';
-type Pending = { kind: 'p' | 'i' | 'f'; code: string };
+type Pending = { kind: 'p' | 'i' | 'f' | 'room'; code: string };
 
 export const parkLink = (link: Pending) => AsyncStorage.setItem(PENDING_KEY, JSON.stringify(link)).catch(() => {});
 
@@ -27,6 +28,7 @@ export function usePendingLink(enabled: boolean) {
         const { kind, code } = JSON.parse(raw) as Pending;
         if (kind === 'p') router.push({ pathname: '/p/[code]', params: { code } });
         else if (kind === 'f') router.push({ pathname: '/f/[code]', params: { code } });
+        else if (kind === 'room') router.push({ pathname: '/room/[code]', params: { code } });
         else router.push({ pathname: '/i/[code]', params: { code } });
       })
       .catch(() => {});

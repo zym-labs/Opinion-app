@@ -129,3 +129,14 @@ tech stack (Supabase proposed) · App Store/Product Hunt competitor sweep · che
   - **AI summaries in the asker's language.**
   - **Translation drafts** for Spanish, Portuguese, Hindi and Indonesian (errors and tabs so far).
   - **Store playbook and native plans:** see `docs/launch/STORE_PLAYBOOK.md` and `docs/launch/NATIVE_FEATURES_PLAN.md`.
+- **Phase 4 (2026-10-03).**
+  - **Fairer featured quotes:** quotes marked helpful by voters on both sides come first.
+  - **"What are you deciding about?"** asked in onboarding; it reorders the templates in Create.
+  - **Private 10/10/10 notes** ("Think it through") kept in the journal.
+  - **AI second opinion** for the asker: labelled, next to the human result, no persona, made once per poll.
+  - **"Your impact"** card, milestones and calibration score; a monthly recap counts toward the notification limit.
+  - **"What Opinion knows about me"** privacy screen.
+  - **Room mode:** in-person QR group votes; results only with 3+ votes once the host reveals.
+  - **Named-person check:** questions singling out an identifiable private person are blocked.
+  - **Sponsored cap:** one sponsored question per person per week.
+  - **Public transparency report** at `/transparency`.

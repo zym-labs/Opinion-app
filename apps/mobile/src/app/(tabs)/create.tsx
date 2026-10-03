@@ -11,6 +11,7 @@ import { Pressable, View } from 'react-native';
 
 import { CategoryPicker } from '@/components/category-picker';
 import { CrisisSupport } from '@/components/crisis-support';
+import { type Area } from '@/components/decision-areas';
 import { HeaderBar } from '@/components/header-bar';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
@@ -53,13 +54,15 @@ const EMPTY: Draft = {
 };
 
 // Starting points for common decisions. They fill in the question and options; everything stays editable.
-const TEMPLATES: { id: string; label: string; question: string; options: string[]; taste?: boolean }[] = [
-  { id: 'offer', label: 'Which offer?', question: 'Which offer should I take?', options: ['Offer A', 'Offer B'] },
-  { id: 'should', label: 'Should I…?', question: 'Should I ', options: ['Yes', 'No'] },
-  { id: 'buy', label: 'Which to buy?', question: 'Which should I buy for ', options: ['', ''] },
-  { id: 'course', label: 'Which course?', question: 'Which course should I pick next term?', options: ['', ''] },
-  { id: 'look', label: 'Which looks better?', question: 'Which looks better?', options: ['', ''], taste: true },
-  { id: 'now', label: 'Now or later?', question: 'Should I do this now or wait?', options: ['Now', 'Wait'] },
+const TEMPLATES: { id: string; label: string; question: string; options: string[]; taste?: boolean; area: Area }[] = [
+  { id: 'offer', label: 'Which offer?', question: 'Which offer should I take?', options: ['Offer A', 'Offer B'], area: 'career' },
+  { id: 'should', label: 'Should I…?', question: 'Should I ', options: ['Yes', 'No'], area: 'everyday' },
+  { id: 'text', label: 'Text them or wait?', question: 'Should I text first or wait?', options: ['Text now', 'Wait'], area: 'relationships' },
+  { id: 'save', label: 'Spend or save?', question: 'Should I spend on this or save?', options: ['Spend', 'Save'], area: 'money' },
+  { id: 'buy', label: 'Which to buy?', question: 'Which should I buy for ', options: ['', ''], area: 'money' },
+  { id: 'course', label: 'Which course?', question: 'Which course should I pick next term?', options: ['', ''], area: 'study' },
+  { id: 'look', label: 'Which looks better?', question: 'Which looks better?', options: ['', ''], taste: true, area: 'style' },
+  { id: 'now', label: 'Now or later?', question: 'Should I do this now or wait?', options: ['Now', 'Wait'], area: 'everyday' },
 ];
 
 // One draft is kept on the device (STAGE1 §4) and restored when Create opens.
@@ -150,6 +153,10 @@ export default function Create() {
   const { data: communities } = useCommunities();
   const { data: credits } = useCredits();
   const { data: plus } = usePlus();
+  const { data: areas = [] } = useQuery({ queryKey: ['decision-areas'], queryFn: () => rpc<Area[]>('my_decision_areas') });
+  // "Think it through": private 10/10/10 notes, kept in the decision journal.
+  const [notes, setNotes] = useState({ ten_minutes: '', ten_months: '', ten_years: '' });
+  const [thinking, setThinking] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -298,6 +305,10 @@ export default function Create() {
       pending.current.uploaded = true;
       await callFunction('polls', { action: 'publish', poll_id, friends_only: friendsOnly }, { signed: true });
       pending.current = null;
+      if (Object.values(notes).some((n) => n.trim())) {
+        rpc('save_reflection', { p_poll: poll_id, p_notes: notes }).catch(() => {});
+        setNotes({ ten_minutes: '', ten_months: '', ten_years: '' });
+      }
       track('poll_published', {
         type: draft.type,
         hours: draft.hours,
@@ -352,7 +363,7 @@ export default function Create() {
       {!draft.question.trim() ? (
         <Section title="Start from a template">
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
-            {TEMPLATES.map((t) => (
+            {[...TEMPLATES].sort((x, y) => Number(areas.includes(y.area)) - Number(areas.includes(x.area))).map((t) => (
               <Chip
                 key={t.id}
                 label={t.label}
@@ -447,6 +458,33 @@ export default function Create() {
           )}
         </Section>
       )}
+
+      <Section title="Think it through (optional, only you see this)">
+        {thinking ? (
+          <>
+            {(
+              [
+                ['ten_minutes', 'How will I feel about each option in 10 minutes?'],
+                ['ten_months', '…in 10 months?'],
+                ['ten_years', '…in 10 years?'],
+              ] as const
+            ).map(([k, label]) => (
+              <TextField
+                key={k}
+                label={label}
+                value={notes[k]}
+                onChangeText={(t) => setNotes({ ...notes, [k]: t.slice(0, 300) })}
+                multiline
+              />
+            ))}
+            <Text variant="caption" tone="faint">
+              Saved to your decision journal so you can look back later.
+            </Text>
+          </>
+        ) : (
+          <Button label="Try the 10/10/10 check" variant="ghost" onPress={() => setThinking(true)} />
+        )}
+      </Section>
 
       <Section title="How long should it run?">
         <View style={{ flexDirection: 'row', gap: space[2] }}>

@@ -24,13 +24,18 @@ import { VerifiedLine, verifiedText } from './verified-line';
 // interactive cards hold links, so they advance with a Next button instead of tap zones.
 type Card = { key: string; label: string; body: ReactNode; interactive?: boolean };
 
-function Quote({ quote, side, id, starter }: { quote: string; side: Side; id: string; starter: boolean }) {
+function Quote({ quote, side, id, starter, bridging }: { quote: string; side: Side; id: string; starter: boolean; bridging?: boolean }) {
   const c = useColors();
   const s = useSideColors(side);
   const [helpful, setHelpful] = useState(false);
   return (
     <View style={{ borderLeftWidth: 3, borderLeftColor: s.strong, paddingLeft: space[3], gap: space[1] }}>
       <Text variant="quote">“{quote}”</Text>
+      {bridging ? (
+        <Text variant="caption" style={{ color: c.ai }}>
+          Helpful to people on both sides
+        </Text>
+      ) : null}
       <View style={{ flexDirection: 'row', gap: space[4] }}>
         {starter ? null : (
           <Pressable

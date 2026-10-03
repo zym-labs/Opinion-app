@@ -6,6 +6,7 @@ import { Lock } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { HeaderBar } from '@/components/header-bar';
+import { ImpactCard } from '@/components/impact-card';
 import { InviteCard } from '@/components/invite-card';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
@@ -125,7 +126,9 @@ export default function Profile() {
           <Text>{s.top_categories.join(' · ')}</Text>
         </View>
       ) : null}
+      <ImpactCard />
       <Button label="Decision journal" onPress={() => router.push('/journal')} />
+      <Button label="Decide together in a room" variant="secondary" onPress={() => router.push('/room/new')} />
       <Button label="Close friends" variant="secondary" onPress={() => router.push('/circle')} />
       <Button label="Opinion+" variant="secondary" onPress={() => router.push('/plus')} />
       <InviteCard />

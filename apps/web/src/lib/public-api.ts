@@ -48,6 +48,32 @@ export async function getPublicResult(code: string): Promise<PublicResult | null
   }
 }
 
+export type Transparency = {
+  period_days: number;
+  polls_published: number;
+  reports: number;
+  actions: Record<string, number>;
+  appeals: number;
+  appeals_reversed: number;
+  median_hours_to_action: number | null;
+  summaries_flagged: number;
+  generated_at: string;
+};
+
+export async function getTransparency(): Promise<Transparency | null> {
+  try {
+    const res = await fetch(`${url}/rest/v1/rpc/public_transparency_stats`, {
+      method: 'POST',
+      headers: { apikey: key, 'Content-Type': 'application/json' },
+      body: '{}',
+      next: { revalidate: 3600 },
+    });
+    return res.ok ? ((await res.json()) as Transparency) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const STORE = {
   ios: process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/',
   android: process.env.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store',

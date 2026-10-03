@@ -39,6 +39,7 @@ export default function Settings() {
       <Button label="Verify expertise" variant="secondary" onPress={() => router.push('/settings/experts')} />
       <Button label="Sign-in email" variant="secondary" onPress={() => router.push('/settings/email')} />
       <Button label="Moderation & appeals" variant="secondary" onPress={() => router.push('/appeals')} />
+      <Button label="What Opinion knows about me" variant="secondary" onPress={() => router.push('/settings/privacy')} />
       <Button label="Download my data" variant="secondary" loading={exporting} onPress={download} />
       {error ? <Banner tone="danger" message={error} /> : null}
       <Button label="Help & contact" variant="ghost" onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}`)} />

@@ -20,6 +20,7 @@ const TEXT: Record<string, (p: Record<string, unknown>) => { title: string; body
     const title = p.action === 'warn' ? 'A warning about your content' : p.action === 'suspend' ? 'Your account was suspended' : 'Your content was removed';
     return { title, body: 'Open Opinion to see which community guideline was broken and how to appeal.' };
   },
+  impact_recap: (p) => ({ title: 'Your month on Opinion', body: `You helped ${p.votes} people decide. See your impact.` }),
   circle_poll: (p) => ({ title: 'A friend wants your quick take', body: `“${p.question}”` }),
   reengage: (p) => ({
     title: p.step === 3 ? 'Polls in your topics are open' : p.step === 7 ? 'Your results are waiting' : 'New questions in your topics',
@@ -45,6 +46,7 @@ const ROUTE: Record<string, (pollId: string | null) => string> = {
   boosted_poll: (id) => `/vote/${id}`,
   reengage: () => '/',
   circle_poll: (id) => `/vote/${id}`,
+  impact_recap: () => '/profile',
   decision_checkin: () => '/journal',
   info_requested: (id) => `/my-poll/${id}`,
 };

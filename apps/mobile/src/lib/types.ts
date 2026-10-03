@@ -74,7 +74,9 @@ export type Result = {
     label: string;
     disclaimer: string | null;
   } | null;
-  featured?: { id: string; quote: string; side: Side }[];
+  featured?: { id: string; quote: string; side: Side; bridging?: boolean }[];
+  /** Asker only: cached AI second opinion. */
+  ai_take?: import('@/components/poll/ai-take').AiTake | null;
   reason_count?: number;
   /** How verified experts voted; null when fewer than 10 did. */
   verified?: { total: number; pcts: Partial<Record<Side, number>> } | null;
@@ -109,6 +111,7 @@ export type Notification = {
     | 'decision_checkin'
     | 'info_requested'
     | 'circle_poll'
+    | 'impact_recap'
     | 'follow_up'
     | 'decision_made'
     | 'decision_reminder'

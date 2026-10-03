@@ -30,6 +30,7 @@ type Entry = {
   followed_crowd: boolean | null;
   checkin_glad: boolean | null;
   checkin_due: boolean;
+  reflection: { ten_minutes?: string; ten_months?: string; ten_years?: string } | null;
 };
 
 function Patterns({ entries }: { entries: Entry[] }) {
@@ -68,6 +69,9 @@ function Checkin({ entry }: { entry: Entry }) {
   return (
     <View style={{ gap: space[2] }}>
       <Text variant="label">A month on: glad you chose {entry.chose}?</Text>
+      <Text variant="caption" tone="faint">
+        A good decision can still turn out badly. Judge the choice by what you knew then, not just how it ended.
+      </Text>
       <View style={{ flexDirection: 'row', gap: space[2] }}>
         <View style={{ flex: 1 }}>
           <Button label="Yes" variant="secondary" onPress={() => save(true)} />
@@ -155,6 +159,12 @@ export default function Journal() {
           {e.checkin_glad !== null ? (
             <Text variant="caption" tone="faint">
               A month on: {e.checkin_glad ? 'glad you did' : 'not so sure'}
+            </Text>
+          ) : null}
+          {e.reflection && Object.values(e.reflection).some(Boolean) ? (
+            <Text variant="caption" tone="faint">
+              Your 10/10/10 notes:{' '}
+              {[e.reflection.ten_minutes, e.reflection.ten_months, e.reflection.ten_years].filter(Boolean).join(' · ')}
             </Text>
           ) : null}
           {e.checkin_due ? <Checkin entry={e} /> : null}
