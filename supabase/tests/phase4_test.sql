@@ -51,10 +51,11 @@ values ('00000000-0000-0000-0000-00000000b001', 12, 'a', '{"a": 60, "b": 40}', n
 insert into public.featured_insights (id, poll_id, reason_vote_id, quote, side, rank) values
   ('00000000-0000-0000-0000-0000000bf001', '00000000-0000-0000-0000-00000000b001', '00000000-0000-0000-0000-0000000b1002', 'Popular with A only', 'a', 1),
   ('00000000-0000-0000-0000-0000000bf002', '00000000-0000-0000-0000-00000000b001', '00000000-0000-0000-0000-0000000b1003', 'Fair point both sides see', 'a', 2);
--- quote 1: helpful to two A voters; quote 2: helpful to one A and two B voters
+-- quote 1: helpful to A voters only; quote 2: helpful to two A and two B voters
 insert into public.insight_reactions (insight_id, user_id) values
   ('00000000-0000-0000-0000-0000000bf001', pg_temp.uid(3)), ('00000000-0000-0000-0000-0000000bf001', pg_temp.uid(1)),
-  ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(2)), ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(4)),
+  ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(2)), ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(3)),
+  ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(4)),
   ('00000000-0000-0000-0000-0000000bf002', pg_temp.uid(5));
 select is((public.result_payload('00000000-0000-0000-0000-00000000b001', null, true) -> 'featured' -> 0 ->> 'quote'),
   'Fair point both sides see', 'quote helpful across sides comes first');
