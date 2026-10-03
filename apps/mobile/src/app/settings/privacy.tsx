@@ -56,7 +56,7 @@ export default function PrivacyDashboard() {
       <Row title="Age" body={d.birth_year_stored ? 'Your birth year only, to keep Opinion 18+ and for age-targeted polls.' : 'Not stored.'} />
       <Row title="Interests" body={`${d.topics} topics and ${d.communities} communities you chose, to show you the right polls.`} />
       <Row title="Your activity" body={`${d.polls} polls asked, ${d.votes} votes and ${d.reasons} written reasons. Reasons are only ever shown anonymously, and only if you agreed.`} />
-      <Row title="Notifications" body={`${d.notifications} kept. Read ones are deleted after 90 days, all after a year.`} />
+      <Row title="Notifications" body={`${d.notifications} kept. Notifications are deleted after 60 days.`} />
       <Row title="Devices" body={`${d.devices} app integrity key${d.devices === 1 ? '' : 's'} to stop fake accounts. No location, contacts or advertising ID.`} />
       <Row
         title="Verifications"

@@ -89,13 +89,7 @@ Never set `EXPO_PUBLIC_DEMO` in store builds.
 - [ ] Publish an **accessibility statement** (European Accessibility Act).
 
 ## 7. Legal and content updates 👤
-- [ ] Privacy policy, processors:
-  - add **RevenueCat**, **Apple and Google** (payments) and **Resend**;
-  - note that AI is also used for the second opinion and the named-person check;
-  - list the new data: decision areas, 10/10/10 notes, reputation (private), rooms (deleted after 1 day), language.
-- [ ] Privacy policy, retention: notifications 90 days and 1 year; rooms 1 day. **Decide the moderation-records retention** (the policy says 2 years; add a cleanup job or change the text).
-- [ ] Terms: sponsored questions (Campus Pulse) are labelled and opt-in; the Opinion+ auto-renewal terms; the assistant app.
-- [ ] Community guidelines: no questions about identifiable private people; Relationships topic rules.
+- [x] Privacy policy v1.1, terms v1.1 and the community guidelines are updated for every feature so far (processors, new data, AI uses, assistants, retention matching the cleanup jobs, Opinion+, sponsored questions, rooms, appeals). They still need **lawyer review** and the `[brackets]` filled in.
 - [ ] Have **native speakers review** `apps/mobile/src/locales/{es,pt,hi,id}.ts`.
 - [ ] **Verify the helpline numbers** in `components/crisis-support.tsx` for each launch country.
 
