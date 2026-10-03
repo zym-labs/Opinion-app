@@ -77,6 +77,7 @@ function RootNavigator() {
         <Stack.Screen name="credits" options={{ presentation: 'modal', headerShown: true, title: 'Credits' }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
         <Stack.Screen name="featured" options={{ headerShown: true, title: 'Featured insights' }} />
+        <Stack.Screen name="circle" options={{ headerShown: true, title: 'Close friends' }} />
         <Stack.Screen name="journal" options={{ headerShown: true, title: 'Decision journal' }} />
         <Stack.Screen name="browse" options={{ headerShown: true, title: 'Browse topics' }} />
         <Stack.Screen name="appeals" options={{ headerShown: true, title: 'Appeals' }} />
@@ -85,6 +86,7 @@ function RootNavigator() {
       {/* Shared links: open for everyone; they park themselves until the user is onboarded. */}
       <Stack.Screen name="p/[code]" />
       <Stack.Screen name="i/[code]" />
+      <Stack.Screen name="f/[code]" />
     </Stack>
   );
 }

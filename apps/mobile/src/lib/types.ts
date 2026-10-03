@@ -108,6 +108,7 @@ export type Notification = {
     | 'reengage'
     | 'decision_checkin'
     | 'info_requested'
+    | 'circle_poll'
     | 'follow_up'
     | 'decision_made'
     | 'decision_reminder'

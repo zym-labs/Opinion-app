@@ -480,7 +480,8 @@ export default function Create() {
             onPress={() => publish(true)}
           />
           <Text variant="caption" tone="faint">
-            Friends-only polls stay out of the feed. You get a link to share; results still need 10 votes.
+            Friends-only polls stay out of the feed. Your close friends get it straight away, and you get a link to
+            share with anyone else. Results still need 10 votes.
           </Text>
         </>
       ) : null}

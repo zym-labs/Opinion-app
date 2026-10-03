@@ -1,7 +1,7 @@
 // F-01 Feed: results ready first, then open polls (STAGE1 §3).
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,9 +14,10 @@ import { PollCardSkeleton } from '@/components/ui/skeleton';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { useOffline } from '@/lib/offline';
 import { useWasAway } from '@/lib/activity';
+import { useOffline } from '@/lib/offline';
 import { useDaily, useFeed, useResultsReady, useUnreadCount, useWaiting } from '@/lib/queries';
+import { updateDailyWidget } from '@/lib/widgets';
 import { radius, space, useColors } from '@/theme';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -71,6 +72,9 @@ export default function Feed() {
   const away = useWasAway();
   const { data: unread = 0 } = useUnreadCount();
   const [awayDismissed, setAwayDismissed] = useState(false);
+  useEffect(() => {
+    if (daily.isSuccess) updateDailyWidget(daily.data);
+  }, [daily.isSuccess, daily.data]);
   const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {

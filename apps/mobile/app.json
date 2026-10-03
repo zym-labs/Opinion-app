@@ -17,7 +17,10 @@
       },
       "associatedDomains": [
         "applinks:opinion.example"
-      ]
+      ],
+      "infoPlist": {
+        "NSSupportsLiveActivities": true
+      }
     },
     "android": {
       "package": "app.opinion.mobile",
@@ -42,6 +45,11 @@
               "scheme": "https",
               "host": "opinion.example",
               "pathPrefix": "/i/"
+            },
+            {
+              "scheme": "https",
+              "host": "opinion.example",
+              "pathPrefix": "/f/"
             }
           ],
           "category": [
@@ -71,7 +79,26 @@
       ],
       "@sentry/react-native",
       "expo-localization",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.app.opinion.mobile",
+          "widgets": [
+            {
+              "name": "DailyQuestion",
+              "displayName": "Today’s question",
+              "description": "The question everyone on Opinion is answering today.",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "accessoryRectangular"
+              ],
+              "contentMarginsDisabled": false
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

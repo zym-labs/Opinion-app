@@ -22,6 +22,32 @@ export async function getInvitePreview(code: string): Promise<InvitePreview | nu
   }
 }
 
+export type PublicResult = {
+  question: string;
+  state: string;
+  total_votes: number;
+  winner: string | null;
+  options: { side: string; label: string | null; pct: number | null }[];
+  summary: { majority: string | null; minority: string | null; label: string; disclaimer: string | null } | null;
+  featured: { id: string; quote: string; side: string }[];
+};
+
+export async function getPublicResult(code: string): Promise<PublicResult | null> {
+  if (!/^[A-Za-z0-9]{6,16}$/.test(code)) return null;
+  try {
+    const res = await fetch(`${url}/rest/v1/rpc/get_public_result`, {
+      method: 'POST',
+      headers: { apikey: key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code }),
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    return ((await res.json()) as PublicResult | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const STORE = {
   ios: process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/',
   android: process.env.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store',

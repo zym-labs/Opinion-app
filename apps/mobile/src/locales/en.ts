@@ -6,6 +6,7 @@ export const en = {
   'tabs.myPolls': 'My Polls',
   'tabs.profile': 'Profile',
   'error.generic': 'Something went wrong. Please try again.',
+  'error.CIRCLE_FULL': 'That circle is full (20 friends).',
   'error.AGE_BLOCKED': 'Opinion is for people 18 and over.',
   'error.RATE_LIMITED': 'You’re doing that too often. Try again later.',
   'error.CATEGORY_LIMIT': 'Choose between 1 and 5 categories.',

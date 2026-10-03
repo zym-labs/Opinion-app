@@ -1,14 +1,16 @@
 // P-01 Profile (owner only): private mastery signals in a small bento grid (STAGE6 v2 P2).
 // No public counts, no comparisons with other people.
+import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { InviteCard } from '@/components/invite-card';
 import { HeaderBar } from '@/components/header-bar';
+import { InviteCard } from '@/components/invite-card';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
+import { rpc } from '@/lib/api';
 import { useStats } from '@/lib/queries';
 import { radius, space, useColors } from '@/theme';
 
@@ -51,6 +53,11 @@ export default function Profile() {
   const c = useColors();
   const { data: s } = useStats();
   const decided = s?.decided ?? 0;
+  // Private standing: never shown to anyone else. Trusted voters' reports are looked at first.
+  const rep = useQuery({
+    queryKey: ['reputation'],
+    queryFn: async () => (await rpc<{ score: number; trusted: boolean; helpful: number }[]>('my_reputation'))[0],
+  });
 
   return (
     <Screen>
@@ -101,6 +108,15 @@ export default function Profile() {
         />
       </View>
 
+      {rep.data?.trusted ? (
+        <Text variant="label" tone="muted">
+          Trusted voter: your quoted reasons and good calls mean your reports are looked at first. Only you see this.
+        </Text>
+      ) : rep.data?.helpful ? (
+        <Text variant="label" tone="muted">
+          Your quoted reasons helped {rep.data.helpful} {rep.data.helpful === 1 ? 'person' : 'people'} decide.
+        </Text>
+      ) : null}
       {s?.top_categories.length ? (
         <View style={{ gap: space[1] }}>
           <Text variant="label" tone="muted">
@@ -110,6 +126,7 @@ export default function Profile() {
         </View>
       ) : null}
       <Button label="Decision journal" onPress={() => router.push('/journal')} />
+      <Button label="Close friends" variant="secondary" onPress={() => router.push('/circle')} />
       <InviteCard />
       <Button label="Your quoted reasons" variant="secondary" onPress={() => router.push('/featured')} />
       <Button label="Settings" variant="secondary" onPress={() => router.push('/settings')} />

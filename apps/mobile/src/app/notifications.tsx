@@ -49,6 +49,11 @@ function describe(n: Notification) {
       };
     case 'follow_up':
       return { title: `A follow-up to a poll you voted on: ${q}`, go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }) };
+    case 'circle_poll':
+      return {
+        title: `A friend wants your quick take: ${q}`,
+        go: () => router.push({ pathname: '/vote/[id]', params: { id: n.poll_id! } }),
+      };
     case 'reengage': {
       const step = Number(n.payload.step);
       const count = Number(n.payload.count ?? 0);

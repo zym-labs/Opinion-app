@@ -4,15 +4,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
+import { ErrorState } from '@/components/error-state';
 import { CountdownPill } from '@/components/poll/countdown';
 import { DecisionCard } from '@/components/poll/decision-card';
+import { FriendLink } from '@/components/poll/friend-link';
 import { CreatorInsights } from '@/components/poll/insights';
+import { PublicResult } from '@/components/poll/public-result';
 import { ResultView } from '@/components/poll/result-view';
-import { ShareCard, shareCard } from '@/components/poll/share-card';
+import { type CardFormat, ShareCard, shareCard } from '@/components/poll/share-card';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
-import { ErrorState } from '@/components/error-state';
-import { FriendLink } from '@/components/poll/friend-link';
+import { Chip } from '@/components/ui/chip';
 import { Screen } from '@/components/ui/screen';
 import { ScreenSkeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
@@ -21,12 +23,16 @@ import { errorMessage, rpc } from '@/lib/api';
 import { keys } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import type { MyPoll, Result } from '@/lib/types';
+import { liveActivitiesSupported, showPollActivity, updatePollActivity } from '@/lib/widgets';
+import { space } from '@/theme';
 
 export default function MyPollScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const cardRef = useRef<View>(null);
+  const [cardFormat, setCardFormat] = useState<CardFormat>('post');
+  const [publicLink, setPublicLink] = useState<string | null>(null);
   const poll = useQuery({
     queryKey: ['my-poll', id],
     queryFn: async () => (await rpc<MyPoll[]>('get_my_poll', { p_poll: id }))[0] ?? null,
@@ -48,9 +54,17 @@ export default function MyPollScreen() {
     if (p?.status !== 'active') return;
     const channel = supabase
       .channel(`poll:${id}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'polls', filter: `id=eq.${id}` }, (payload) =>
-        setLiveCount((payload.new as { vote_count: number }).vote_count),
-      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'polls', filter: `id=eq.${id}` }, (payload) => {
+        const row = payload.new as { vote_count: number; status: string; closes_at: string; question: string };
+        setLiveCount(row.vote_count);
+        // Keep the Lock Screen activity in step while the app is open.
+        updatePollActivity(id, {
+          question: row.question,
+          votes: row.vote_count,
+          closesAt: Date.parse(row.closes_at),
+          closed: row.status !== 'active',
+        });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -113,14 +127,23 @@ export default function MyPollScreen() {
             <Text variant="label" tone="muted">
               Share card preview
             </Text>
+            <View style={{ flexDirection: 'row', gap: space[2] }}>
+              <Chip label="Post (4:5)" selected={cardFormat === 'post'} onPress={() => setCardFormat('post')} />
+              <Chip label="Story (9:16)" selected={cardFormat === 'story'} onPress={() => setCardFormat('story')} />
+            </View>
             <View style={{ alignItems: 'center' }}>
-              <ShareCard ref={cardRef} result={result.data} />
+              <ShareCard ref={cardRef} result={result.data} format={cardFormat} link={publicLink} />
             </View>
             <Button
               label="Share result"
               variant="secondary"
-              onPress={() => (track('share_card', {}), shareCard(cardRef)).catch((e) => setError(e instanceof Error ? e.message : 'Could not share'))}
+              onPress={() =>
+                (track(cardFormat === 'story' ? 'story_shared' : 'share_card', {}), shareCard(cardRef)).catch((e) =>
+                  setError(e instanceof Error ? e.message : 'Could not share'),
+                )
+              }
             />
+            <PublicResult pollId={id} onLink={setPublicLink} />
           </>
         ) : null}
         <Button
@@ -150,6 +173,20 @@ export default function MyPollScreen() {
         including you, sees how people voted until then.
       </Text>
       {p.status === 'active' ? <FriendLink pollId={id} question={p.question} /> : null}
+      {p.status === 'active' && liveActivitiesSupported ? (
+        <Button
+          label="Show on Lock Screen"
+          variant="ghost"
+          onPress={() =>
+            showPollActivity(id, {
+              question: p.question,
+              votes,
+              closesAt: p.closes_at ? Date.parse(p.closes_at) : Date.now(),
+              closed: p.status !== 'active',
+            })
+          }
+        />
+      ) : null}
       {p.status === 'summarizing' ? <Banner message="The poll has closed. The AI summary is being written." /> : null}
       {error ? <Banner tone="danger" message={error} /> : null}
       {p.status === 'active' && votes === 0 ? <Button label="Delete poll" variant="danger" onPress={remove} /> : null}

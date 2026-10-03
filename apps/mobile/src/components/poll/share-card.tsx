@@ -10,17 +10,39 @@ import type { Result } from '@/lib/types';
 import { palette, radius, space } from '@/theme';
 
 import { sideColors } from './option-tile';
+import { verdictOf } from './verdict';
 
 const c = palette.light; // the card always uses the light palette so it reads well anywhere
 
-export const ShareCard = forwardRef<View, { result: Result }>(function Card({ result }, ref) {
+export type CardFormat = 'post' | 'story';
+
+/** post = 4:5 for feeds and chats; story = 9:16 for Instagram/TikTok/Snapchat stories. */
+export const ShareCard = forwardRef<View, { result: Result; format?: CardFormat; link?: string | null }>(function Card(
+  { result, format = 'post', link },
+  ref,
+) {
+  const story = format === 'story';
+  const verdict = verdictOf(result.options);
   const winner = result.options?.find((o) => o.side === result.winner);
   const excerpt = result.summary?.majority ? result.summary.majority.slice(0, 180) : null;
   return (
     <View
       ref={ref}
       collapsable={false}
-      style={{ width: 360, aspectRatio: 4 / 5, backgroundColor: c.bg, borderRadius: radius.xl, padding: space[6], gap: space[4] }}>
+      style={{
+        width: story ? 270 : 360,
+        aspectRatio: story ? 9 / 16 : 4 / 5,
+        backgroundColor: c.bg,
+        borderRadius: radius.xl,
+        padding: space[6],
+        gap: space[4],
+        justifyContent: story ? 'center' : undefined,
+      }}>
+      {story ? (
+        <Text variant="label" style={{ color: c.textMuted }}>
+          I asked. {result.total_votes} people answered.
+        </Text>
+      ) : null}
       <Text variant="question" style={{ color: c.text }}>
         {result.question}
       </Text>
@@ -34,6 +56,11 @@ export const ShareCard = forwardRef<View, { result: Result }>(function Card({ re
           {o.side.toUpperCase()} · {o.label ?? 'Image option'} — {Number(o.pct ?? 0).toFixed(0)}%
         </Text>
       ))}
+      {verdict ? (
+        <Text variant={story ? 'title' : 'bodyStrong'} style={{ color: c.text }}>
+          {verdict}
+        </Text>
+      ) : null}
       {winner ? (
         <Text variant="label" style={{ color: c.textMuted }}>
           {result.total_votes} people voted · {winner.label ?? `Option ${winner.side.toUpperCase()}`} won
@@ -50,12 +77,12 @@ export const ShareCard = forwardRef<View, { result: Result }>(function Card({ re
           </Text>
         </View>
       ) : null}
-      <View style={{ flex: 1 }} />
+      <View style={{ flex: story ? 0 : 1 }} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
         <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: c.optionA }} />
         <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: c.optionB, marginLeft: -10 }} />
         <Text variant="label" style={{ color: c.textMuted }}>
-          Made with Opinion
+          {link ? link.replace(/^https?:\/\//, '') : 'Made with Opinion'}
         </Text>
       </View>
     </View>
@@ -63,6 +90,7 @@ export const ShareCard = forwardRef<View, { result: Result }>(function Card({ re
 });
 
 export async function shareCard(ref: RefObject<View | null>) {
+  // 1080 px wide: 1080×1350 for posts, 1080×1920 for stories.
   const uri = await captureRef(ref, { format: 'png', quality: 1, result: 'tmpfile', width: 1080 });
   await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Share result' });
 }
